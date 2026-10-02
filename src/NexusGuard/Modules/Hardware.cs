@@ -69,6 +69,7 @@ public static class Hardware
     private sealed class MemInfo
     {
         public string? Manufacturer { get; set; }
+        public string? PartNumber { get; set; }
         public long Capacity { get; set; }
         public int Speed { get; set; }
         public string? Slot { get; set; }
@@ -116,11 +117,44 @@ public static class Hardware
                 LoadPercent  = [int]$cpu.LoadPercentage
             }
 
+            # Win32_VideoController.AdapterRAM e um inteiro de 32 bits e satura nos 4 GB:
+            # uma placa de 16 GB aparece com 4. O valor real esta no registo do driver de video.
+            $vram = New-Object 'System.Collections.Generic.Dictionary[string,long]' ([StringComparer]::OrdinalIgnoreCase)
+            try {
+                $displayClass = 'HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}'
+                # SilentlyContinue e nao Stop: o cabecalho destes scripts poe
+                # $ErrorActionPreference = 'Stop', e uma unica subchave sem permissao abortaria
+                # a enumeracao inteira, deixando o dicionario vazio sem dar nas vistas.
+                foreach ($k in @(Get-ChildItem $displayClass -ErrorAction SilentlyContinue)) {
+                    try {
+                        if ($k.PSChildName -notmatch '^\d{4}$') { continue }
+
+                        $pr = Get-ItemProperty $k.PSPath -ErrorAction SilentlyContinue
+                        if (-not $pr -or -not $pr.DriverDesc) { continue }
+
+                        $size = 0
+                        if ($pr.'HardwareInformation.qwMemorySize') {
+                            $size = [int64]$pr.'HardwareInformation.qwMemorySize'
+                        } elseif ($pr.'HardwareInformation.MemorySize') {
+                            $raw = $pr.'HardwareInformation.MemorySize'
+                            if ($raw -is [byte[]]) { $size = [int64][System.BitConverter]::ToUInt32($raw, 0) }
+                            else { $size = [int64]$raw }
+                        }
+
+                        if ($size -gt 0) { $vram[([string]$pr.DriverDesc).Trim()] = $size }
+                    } catch { }
+                }
+            } catch {}
+
             $gpus = @()
             foreach ($g in @(Get-CimInstance Win32_VideoController)) {
+                $gpuName = ([string]$g.Name).Trim()
+                $gpuRam = [int64]$g.AdapterRAM
+                if ($vram.ContainsKey($gpuName)) { $gpuRam = $vram[$gpuName] }
+
                 $gpus += [ordered]@{
-                    Name          = [string]$g.Name
-                    AdapterRam    = [int64]$g.AdapterRAM
+                    Name          = $gpuName
+                    AdapterRam    = $gpuRam
                     DriverVersion = [string]$g.DriverVersion
                     DriverDate    = if ($g.DriverDate) { $g.DriverDate.ToString('yyyy-MM-dd') } else { '' }
                 }
@@ -131,8 +165,11 @@ public static class Hardware
             foreach ($m in @(Get-CimInstance Win32_PhysicalMemory)) {
                 $mem += [ordered]@{
                     Manufacturer = [string]$m.Manufacturer
+                    PartNumber   = [string]$m.PartNumber
                     Capacity     = [int64]$m.Capacity
-                    Speed        = [int]$m.Speed
+                    # ConfiguredClockSpeed e a velocidade a que o modulo esta mesmo a correr;
+                    # Speed e so o rotulo do SPD.
+                    Speed        = if ($m.ConfiguredClockSpeed) { [int]$m.ConfiguredClockSpeed } else { [int]$m.Speed }
                     Slot         = [string]$m.DeviceLocator
                 }
             }
@@ -226,7 +263,19 @@ public static class Hardware
         var metrics = new List<HardwareMetric>
         {
             new() { Label = "Núcleos", Value = $"{cpu.Cores} físicos · {cpu.Threads} lógicos" },
-            new() { Label = "Frequência", Value = cpu.CurrentClock > 0 ? $"{cpu.CurrentClock} MHz de {cpu.MaxClock} MHz" : "—" },
+            // O WMI costuma devolver CurrentClockSpeed igual ao máximo — nesse caso é só a
+            // frequência base repetida, e mostrá-la como "atual" seria inventar uma leitura.
+            cpu.CurrentClock > 0 && cpu.CurrentClock != cpu.MaxClock
+                ? new HardwareMetric
+                {
+                    Label = "Frequência",
+                    Value = $"{cpu.CurrentClock} MHz de {cpu.MaxClock} MHz"
+                }
+                : new HardwareMetric
+                {
+                    Label = "Frequência base",
+                    Value = cpu.MaxClock > 0 ? $"{cpu.MaxClock} MHz" : "—"
+                },
             new() { Label = "Carga", Value = $"{cpu.LoadPercent}%" },
             new()
             {
@@ -289,10 +338,27 @@ public static class Hardware
             Metrics = modules.Select(m => new HardwareMetric
             {
                 Label = string.IsNullOrWhiteSpace(m.Slot) ? "Módulo" : m.Slot!,
-                Value = $"{Fmt.Bytes(m.Capacity)} · {m.Speed} MT/s" +
-                        (string.IsNullOrWhiteSpace(m.Manufacturer) ? "" : $" · {m.Manufacturer!.Trim()}")
+                Value = $"{Fmt.Bytes(m.Capacity)} · {m.Speed} MT/s · {DescribeModule(m)}"
             }).Append(new HardwareMetric { Label = "Velocidade", Value = $"{speed} MT/s" }).ToList()
         };
+    }
+
+    /// <summary>
+    /// Muitas placas não preenchem o fabricante do módulo e devolvem "Unknown"; o part number
+    /// identifica o kit muito melhor do que isso.
+    /// </summary>
+    private static string DescribeModule(MemInfo m)
+    {
+        var maker = m.Manufacturer?.Trim() ?? string.Empty;
+
+        var useful = maker.Length > 0 &&
+                     !maker.Equals("Unknown", StringComparison.OrdinalIgnoreCase) &&
+                     !maker.StartsWith("Undefined", StringComparison.OrdinalIgnoreCase);
+
+        if (useful) return maker;
+
+        var part = m.PartNumber?.Trim() ?? string.Empty;
+        return part.Length > 0 ? part : "fabricante não identificado";
     }
 
     private static HardwareComponent BuildDisk(DiskInfo disk)
