@@ -1,0 +1,73 @@
+<UserControl x:Class="NexusGuard.Views.PrivacyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:NexusGuard.Views"
+             FontFamily="{StaticResource F.UI}"
+             Foreground="{StaticResource B.Text}">
+
+    <Grid Margin="22,8,22,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}">
+            <Grid>
+                <StackPanel Margin="0,0,220,0">
+                    <TextBlock Text="Privacidade" Style="{StaticResource T.H1}" />
+                    <TextBlock Style="{StaticResource T.Muted}" Margin="0,8,0,0" TextWrapping="Wrap"
+                               Text="Cada opção corresponde a uma chave do Windows documentada. Tudo o que ligar aqui fica no Histórico e pode ser revertido." />
+                    <TextBlock x:Name="SummaryText" Style="{StaticResource T.Dim}" Margin="0,10,0,0"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button x:Name="RecommendedButton" Content="Aplicar recomendadas"
+                            Style="{StaticResource Btn.Primary}" Click="OnApplyRecommended" />
+                    <Button Content="Abrir Privacidade do Windows" Style="{StaticResource Btn.Ghost}"
+                            Margin="0,8,0,0" Click="OnOpenWindows" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <views:ErrorState x:Name="State" Grid.Row="1" Margin="0,12,0,0" />
+
+        <ScrollViewer Grid.Row="2" Margin="0,14,0,0" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+            <ItemsControl x:Name="ToggleList">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Card}" Width="366" Margin="0,0,12,12" Padding="16">
+                            <Grid>
+                                <StackPanel Margin="0,0,56,0">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Description}" Style="{StaticResource T.Muted}"
+                                               Margin="0,6,0,0" TextWrapping="Wrap" />
+                                    <StackPanel Orientation="Horizontal" Margin="0,9,0,0">
+                                        <Border Style="{StaticResource Pill}" Padding="7,2"
+                                                Background="{StaticResource B.SurfaceAlt}">
+                                            <TextBlock Text="{Binding Scope}" FontSize="10.5"
+                                                       Foreground="{StaticResource B.TextMuted}" />
+                                        </Border>
+                                        <TextBlock Text="{Binding Status}" Style="{StaticResource T.Muted}"
+                                                   FontSize="11" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Enabled}"
+                                          HorizontalAlignment="Right" VerticalAlignment="Top"
+                                          Tag="{Binding}" Click="OnToggle" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

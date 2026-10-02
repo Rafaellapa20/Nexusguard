@@ -1,0 +1,37 @@
+TERMOS DE USO — NexusGuard
+
+1. O QUE É
+NexusGuard é um utilitário de manutenção para Windows 10 e 11. Reúne numa só interface a
+limpeza de arquivos temporários, a liberação de memória, a gestão de programas de
+inicialização, a verificação antivírus pelo Microsoft Defender, a atualização de aplicativos e
+drivers, e as cópias de segurança para disco externo.
+
+2. O QUE O PROGRAMA FAZ NO SEU COMPUTADOR
+- Cria um ponto de restauração antes de alterações ao sistema, quando essa opção está ativa.
+- Move arquivos para uma quarentena local em vez de os apagar, mantendo-os recuperáveis
+  durante o prazo configurado.
+- Mostra sempre uma pré-visualização antes de remover seja o que for.
+- Instala apenas drivers com assinatura WHQL da Microsoft, quando essa opção está ativa.
+- Regista todas as ações num histórico local, com a possibilidade de as reverter.
+
+3. O QUE O PROGRAMA NÃO FAZ
+- Não apaga documentos, fotos, vídeos nem senhas.
+- Não envia dados pessoais para a internet. As estatísticas anônimas de uso estão desligadas
+  por padrão e só são enviadas se o usuário as ativar.
+- Não instala programas adicionais, barras de ferramentas nem ofertas de terceiros.
+- Não altera o sistema sem confirmação do usuário.
+
+4. DADOS
+Toda a configuração fica em %LocalAppData%\NexusGuard. A quarentena, os registros e os
+relatórios ficam em C:\ProgramData\NexusGuard. Nada é transmitido para fora do computador.
+
+5. GARANTIA
+O programa é fornecido "como está", sem garantias de qualquer tipo. O usuário é responsável
+por manter cópias de segurança dos seus dados. Operações como a remoção da pasta Windows.old,
+a limpeza do Prefetch e a desinstalação de programas são irreversíveis depois de o prazo da
+quarentena expirar.
+
+6. REQUISITOS
+Windows 10 versão 1809 ou superior, ou Windows 11, em arquitetura x64.
+
+Ao instalar, o usuário declara ter lido e aceite estes termos.

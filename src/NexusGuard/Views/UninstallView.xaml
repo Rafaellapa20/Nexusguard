@@ -1,0 +1,149 @@
+<UserControl x:Class="NexusGuard.Views.UninstallView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource F.UI}"
+             Foreground="{StaticResource B.Text}">
+
+    <Grid Margin="22,8,22,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}">
+            <Grid>
+                <StackPanel Margin="0,0,280,0">
+                    <TextBlock Text="PROGRAMAS INSTALADOS" Style="{StaticResource T.Label}" />
+                    <TextBlock x:Name="TotalText" Text="—" Style="{StaticResource T.Metric}" Margin="0,6,0,0" />
+                    <TextBlock x:Name="SubText" Style="{StaticResource T.Muted}" Margin="0,4,0,0"
+                               TextWrapping="Wrap"
+                               Text="A desinstalação usa o desinstalador do próprio programa e depois varre os resíduos para a quarentena." />
+                </StackPanel>
+
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                    <Button x:Name="ReloadButton" Content="Recarregar" Style="{StaticResource Btn.Secondary}"
+                            Click="OnReload" />
+                    <Button x:Name="UninstallButton" Content="Desinstalar" Style="{StaticResource Btn.Danger}"
+                            Margin="8,0,0,0" Click="OnUninstall" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <WrapPanel x:Name="Chips" Grid.Row="1" Margin="0,16,0,0" />
+
+        <Grid Grid.Row="2" Margin="2,6,8,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="36" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="110" />
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="110" />
+                <ColumnDefinition Width="120" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="1" Text="PROGRAMA" Style="{StaticResource T.Label}" />
+            <TextBlock Grid.Column="2" Text="INSTALADO" Style="{StaticResource T.Label}" TextAlignment="Right" />
+            <TextBlock Grid.Column="3" Text="TAMANHO" Style="{StaticResource T.Label}" TextAlignment="Right" />
+            <TextBlock Grid.Column="4" Text="ÚLTIMO USO" Style="{StaticResource T.Label}" TextAlignment="Right" />
+            <TextBlock Grid.Column="5" Text="CLASSIFICAÇÃO" Style="{StaticResource T.Label}" TextAlignment="Right" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+            <ItemsControl x:Name="AppList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Row}" Padding="14,11">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="110" />
+                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="110" />
+                                    <ColumnDefinition Width="120" />
+                                </Grid.ColumnDefinitions>
+
+                                <CheckBox Style="{StaticResource Chk}" IsChecked="{Binding Selected}"
+                                          VerticalAlignment="Center" />
+
+                                <StackPanel Grid.Column="1" Margin="2,0,14,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Subtitle}" Style="{StaticResource T.Muted}"
+                                               Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Status}" Style="{StaticResource T.Muted}"
+                                               Margin="0,3,0,0" Foreground="{StaticResource B.Accent2}"
+                                               Visibility="{Binding Status, Converter={StaticResource TextToVis}}" />
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="2" Text="{Binding InstalledText}" TextAlignment="Right"
+                                           VerticalAlignment="Center" Style="{StaticResource T.Dim}" />
+                                <TextBlock Grid.Column="3" Text="{Binding SizeText}" TextAlignment="Right"
+                                           VerticalAlignment="Center" FontFamily="{StaticResource F.Mono}"
+                                           FontSize="12" />
+                                <TextBlock Grid.Column="4" Text="{Binding LastUsedText}" TextAlignment="Right"
+                                           VerticalAlignment="Center" Style="{StaticResource T.Dim}" />
+
+                                <Border Grid.Column="5" Padding="8,3"
+                                        HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource Pill}">
+                                            <Setter Property="Background" Value="{StaticResource B.SurfaceAlt}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ClassIsWarn}" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource B.WarnSoft}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ClassIsBad}" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource B.DangerSoft}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ClassIsOk}" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource B.OkSoft}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding ClassText}" FontSize="11" FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource T.Base}">
+                                                <Setter Property="Foreground" Value="{StaticResource B.TextMuted}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ClassIsWarn}" Value="True">
+                                                        <Setter Property="Foreground" Value="{StaticResource B.Warn}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ClassIsBad}" Value="True">
+                                                        <Setter Property="Foreground" Value="{StaticResource B.Danger}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ClassIsOk}" Value="True">
+                                                        <Setter Property="Foreground" Value="{StaticResource B.Ok}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Border Grid.Row="4" Style="{StaticResource Card}" Margin="0,12,0,0" Padding="16">
+            <StackPanel>
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Detalhe" Style="{StaticResource T.H2}" FontSize="13" />
+                        <TextBlock x:Name="StatusLine" Style="{StaticResource T.Muted}" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                    <Button x:Name="ToggleConsole" Content="Mostrar" Style="{StaticResource Btn.Ghost}"
+                            HorizontalAlignment="Right" Padding="10,5" FontSize="12" Click="OnToggleConsole" />
+                </Grid>
+                <TextBox x:Name="Output" Style="{StaticResource Console}" Height="120" Margin="0,12,0,0"
+                         Visibility="Collapsed" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

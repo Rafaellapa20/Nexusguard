@@ -1,0 +1,27 @@
+<Application x:Class="NexusGuard.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:core="clr-namespace:NexusGuard.Core"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme/Palette.xaml" />
+                <ResourceDictionary Source="Theme/Controls.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <core:BoolToVis x:Key="BoolToVis" />
+            <core:BoolToVisInverse x:Key="BoolToVisInv" />
+            <core:NotBool x:Key="NotBool" />
+            <core:TextToVis x:Key="TextToVis" />
+            <core:EmptyToVis x:Key="EmptyToVis" />
+            <core:CountToVis x:Key="CountToVis" />
+            <core:LoadToBrush x:Key="LoadToBrush" />
+            <core:StateToBrush x:Key="StateToBrush" />
+            <core:StateToText x:Key="StateToText" />
+            <core:PercentToWidth x:Key="PercentToWidth" />
+            <core:LogLevelToBrush x:Key="LogLevelToBrush" />
+            <core:RiskToBrush x:Key="RiskToBrush" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

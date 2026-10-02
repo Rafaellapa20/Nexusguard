@@ -1,0 +1,179 @@
+<Window x:Class="NexusGuard.Views.OnboardingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Style="{StaticResource Modal}"
+        WindowStartupLocation="CenterOwner"
+        Title="Bem-vindo ao NexusGuard"
+        Width="756" Height="620">
+
+    <Border Style="{StaticResource ModalShell}">
+        <Grid Margin="36,32,40,28">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- ============ Progresso ============ -->
+            <Grid Grid.Row="0" Margin="0,0,0,28">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border x:Name="Seg1" Style="{StaticResource StepSeg}" Grid.Column="0" />
+                <Border x:Name="Seg2" Style="{StaticResource StepSeg}" Grid.Column="1" />
+                <Border x:Name="Seg3" Style="{StaticResource StepSeg}" Grid.Column="2" />
+                <Border x:Name="Seg4" Style="{StaticResource StepSeg}" Grid.Column="3" Margin="0" />
+            </Grid>
+
+            <!-- ============ Passos ============ -->
+            <Grid Grid.Row="1">
+
+                <!-- Passo 1: boas-vindas -->
+                <StackPanel x:Name="Step1" VerticalAlignment="Center" HorizontalAlignment="Center"
+                            MaxWidth="520">
+                    <Image Source="../Assets/brand/icon-256.png" Width="88" Height="88"
+                           RenderOptions.BitmapScalingMode="HighQuality" />
+                    <TextBlock Text="Bem-vindo ao NexusGuard" FontFamily="{StaticResource F.Display}"
+                               FontSize="30" FontWeight="Bold" TextAlignment="Center" Margin="0,22,0,0" />
+                    <TextBlock Text="Tudo que o seu Windows precisa, num só lugar."
+                               Style="{StaticResource T.Dim}" FontSize="14" TextAlignment="Center"
+                               Margin="0,10,0,0" />
+                    <TextBlock Text="Em dois minutos configuramos o essencial. Nada é alterado no seu PC até você confirmar."
+                               Style="{StaticResource T.Muted}" FontSize="13" TextAlignment="Center"
+                               TextWrapping="Wrap" Margin="0,16,0,0" />
+                </StackPanel>
+
+                <!-- Passo 2: o que faz / nunca faz -->
+                <StackPanel x:Name="Step2" Visibility="Collapsed">
+                    <TextBlock Text="Transparência antes de tudo" Style="{StaticResource T.H1}" FontSize="24" />
+                    <TextBlock Text="É importante que saiba exactamente o que esta aplicativo faz — e o que nunca vai fazer."
+                               Style="{StaticResource T.Muted}" Margin="0,8,0,20" TextWrapping="Wrap" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="14" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="FAZ" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{StaticResource B.Ok}" />
+                                <StackPanel x:Name="DoesList" Margin="0,12,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="NUNCA FAZ" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{StaticResource B.Danger}" />
+                                <StackPanel x:Name="NeverList" Margin="0,12,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Passo 3: proteções -->
+                <StackPanel x:Name="Step3" Visibility="Collapsed">
+                    <TextBlock Text="Proteções" Style="{StaticResource T.H1}" FontSize="24" />
+                    <TextBlock Text="Estas quatro redes de segurança ficam ligadas. Pode mudá-las depois em Configurações."
+                               Style="{StaticResource T.Muted}" Margin="0,8,0,20" TextWrapping="Wrap" />
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,16">
+                                <StackPanel Margin="0,0,60,0">
+                                    <TextBlock Text="Ponto de restauração automático" FontWeight="SemiBold" FontSize="13" />
+                                    <TextBlock Text="Criado antes de qualquer alteração ao sistema."
+                                               Style="{StaticResource T.Muted}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <CheckBox x:Name="OptRestore" Style="{StaticResource Switch}" IsChecked="True"
+                                          HorizontalAlignment="Right" VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Grid Margin="0,0,0,16">
+                                <StackPanel Margin="0,0,60,0">
+                                    <TextBlock Text="Quarentena em vez de apagar" FontWeight="SemiBold" FontSize="13" />
+                                    <TextBlock Text="Os arquivos ficam recuperáveis durante 7 dias."
+                                               Style="{StaticResource T.Muted}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <CheckBox x:Name="OptQuarantine" Style="{StaticResource Switch}" IsChecked="True"
+                                          HorizontalAlignment="Right" VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Grid Margin="0,0,0,16">
+                                <StackPanel Margin="0,0,60,0">
+                                    <TextBlock Text="Pedir confirmação antes de cada alteração" FontWeight="SemiBold" FontSize="13" />
+                                    <TextBlock Text="Nenhuma ação começa sem você ver o que vai acontecer."
+                                               Style="{StaticResource T.Muted}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <CheckBox x:Name="OptConfirm" Style="{StaticResource Switch}" IsChecked="True"
+                                          HorizontalAlignment="Right" VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Grid>
+                                <StackPanel Margin="0,0,60,0">
+                                    <TextBlock Text="Só drivers assinados (WHQL)" FontWeight="SemiBold" FontSize="13" />
+                                    <TextBlock Text="Drivers sem assinatura da Microsoft não são instalados."
+                                               Style="{StaticResource T.Muted}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <CheckBox x:Name="OptWhql" Style="{StaticResource Switch}" IsChecked="True"
+                                          HorizontalAlignment="Right" VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Passo 4: telemetria -->
+                <StackPanel x:Name="Step4" Visibility="Collapsed">
+                    <TextBlock Text="Estatísticas de uso" Style="{StaticResource T.H1}" FontSize="24" />
+                    <TextBlock Text="Opcional e desligado por padrão."
+                               Style="{StaticResource T.Muted}" Margin="0,8,0,20" TextWrapping="Wrap" />
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <Grid>
+                                <StackPanel Margin="0,0,60,0">
+                                    <TextBlock Text="Enviar estatísticas anônimas de uso" FontWeight="SemiBold"
+                                               FontSize="13" />
+                                    <TextBlock Style="{StaticResource T.Muted}" Margin="0,6,0,0" TextWrapping="Wrap"
+                                               Text="Enviado: versão do NexusGuard, módulos usados e falhas." />
+                                    <TextBlock Style="{StaticResource T.Muted}" Margin="0,3,0,0" TextWrapping="Wrap"
+                                               Text="Nunca enviado: o seu nome, nomes de arquivos, endereço IP ou identificadores do PC." />
+                                </StackPanel>
+                                <CheckBox x:Name="OptTelemetry" Style="{StaticResource Switch}" IsChecked="False"
+                                          HorizontalAlignment="Right" VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,14,0,0"
+                            Background="{StaticResource B.AccentSoft}" BorderBrush="{StaticResource B.Accent}">
+                        <StackPanel>
+                            <TextBlock Text="Tudo pronto." FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Style="{StaticResource T.Dim}" Margin="0,6,0,0" TextWrapping="Wrap"
+                                       Text="Vamos fazer a primeira análise do seu PC — cerca de 40 segundos e não altera nada." />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- ============ Rodapé ============ -->
+            <Grid Grid.Row="2" Margin="0,24,0,0">
+                <Button x:Name="BackButton" Content="← Voltar" Style="{StaticResource Btn.Ghost}"
+                        HorizontalAlignment="Left" Click="OnBack" Visibility="Collapsed" />
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="SkipButton" Content="Saltar configuração" Style="{StaticResource Btn.Secondary}"
+                            Margin="0,0,8,0" Click="OnSkip" />
+                    <Button x:Name="NextButton" Content="Começar" Style="{StaticResource Btn.Primary}"
+                            Padding="22,11" Click="OnNext" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

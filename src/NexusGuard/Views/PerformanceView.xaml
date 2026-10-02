@@ -1,0 +1,252 @@
+<UserControl x:Class="NexusGuard.Views.PerformanceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource F.UI}"
+             Foreground="{StaticResource B.Text}">
+
+    <Grid Margin="22,8,22,22">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.15*" />
+            <ColumnDefinition Width="14" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ================= Esquerda: modos, métricas e processos ================= -->
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Modos -->
+            <Border Grid.Row="0" Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}">
+                <StackPanel>
+                    <TextBlock Text="Modo de desempenho" Style="{StaticResource T.H2}" />
+                    <TextBlock x:Name="ModeHint" Style="{StaticResource T.Muted}" Margin="0,6,0,14"
+                               TextWrapping="Wrap" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <RadioButton x:Name="ModeBalanced" Grid.Column="0" Style="{StaticResource Segment}"
+                                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                     IsChecked="True" Checked="OnModeChanged">
+                            <StackPanel>
+                                <TextBlock Text="Equilibrado" FontWeight="SemiBold" FontSize="13"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="padrão do Windows" Style="{StaticResource T.Muted}"
+                                           FontSize="11" HorizontalAlignment="Center" Margin="0,3,0,0" />
+                            </StackPanel>
+                        </RadioButton>
+
+                        <RadioButton x:Name="ModeWork" Grid.Column="2" Style="{StaticResource Segment}"
+                                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                     Checked="OnModeChanged">
+                            <StackPanel>
+                                <TextBlock Text="Trabalho" FontWeight="SemiBold" FontSize="13"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="resposta rápida" Style="{StaticResource T.Muted}"
+                                           FontSize="11" HorizontalAlignment="Center" Margin="0,3,0,0" />
+                            </StackPanel>
+                        </RadioButton>
+
+                        <RadioButton x:Name="ModeGaming" Grid.Column="4" Style="{StaticResource Segment}"
+                                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                     Checked="OnModeChanged">
+                            <StackPanel>
+                                <TextBlock Text="Jogos" FontWeight="SemiBold" FontSize="13"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="máximo desempenho" Style="{StaticResource T.Muted}"
+                                           FontSize="11" HorizontalAlignment="Center" Margin="0,3,0,0" />
+                            </StackPanel>
+                        </RadioButton>
+                    </Grid>
+
+                    <TextBlock x:Name="PlanStatus" Style="{StaticResource T.Muted}" Margin="2,12,0,0"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Métricas -->
+            <Grid Grid.Row="1" Margin="0,14,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="PROCESSADOR" Style="{StaticResource T.Label}" />
+                        <TextBlock Text="{Binding CpuText}" Style="{StaticResource T.Metric}" FontSize="26"
+                                   Margin="0,8,0,0"
+                                   Foreground="{Binding CpuPercent, Converter={StaticResource LoadToBrush}}" />
+                        <ProgressBar Style="{StaticResource Pb}" Maximum="100" Margin="0,8,0,0"
+                                     Value="{Binding CpuPercent, Mode=OneWay}"
+                                     Foreground="{Binding CpuPercent, Converter={StaticResource LoadToBrush}}" />
+                        <TextBlock x:Name="CpuInfo" Style="{StaticResource T.Muted}" Margin="0,8,0,0"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="MEMÓRIA" Style="{StaticResource T.Label}" />
+                        <TextBlock Text="{Binding RamText}" Style="{StaticResource T.Metric}" FontSize="26"
+                                   Margin="0,8,0,0"
+                                   Foreground="{Binding RamPercent, Converter={StaticResource LoadToBrush}}" />
+                        <ProgressBar Style="{StaticResource Pb}" Maximum="100" Margin="0,8,0,0"
+                                     Value="{Binding RamPercent, Mode=OneWay}"
+                                     Foreground="{Binding RamPercent, Converter={StaticResource LoadToBrush}}" />
+                        <TextBlock Style="{StaticResource T.Muted}" Margin="0,8,0,0">
+                            <Run Text="{Binding RamUsedText, Mode=OneWay}" />
+                            <Run Text="de" />
+                            <Run Text="{Binding RamTotalText, Mode=OneWay}" />
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="4" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="PROCESSOS" Style="{StaticResource T.Label}" />
+                        <TextBlock Text="{Binding ProcessCount}" Style="{StaticResource T.Metric}" FontSize="26"
+                                   Margin="0,8,0,0" />
+                        <Button x:Name="FreeButton" Style="{StaticResource Btn.Primary}" Margin="0,12,0,0"
+                                Content="Liberar memória" Click="OnFreeMemory" />
+                        <TextBlock x:Name="FreeResult" Style="{StaticResource T.Muted}" Margin="0,8,0,0"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Processos -->
+            <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,14,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Processos mais pesados" Style="{StaticResource T.H2}" />
+                            <TextBlock x:Name="ProcHint" Style="{StaticResource T.Muted}" Margin="12,0,0,0"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <Button x:Name="RefreshButton" Style="{StaticResource Btn.Ghost}" HorizontalAlignment="Right"
+                                Click="OnRefreshProcesses" Padding="11,6">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Style="{StaticResource Icon.Small}" Data="{StaticResource I.Refresh}"
+                                      Width="13" Height="13" />
+                                <TextBlock Text="Atualizar" Margin="7,0,0,0" FontSize="12" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1" Margin="0,14,0,0" VerticalScrollBarVisibility="Auto"
+                                  Padding="0,0,6,0">
+                        <ItemsControl x:Name="ProcessList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Row}" Padding="14,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="72" />
+                                                <ColumnDefinition Width="96" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
+                                                <TextBlock Text="{Binding Description}" Style="{StaticResource T.Muted}"
+                                                           Margin="0,2,0,0" TextTrimming="CharacterEllipsis"
+                                                           Visibility="{Binding Description, Converter={StaticResource TextToVis}}" />
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="1" Text="{Binding CpuText}" TextAlignment="Right"
+                                                       VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"
+                                                       Foreground="{Binding CpuPercent, Converter={StaticResource LoadToBrush}}" />
+                                            <TextBlock Grid.Column="2" Text="{Binding WorkingSetText}"
+                                                       TextAlignment="Right" VerticalAlignment="Center"
+                                                       Style="{StaticResource T.Dim}" />
+
+                                            <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="14,0,0,0"
+                                                        VerticalAlignment="Center">
+                                                <Button Content="Compactar" Style="{StaticResource Btn.Ghost}"
+                                                        FontSize="12" Padding="10,5" Tag="{Binding Pid}"
+                                                        Click="OnTrim" />
+                                                <Button Content="Terminar" Style="{StaticResource Btn.Danger}"
+                                                        Margin="7,0,0,0" FontSize="12" Padding="10,5"
+                                                        Tag="{Binding Pid}" Click="OnKill" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ================= Direita: ajustes ================= -->
+        <Border Grid.Column="2" Style="{StaticResource Card}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="Ajustes de sistema" Style="{StaticResource T.H2}" />
+                    <TextBlock Style="{StaticResource T.Muted}" Margin="0,6,0,0" TextWrapping="Wrap"
+                               Text="Cada ajuste indica o ganho esperado. Todos ficam no Histórico e podem ser revertidos." />
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="1" Margin="0,14,0,0" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+                    <ItemsControl x:Name="TweakList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource Row}" Padding="14,12">
+                                    <Grid>
+                                        <StackPanel Margin="0,0,56,0">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"
+                                                       TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding Description}" Style="{StaticResource T.Muted}"
+                                                       Margin="0,4,0,0" TextWrapping="Wrap" />
+                                            <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
+                                                <Border Style="{StaticResource Pill}" Padding="7,2"
+                                                        Background="{StaticResource B.AccentSoft}">
+                                                    <TextBlock Text="{Binding Gain}" FontSize="10.5"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{StaticResource B.Accent2}" />
+                                                </Border>
+                                                <TextBlock Text="{Binding Status}" Style="{StaticResource T.Muted}"
+                                                           FontSize="11" Margin="8,0,0,0"
+                                                           VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Enabled}"
+                                                  HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                  Tag="{Binding}" Click="OnTweak" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

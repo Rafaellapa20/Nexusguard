@@ -1,0 +1,263 @@
+<UserControl x:Class="NexusGuard.Views.OverviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource F.UI}"
+             Foreground="{StaticResource B.Text}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+        <StackPanel Margin="22,8,22,28">
+
+            <!-- ============ Destaque ============ -->
+            <Border Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}" Padding="24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Visão geral" Style="{StaticResource T.H1}" />
+                        <TextBlock x:Name="HeroSummary" Style="{StaticResource T.Dim}" Margin="0,7,0,0"
+                                   TextWrapping="Wrap" />
+                        <TextBlock x:Name="HeroMachine" Style="{StaticResource T.Muted}" Margin="0,5,0,0"
+                                   TextWrapping="Wrap" />
+
+                        <StackPanel x:Name="ScanProgressPanel" Margin="0,16,0,0" Visibility="Collapsed">
+                            <ProgressBar x:Name="ScanProgress" Style="{StaticResource Pb}" Maximum="100" />
+                            <TextBlock x:Name="ScanStep" Style="{StaticResource T.Muted}" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="28,0,0,0" MinWidth="260">
+                        <Button x:Name="ScanButton" Style="{StaticResource Btn.Primary}" Padding="22,13"
+                                FontSize="14" Click="OnScan">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource I.Refresh}" Stretch="Uniform" Width="18" Height="18"
+                                      Stroke="#0B0E14" StrokeThickness="1.7" StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" />
+                                <TextBlock Text="Analisar PC agora" Margin="10,0,0,0" VerticalAlignment="Center"
+                                           Foreground="#0B0E14" FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Name="FixAllButton" Content="Corrigir tudo com 1 clique"
+                                Style="{StaticResource Btn.Secondary}" Margin="0,9,0,0" Click="OnFixAll" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ============ Cartões de estatística ============ -->
+            <Grid Margin="0,14,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Style="{StaticResource StatCard}" Tag="apps" Click="OnStatCard">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="DotApps" Width="7" Height="7" CornerRadius="4"
+                                    Background="{StaticResource B.TextMuted}" VerticalAlignment="Center" />
+                            <TextBlock Text="APLICATIVOS" Style="{StaticResource T.Label}" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock x:Name="StatApps" Text="—" Style="{StaticResource T.Metric}" FontSize="26"
+                                   Margin="0,10,0,0" />
+                        <TextBlock Text="desatualizados" Style="{StaticResource T.Muted}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="2" Style="{StaticResource StatCard}" Tag="drivers" Click="OnStatCard">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="DotDrivers" Width="7" Height="7" CornerRadius="4"
+                                    Background="{StaticResource B.TextMuted}" VerticalAlignment="Center" />
+                            <TextBlock Text="DRIVERS" Style="{StaticResource T.Label}" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock x:Name="StatDrivers" Text="—" Style="{StaticResource T.Metric}" FontSize="26"
+                                   Margin="0,10,0,0" />
+                        <TextBlock Text="pendentes" Style="{StaticResource T.Muted}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="4" Style="{StaticResource StatCard}" Tag="cleanup" Click="OnStatCard">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="DotSpace" Width="7" Height="7" CornerRadius="4"
+                                    Background="{StaticResource B.TextMuted}" VerticalAlignment="Center" />
+                            <TextBlock Text="ESPAÇO" Style="{StaticResource T.Label}" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock x:Name="StatSpace" Text="—" Style="{StaticResource T.Metric}" FontSize="26"
+                                   Margin="0,10,0,0" />
+                        <TextBlock Text="recuperável" Style="{StaticResource T.Muted}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="6" Style="{StaticResource StatCard}" Tag="registry" Click="OnStatCard">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="DotRegistry" Width="7" Height="7" CornerRadius="4"
+                                    Background="{StaticResource B.TextMuted}" VerticalAlignment="Center" />
+                            <TextBlock Text="REGISTRO" Style="{StaticResource T.Label}" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock x:Name="StatRegistry" Text="—" Style="{StaticResource T.Metric}" FontSize="26"
+                                   Margin="0,10,0,0" />
+                        <TextBlock Text="entradas inválidas" Style="{StaticResource T.Muted}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="8" Style="{StaticResource StatCard}" Tag="security" Click="OnStatCard">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="DotThreats" Width="7" Height="7" CornerRadius="4"
+                                    Background="{StaticResource B.TextMuted}" VerticalAlignment="Center" />
+                            <TextBlock Text="AMEAÇAS" Style="{StaticResource T.Label}" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock x:Name="StatThreats" Text="—" Style="{StaticResource T.Metric}" FontSize="26"
+                                   Margin="0,10,0,0" />
+                        <TextBlock Text="detectadas" Style="{StaticResource T.Muted}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="10" Style="{StaticResource StatCard}" Tag="startup" Click="OnStatCard">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="DotStartup" Width="7" Height="7" CornerRadius="4"
+                                    Background="{StaticResource B.TextMuted}" VerticalAlignment="Center" />
+                            <TextBlock Text="INICIALIZAÇÃO" Style="{StaticResource T.Label}" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock x:Name="StatStartup" Text="—" Style="{StaticResource T.Metric}" FontSize="26"
+                                   Margin="0,10,0,0" />
+                        <TextBlock Text="programas ativos" Style="{StaticResource T.Muted}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- ============ Recursos em tempo real + atividade ============ -->
+            <Grid Margin="0,14,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.3*" />
+                    <ColumnDefinition Width="14" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Recursos em tempo real" Style="{StaticResource T.H2}" />
+
+                        <Grid Margin="0,16,0,0">
+                            <TextBlock Text="Processador" Style="{StaticResource T.Dim}" />
+                            <TextBlock Text="{Binding CpuText}" HorizontalAlignment="Right"
+                                       FontFamily="{StaticResource F.Mono}" FontSize="12.5"
+                                       Foreground="{Binding CpuPercent, Converter={StaticResource LoadToBrush}}" />
+                        </Grid>
+                        <ProgressBar Style="{StaticResource Pb}" Maximum="100" Margin="0,7,0,0"
+                                     Value="{Binding CpuPercent, Mode=OneWay}"
+                                     Foreground="{Binding CpuPercent, Converter={StaticResource LoadToBrush}}" />
+
+                        <Grid Margin="0,16,0,0">
+                            <TextBlock Text="Memória" Style="{StaticResource T.Dim}" />
+                            <TextBlock HorizontalAlignment="Right" FontFamily="{StaticResource F.Mono}"
+                                       FontSize="12.5"
+                                       Foreground="{Binding RamPercent, Converter={StaticResource LoadToBrush}}">
+                                <Run Text="{Binding RamUsedText, Mode=OneWay}" />
+                                <Run Text="/" />
+                                <Run Text="{Binding RamTotalText, Mode=OneWay}" />
+                            </TextBlock>
+                        </Grid>
+                        <ProgressBar Style="{StaticResource Pb}" Maximum="100" Margin="0,7,0,0"
+                                     Value="{Binding RamPercent, Mode=OneWay}"
+                                     Foreground="{Binding RamPercent, Converter={StaticResource LoadToBrush}}" />
+
+                        <Grid Margin="0,16,0,0">
+                            <TextBlock Text="Disco do sistema" Style="{StaticResource T.Dim}" />
+                            <TextBlock Text="{Binding SystemDiskDetail}" HorizontalAlignment="Right"
+                                       FontFamily="{StaticResource F.Mono}" FontSize="12.5"
+                                       Foreground="{StaticResource B.TextDim}" />
+                        </Grid>
+                        <ProgressBar Style="{StaticResource Pb}" Maximum="100" Margin="0,7,0,0"
+                                     Value="{Binding SystemDiskPercent, Mode=OneWay}"
+                                     Foreground="{Binding SystemDiskPercent, Converter={StaticResource LoadToBrush}}" />
+
+                        <Grid Margin="0,16,0,0">
+                            <TextBlock Text="Cache do sistema" Style="{StaticResource T.Dim}" />
+                            <TextBlock Text="{Binding CacheText}" HorizontalAlignment="Right"
+                                       FontFamily="{StaticResource F.Mono}" FontSize="12.5"
+                                       Foreground="{StaticResource B.TextDim}" />
+                        </Grid>
+                        <ProgressBar Style="{StaticResource Pb}" Maximum="100" Margin="0,7,0,0"
+                                     Value="{Binding CachePercent, Mode=OneWay}"
+                                     Foreground="{StaticResource B.Accent2}" />
+
+                        <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                            <Border Style="{StaticResource Pill}" Background="{StaticResource B.SurfaceAlt}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Ligado há" Style="{StaticResource T.Muted}" />
+                                    <TextBlock x:Name="UptimeText" Margin="6,0,0,0" FontWeight="SemiBold"
+                                               FontSize="12" />
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource Pill}" Background="{StaticResource B.SurfaceAlt}"
+                                    Margin="8,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Processos" Style="{StaticResource T.Muted}" />
+                                    <TextBlock Text="{Binding ProcessCount}" Margin="6,0,0,0" FontWeight="SemiBold"
+                                               FontSize="12" />
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource Pill}" Background="{StaticResource B.SurfaceAlt}"
+                                    Margin="8,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Threads" Style="{StaticResource T.Muted}" />
+                                    <TextBlock Text="{Binding ThreadCount}" Margin="6,0,0,0" FontWeight="SemiBold"
+                                               FontSize="12" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Atividade recente" Style="{StaticResource T.H2}" />
+                            <Button Content="Ver tudo" Style="{StaticResource Btn.Ghost}" Padding="10,5"
+                                    FontSize="12" HorizontalAlignment="Right" Tag="history" Click="OnStatCard" />
+                        </Grid>
+
+                        <TextBlock x:Name="ActivityEmpty" Style="{StaticResource T.Muted}" Margin="0,14,0,0"
+                                   TextWrapping="Wrap"
+                                   Text="Ainda não há ações registadas. Faça uma análise para começar." />
+
+                        <ItemsControl x:Name="ActivityList" Margin="0,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Row}" Padding="13,10">
+                                        <StackPanel>
+                                            <Grid>
+                                                <TextBlock Text="{Binding Module}" FontSize="11" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource B.Accent2}" />
+                                                <TextBlock Text="{Binding WhenText}" Style="{StaticResource T.Muted}"
+                                                           FontSize="11" HorizontalAlignment="Right" />
+                                            </Grid>
+                                            <TextBlock Text="{Binding Description}" FontSize="12.5" Margin="0,5,0,0"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

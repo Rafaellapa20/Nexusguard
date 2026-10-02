@@ -1,0 +1,99 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- ============ Cores ============ -->
+    <Color x:Key="C.Bg">#0C0F16</Color>
+    <Color x:Key="C.BgRaised">#11151E</Color>
+    <Color x:Key="C.Surface">#161B26</Color>
+    <Color x:Key="C.SurfaceAlt">#1C2230</Color>
+    <Color x:Key="C.SurfaceHover">#222A3A</Color>
+    <Color x:Key="C.Border">#262E3E</Color>
+    <Color x:Key="C.BorderStrong">#354057</Color>
+
+    <Color x:Key="C.Text">#E8ECF4</Color>
+    <Color x:Key="C.TextDim">#98A2B8</Color>
+    <Color x:Key="C.TextMuted">#6A7488</Color>
+
+    <Color x:Key="C.Accent">#7C5CF6</Color>
+    <Color x:Key="C.Accent2">#22D3EE</Color>
+    <Color x:Key="C.AccentDeep">#5B3FD6</Color>
+    <Color x:Key="C.Ok">#34D399</Color>
+    <Color x:Key="C.Warn">#FBBF24</Color>
+    <Color x:Key="C.Danger">#F87171</Color>
+
+    <!-- ============ Pinceis ============ -->
+    <SolidColorBrush x:Key="B.Bg" Color="{StaticResource C.Bg}" />
+    <SolidColorBrush x:Key="B.BgRaised" Color="{StaticResource C.BgRaised}" />
+    <SolidColorBrush x:Key="B.Surface" Color="{StaticResource C.Surface}" />
+    <SolidColorBrush x:Key="B.SurfaceAlt" Color="{StaticResource C.SurfaceAlt}" />
+    <SolidColorBrush x:Key="B.SurfaceHover" Color="{StaticResource C.SurfaceHover}" />
+    <SolidColorBrush x:Key="B.Border" Color="{StaticResource C.Border}" />
+    <SolidColorBrush x:Key="B.BorderStrong" Color="{StaticResource C.BorderStrong}" />
+
+    <SolidColorBrush x:Key="B.Text" Color="{StaticResource C.Text}" />
+    <SolidColorBrush x:Key="B.TextDim" Color="{StaticResource C.TextDim}" />
+    <SolidColorBrush x:Key="B.TextMuted" Color="{StaticResource C.TextMuted}" />
+
+    <SolidColorBrush x:Key="B.Accent" Color="{StaticResource C.Accent}" />
+    <SolidColorBrush x:Key="B.Accent2" Color="{StaticResource C.Accent2}" />
+    <SolidColorBrush x:Key="B.Ok" Color="{StaticResource C.Ok}" />
+    <SolidColorBrush x:Key="B.Warn" Color="{StaticResource C.Warn}" />
+    <SolidColorBrush x:Key="B.Danger" Color="{StaticResource C.Danger}" />
+
+    <SolidColorBrush x:Key="B.AccentSoft" Color="{StaticResource C.Accent}" Opacity="0.16" />
+    <SolidColorBrush x:Key="B.OkSoft" Color="{StaticResource C.Ok}" Opacity="0.14" />
+    <SolidColorBrush x:Key="B.WarnSoft" Color="{StaticResource C.Warn}" Opacity="0.14" />
+    <SolidColorBrush x:Key="B.DangerSoft" Color="{StaticResource C.Danger}" Opacity="0.14" />
+
+    <LinearGradientBrush x:Key="B.AccentGrad" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource C.Accent}" Offset="0" />
+        <GradientStop Color="{StaticResource C.Accent2}" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="B.AccentGradH" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="{StaticResource C.Accent}" Offset="0" />
+        <GradientStop Color="{StaticResource C.Accent2}" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="B.SidebarGrad" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#131826" Offset="0" />
+        <GradientStop Color="#0D111A" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="B.HeroGrad" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#1B2234" Offset="0" />
+        <GradientStop Color="#141A26" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- ============ Tipografia ============ -->
+    <FontFamily x:Key="F.UI">Segoe UI Variable Text, Segoe UI, Inter, Arial</FontFamily>
+    <FontFamily x:Key="F.Display">Segoe UI Variable Display, Segoe UI Semibold, Segoe UI, Arial</FontFamily>
+    <FontFamily x:Key="F.Mono">Cascadia Mono, Consolas, Courier New</FontFamily>
+
+    <sys:Double x:Key="S.Radius">10</sys:Double>
+    <CornerRadius x:Key="R.Card">12</CornerRadius>
+    <CornerRadius x:Key="R.Control">8</CornerRadius>
+    <CornerRadius x:Key="R.Pill">999</CornerRadius>
+
+    <!-- ============ Ícones (traco, 24x24) ============ -->
+    <Geometry x:Key="I.Dashboard">M3.2 13.2a8.8 8.8 0 0 1 17.6 0 M12 13.2 16.4 8.6 M12 20.8v-1.6 M3.2 13.2H4.8 M19.2 13.2h1.6</Geometry>
+    <Geometry x:Key="I.Clean">M4 20.5 9.2 15.3 M9.9 14.6 14.4 10.1l3.5 3.5-4.5 4.5z M15.2 9.3l2.2-2.2a2 2 0 0 1 2.8 2.8l-2.2 2.2 M6.5 4.2l.9 1.9 1.9.9-1.9.9-.9 1.9-.9-1.9L3.7 7l1.9-.9z</Geometry>
+    <Geometry x:Key="I.Memory">M7.5 7.5h9v9h-9z M4 10h3.5 M4 14h3.5 M16.5 10H20 M16.5 14H20 M10 4v3.5 M14 4v3.5 M10 16.5V20 M14 16.5V20</Geometry>
+    <Geometry x:Key="I.Performance">M3 13h3.4l2.6-7.5 3.4 13 2.4-5.5H21</Geometry>
+    <Geometry x:Key="I.Shield">M12 3.2l7.6 2.7v5.6c0 4.8-3.3 7.7-7.6 8.7-4.3-1-7.6-3.9-7.6-8.7V5.9z M8.9 11.9l2.1 2.1 4.1-4.1</Geometry>
+    <Geometry x:Key="I.Apps">M12 3.5v11 M8.1 10.9 12 14.8l3.9-3.9 M4.5 19.5h15</Geometry>
+    <Geometry x:Key="I.Driver">M9.2 3.2v5.4 M14.8 3.2v5.4 M6.6 8.6h10.8v3.1a5.4 5.4 0 0 1-10.8 0z M12 17.1v3.7</Geometry>
+    <Geometry x:Key="I.Backup">M3.2 8.1h17.6v7.8H3.2z M3.2 12h7 M17.4 12h.01 M13.8 12h.01 M12 4.4V1.8 M12 1.8 10 3.9 M12 1.8 14 3.9</Geometry>
+    <Geometry x:Key="I.Log">M5.4 3.6h13.2v16.8H5.4z M8.4 8.1h7.2 M8.4 12h7.2 M8.4 15.9h4.5</Geometry>
+    <Geometry x:Key="I.Refresh">M20 11.5a8 8 0 1 0-2.6 6.4 M20 5.5v6h-6</Geometry>
+    <Geometry x:Key="I.Play">M8.5 5.5 18 12l-9.5 6.5z</Geometry>
+    <Geometry x:Key="I.Stop">M7 7h10v10H7z</Geometry>
+    <Geometry x:Key="I.Check">M4.5 12.5 9.5 17.5 19.5 6.5</Geometry>
+    <Geometry x:Key="I.Alert">M12 4 21 19.5H3z M12 9.5v5 M12 17h.01</Geometry>
+    <Geometry x:Key="I.Admin">M12 3.2l7.6 2.7v5.6c0 4.8-3.3 7.7-7.6 8.7-4.3-1-7.6-3.9-7.6-8.7V5.9z M12 9v3 M12 14.5h.01</Geometry>
+    <Geometry x:Key="I.Folder">M3.5 6.5h5l2 2.5h10v9.5h-17z</Geometry>
+    <Geometry x:Key="I.Restore">M4 11.5a8 8 0 1 1 2.6 6.4 M4 5.5v6h6</Geometry>
+    <Geometry x:Key="I.Trash">M5 7.5h14 M9.5 7.5V5h5v2.5 M6.8 7.5l.9 12h8.6l.9-12</Geometry>
+
+</ResourceDictionary>

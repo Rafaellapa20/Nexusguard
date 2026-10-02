@@ -1,0 +1,84 @@
+<UserControl x:Class="NexusGuard.Views.ScheduleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:NexusGuard.Views"
+             FontFamily="{StaticResource F.UI}"
+             Foreground="{StaticResource B.Text}">
+
+    <Grid Margin="22,8,22,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}">
+            <Grid>
+                <StackPanel Margin="0,0,200,0">
+                    <TextBlock Text="Agendamento" Style="{StaticResource T.H1}" />
+                    <TextBlock Style="{StaticResource T.Muted}" Margin="0,8,0,0" TextWrapping="Wrap"
+                               Text="As tarefas ficam registadas no Agendador de Tarefas do Windows e correm mesmo com o NexusGuard fechado." />
+                    <TextBlock x:Name="SummaryText" Style="{StaticResource T.Dim}" Margin="0,10,0,0" />
+                </StackPanel>
+
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button x:Name="RefreshButton" Content="Atualizar" Style="{StaticResource Btn.Secondary}"
+                            Click="OnRefresh" />
+                    <Button Content="Abrir Agendador" Style="{StaticResource Btn.Ghost}" Margin="0,8,0,0"
+                            Click="OnOpenScheduler" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <views:ErrorState x:Name="State" Grid.Row="1" Margin="0,12,0,0" />
+
+        <Grid Grid.Row="2" Margin="2,18,8,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="190" />
+                <ColumnDefinition Width="130" />
+                <ColumnDefinition Width="120" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="TAREFA" Style="{StaticResource T.Label}" />
+            <TextBlock Grid.Column="1" Text="QUANDO" Style="{StaticResource T.Label}" />
+            <TextBlock Grid.Column="2" Text="PRÓXIMA" Style="{StaticResource T.Label}" />
+            <TextBlock Grid.Column="3" Text="ATIVA" Style="{StaticResource T.Label}" TextAlignment="Right" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+            <ItemsControl x:Name="JobList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Row}" Padding="16,13">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="190" />
+                                    <ColumnDefinition Width="130" />
+                                    <ColumnDefinition Width="120" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Margin="0,0,14,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
+                                    <TextBlock Text="{Binding Scope}" Style="{StaticResource T.Muted}"
+                                               Margin="0,3,0,0" />
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="1" Text="{Binding WhenText}" Style="{StaticResource T.Dim}"
+                                           VerticalAlignment="Center" TextWrapping="Wrap" />
+
+                                <TextBlock Grid.Column="2" Text="{Binding Next}" Style="{StaticResource T.Mono}"
+                                           VerticalAlignment="Center" Foreground="{StaticResource B.TextDim}" />
+
+                                <CheckBox Grid.Column="3" Style="{StaticResource Switch}" IsChecked="{Binding Enabled}"
+                                          HorizontalAlignment="Right" VerticalAlignment="Center"
+                                          Tag="{Binding}" Click="OnToggle" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

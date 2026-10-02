@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>NexusGuard</RootNamespace>
+    <AssemblyName>NexusGuard</AssemblyName>
+    <Version>1.0.0</Version>
+    <Product>NexusGuard</Product>
+    <Company>NexusGuard</Company>
+    <AssemblyTitle>NexusGuard</AssemblyTitle>
+    <Description>Tudo que o seu Windows precisa, num só lugar.</Description>
+    <Copyright>NexusGuard</Copyright>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\app.ico" />
+    <Resource Include="Assets\app.ico" />
+    <None Remove="Assets\brand\*.png" />
+    <Resource Include="Assets\brand\*.png" />
+  </ItemGroup>
+
+</Project>

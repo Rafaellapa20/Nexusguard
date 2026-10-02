@@ -1,0 +1,195 @@
+<UserControl x:Class="NexusGuard.Views.SecurityView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource F.UI}"
+             Foreground="{StaticResource B.Text}">
+
+    <Grid Margin="22,8,22,22">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="14" />
+            <ColumnDefinition Width="1.15*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ============ Estado ============ -->
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+            <StackPanel>
+
+                <Border Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}">
+                    <StackPanel>
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <Border x:Name="ShieldBadge" Width="42" Height="42" CornerRadius="11"
+                                        Background="{StaticResource B.OkSoft}">
+                                    <Path x:Name="ShieldIcon" Data="{StaticResource I.Shield}" Stretch="Uniform"
+                                          Margin="10" Stroke="{StaticResource B.Ok}" StrokeThickness="1.6"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                          StrokeLineJoin="Round" Fill="Transparent" />
+                                </Border>
+                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock x:Name="ShieldTitle" Text="Verificando…" Style="{StaticResource T.H2}" />
+                                    <TextBlock x:Name="ShieldSubtitle" Style="{StaticResource T.Muted}"
+                                               Margin="0,3,0,0" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Button x:Name="ReloadStatusButton" Style="{StaticResource Btn.Ghost}"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Padding="11,6"
+                                    Click="OnReloadStatus">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Style="{StaticResource Icon.Small}" Data="{StaticResource I.Refresh}"
+                                          Width="13" Height="13" />
+                                    <TextBlock Text="Verificar" Margin="7,0,0,0" FontSize="12"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <ItemsControl x:Name="StateList" Margin="0,16,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,9">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="8" Height="8" CornerRadius="4" VerticalAlignment="Center"
+                                                Background="{Binding Brush}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Title}" Margin="12,0,10,0"
+                                                   VerticalAlignment="Center" FontSize="13" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Detail}"
+                                                   Style="{StaticResource T.Dim}" VerticalAlignment="Center"
+                                                   TextAlignment="Right" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Ações do Defender -->
+                <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Análise antivírus" Style="{StaticResource T.H2}" />
+                        <TextBlock Style="{StaticResource T.Muted}" Margin="0,6,0,13" TextWrapping="Wrap"
+                                   Text="As análises são executadas pelo Microsoft Defender. A completa pode demorar mais de uma hora." />
+
+                        <Button x:Name="UpdateSigButton" Style="{StaticResource Btn.Secondary}"
+                                Content="Atualizar definições de vírus" Click="OnUpdateSignatures"
+                                HorizontalAlignment="Stretch" />
+
+                        <Grid Margin="0,9,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="9" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="QuickScanButton" Grid.Column="0" Style="{StaticResource Btn.Primary}"
+                                    Content="Análise rápida" Click="OnQuickScan" />
+                            <Button x:Name="FullScanButton" Grid.Column="2" Style="{StaticResource Btn.Secondary}"
+                                    Content="Análise completa" Click="OnFullScan" />
+                        </Grid>
+
+                        <Grid Margin="0,9,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="9" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="CustomScanButton" Grid.Column="0" Style="{StaticResource Btn.Ghost}"
+                                    Content="Analisar uma pasta…" Click="OnCustomScan" />
+                            <Button x:Name="RemoveThreatsButton" Grid.Column="2" Style="{StaticResource Btn.Danger}"
+                                    Content="Remover ameaças" Click="OnRemoveThreats" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Integridade do sistema -->
+                <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Integridade dos arquivos do Windows" Style="{StaticResource T.H2}" />
+                        <TextBlock Style="{StaticResource T.Muted}" Margin="0,6,0,13" TextWrapping="Wrap"
+                                   Text="Repara arquivos do sistema corrompidos — útil depois de uma infeção ou de falhas estranhas." />
+
+                        <Button x:Name="SfcButton" Style="{StaticResource Btn.Secondary}" Content="Verificar (sfc /scannow)"
+                                Click="OnSfc" HorizontalAlignment="Stretch" />
+                        <Button x:Name="DismButton" Style="{StaticResource Btn.Ghost}" Margin="0,9,0,0"
+                                Content="Reparar imagem (DISM /RestoreHealth)" Click="OnDism"
+                                HorizontalAlignment="Stretch" />
+
+                        <Button Style="{StaticResource Btn.Ghost}" Margin="0,9,0,0"
+                                Content="Abrir Segurança do Windows" Click="OnOpenDefender"
+                                HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Histórico de ameaças -->
+                <Border Style="{StaticResource Card}" Margin="0,14,0,14">
+                    <StackPanel>
+                        <TextBlock Text="Histórico de deteções" Style="{StaticResource T.H2}" />
+                        <TextBlock x:Name="ThreatsEmpty" Style="{StaticResource T.Muted}" Margin="0,8,0,0"
+                                   Text="Sem deteções registadas." TextWrapping="Wrap" />
+
+                        <ItemsControl x:Name="ThreatList" Margin="0,10,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Row}" Padding="13,10">
+                                        <StackPanel>
+                                            <Grid>
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12.5"
+                                                           TextTrimming="CharacterEllipsis" Margin="0,0,90,0" />
+                                                <TextBlock Text="{Binding StatusText}" Style="{StaticResource T.Muted}"
+                                                           HorizontalAlignment="Right" />
+                                            </Grid>
+                                            <TextBlock Text="{Binding Resources}" Style="{StaticResource T.Muted}"
+                                                       FontSize="11" Margin="0,4,0,0"
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding Resources}" />
+                                            <TextBlock Style="{StaticResource T.Muted}" FontSize="11" Margin="0,3,0,0">
+                                                <Run Text="{Binding When, Mode=OneWay}" />
+                                                <Run Text="·" />
+                                                <Run Text="{Binding SeverityText, Mode=OneWay}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ============ Consola ============ -->
+        <Border Grid.Column="2" Style="{StaticResource Card}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <StackPanel>
+                        <TextBlock Text="Saída da operação" Style="{StaticResource T.H2}" />
+                        <TextBlock x:Name="OpStatus" Style="{StaticResource T.Muted}" Margin="0,5,0,0"
+                                   Text="Nenhuma operação em curso." TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <Button x:Name="ClearButton" Content="Limpar" Style="{StaticResource Btn.Ghost}"
+                                Padding="11,6" FontSize="12" Click="OnClearConsole" />
+                        <Button x:Name="StopButton" Content="Parar" Style="{StaticResource Btn.Danger}"
+                                Margin="8,0,0,0" Padding="11,6" FontSize="12" Click="OnStop"
+                                Visibility="Collapsed" />
+                    </StackPanel>
+                </Grid>
+
+                <ProgressBar x:Name="Progress" Grid.Row="1" Style="{StaticResource Pb}" Margin="0,12,0,0"
+                             IsIndeterminate="True" Visibility="Collapsed" />
+
+                <TextBox x:Name="Output" Grid.Row="2" Style="{StaticResource Console}" Margin="0,12,0,0" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

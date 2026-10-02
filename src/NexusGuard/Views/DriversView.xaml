@@ -1,0 +1,156 @@
+<UserControl x:Class="NexusGuard.Views.DriversView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource F.UI}"
+             Foreground="{StaticResource B.Text}">
+
+    <Grid Margin="22,8,22,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============ Cabeçalho ============ -->
+        <Border Grid.Row="0" Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="TabDrivers" Style="{StaticResource Segment}" Content="Drivers"
+                                     IsChecked="True" Checked="OnTabChanged" />
+                        <RadioButton x:Name="TabWindows" Style="{StaticResource Segment}" Margin="6,0,0,0"
+                                     Content="Atualizações do Windows" Checked="OnTabChanged" />
+                        <RadioButton x:Name="TabDevices" Style="{StaticResource Segment}" Margin="6,0,0,0"
+                                     Content="Dispositivos com problemas" Checked="OnTabChanged" />
+                    </StackPanel>
+
+                    <TextBlock x:Name="HeadTitle" Text="—" Style="{StaticResource T.Metric}" Margin="0,12,0,0" />
+                    <TextBlock x:Name="HeadSub" Style="{StaticResource T.Muted}" Margin="0,4,0,0" TextWrapping="Wrap"
+                               Text="A procura usa o agente do Windows Update — pode demorar cerca de um minuto." />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="ScanButton" Content="Procurar" Style="{StaticResource Btn.Secondary}"
+                            Click="OnScan" />
+                    <Button x:Name="InstallButton" Content="Instalar selecionados" Style="{StaticResource Btn.Primary}"
+                            Margin="8,0,0,0" Click="OnInstall" />
+                    <Button x:Name="CancelButton" Content="Parar" Style="{StaticResource Btn.Danger}"
+                            Margin="8,0,0,0" Click="OnCancel" Visibility="Collapsed" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ProgressBar x:Name="Progress" Grid.Row="1" Style="{StaticResource Pb}" Margin="0,10,0,0"
+                     Visibility="Collapsed" IsIndeterminate="True" Height="4" />
+
+        <!-- ============ Listas ============ -->
+        <Grid Grid.Row="2" Margin="0,14,0,0">
+
+            <ScrollViewer x:Name="UpdateScroll" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+                <ItemsControl x:Name="UpdateList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Row}" Padding="16,13">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <CheckBox Style="{StaticResource Chk}" IsChecked="{Binding Selected}"
+                                              VerticalAlignment="Center" />
+
+                                    <StackPanel Grid.Column="1" Margin="14,0,16,0">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="13.5"
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding SubtitleText}" Style="{StaticResource T.Muted}"
+                                                   Margin="0,4,0,0" TextWrapping="Wrap"
+                                                   Visibility="{Binding SubtitleText, Converter={StaticResource TextToVis}}" />
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="2" Text="{Binding SizeText}" VerticalAlignment="Center"
+                                               FontWeight="SemiBold" FontSize="13" MinWidth="86"
+                                               TextAlignment="Right" />
+
+                                    <TextBlock Grid.Column="3" Text="{Binding Status}" Style="{StaticResource T.Muted}"
+                                               VerticalAlignment="Center" Margin="18,0,2,0" MinWidth="120"
+                                               TextAlignment="Right" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <ScrollViewer x:Name="DeviceScroll" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0"
+                          Visibility="Collapsed">
+                <ItemsControl x:Name="DeviceList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Row}" Padding="16,13">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Margin="0,0,16,0">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13.5"
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding InstanceId}" Style="{StaticResource T.Muted}"
+                                                   Margin="0,4,0,0" TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding InstanceId}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <Border Style="{StaticResource Pill}" Background="{StaticResource B.WarnSoft}">
+                                            <TextBlock Text="{Binding StatusText}" FontSize="11.5" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource B.Warn}" />
+                                        </Border>
+                                        <TextBlock Text="{Binding Class}" Style="{StaticResource T.Muted}"
+                                                   FontSize="11" TextAlignment="Right" Margin="0,5,0,0" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <TextBlock x:Name="EmptyText" Style="{StaticResource T.Muted}" HorizontalAlignment="Center"
+                       VerticalAlignment="Center" TextAlignment="Center" Visibility="Collapsed" />
+        </Grid>
+
+        <!-- ============ Rodapé ============ -->
+        <Border Grid.Row="3" Style="{StaticResource Card}" Margin="0,12,0,0" Padding="16">
+            <StackPanel>
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Detalhe" Style="{StaticResource T.H2}" FontSize="13" />
+                        <TextBlock x:Name="StatusLine" Style="{StaticResource T.Muted}" Margin="12,0,0,0"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Gerenciador de Dispositivos" Style="{StaticResource Btn.Ghost}"
+                                Padding="10,5" FontSize="12" Click="OnOpenDeviceManager" />
+                        <Button Content="Windows Update" Style="{StaticResource Btn.Ghost}" Margin="8,0,0,0"
+                                Padding="10,5" FontSize="12" Click="OnOpenWindowsUpdate" />
+                        <Button x:Name="ToggleConsole" Content="Mostrar" Style="{StaticResource Btn.Ghost}"
+                                Margin="8,0,0,0" Padding="10,5" FontSize="12" Click="OnToggleConsole" />
+                    </StackPanel>
+                </Grid>
+                <TextBox x:Name="Output" Style="{StaticResource Console}" Height="130" Margin="0,12,0,0"
+                         Visibility="Collapsed" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

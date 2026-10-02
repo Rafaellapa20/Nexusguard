@@ -1,0 +1,176 @@
+<UserControl x:Class="NexusGuard.Views.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource F.UI}"
+             Foreground="{StaticResource B.Text}">
+
+    <Grid Margin="22,8,22,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}">
+            <Grid>
+                <StackPanel Margin="0,0,320,0">
+                    <TextBlock Text="Histórico" Style="{StaticResource T.H1}" />
+                    <TextBlock Style="{StaticResource T.Muted}" Margin="0,8,0,0" TextWrapping="Wrap"
+                               Text="Tudo o que o NexusGuard alterou, com a opção de reverter o que for reversível." />
+                    <TextBlock x:Name="SummaryText" Style="{StaticResource T.Dim}" Margin="0,10,0,0" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                        <RadioButton x:Name="TabHistory" Style="{StaticResource Segment}" Content="Ações"
+                                     IsChecked="True" Checked="OnTabChanged" />
+                        <RadioButton x:Name="TabLog" Style="{StaticResource Segment}" Margin="6,0,0,0"
+                                     Content="Registro técnico" Checked="OnTabChanged" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                    <Button Content="Abrir pasta" Style="{StaticResource Btn.Ghost}" Click="OnOpenFolder" />
+                    <Button x:Name="ReportButton" Content="Exportar relatório" Style="{StaticResource Btn.Primary}"
+                            Margin="8,0,0,0" Click="OnExportReport" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="0,14,0,0">
+
+            <!-- ============ Ações ============ -->
+            <Border x:Name="HistoryPanel" Style="{StaticResource Card}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="2,0,8,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="128" />
+                            <ColumnDefinition Width="128" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="128" />
+                            <ColumnDefinition Width="118" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="DATA" Style="{StaticResource T.Label}" />
+                        <TextBlock Grid.Column="1" Text="MÓDULO" Style="{StaticResource T.Label}" />
+                        <TextBlock Grid.Column="2" Text="DESCRIÇÃO" Style="{StaticResource T.Label}" />
+                        <TextBlock Grid.Column="3" Text="VALOR" Style="{StaticResource T.Label}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="4" Text="" Style="{StaticResource T.Label}" />
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+                        <StackPanel>
+                            <TextBlock x:Name="EmptyText" Style="{StaticResource T.Muted}" Margin="2,10,0,0"
+                                       Text="Ainda não há ações registadas." />
+
+                            <ItemsControl x:Name="EntryList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource Row}" Padding="14,11">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="128" />
+                                                    <ColumnDefinition Width="128" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="128" />
+                                                    <ColumnDefinition Width="118" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Text="{Binding WhenText}" Style="{StaticResource T.Mono}"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{StaticResource B.TextMuted}" />
+
+                                                <Border Grid.Column="1" Style="{StaticResource Pill}" Padding="8,2"
+                                                        HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                        Background="{StaticResource B.AccentSoft}">
+                                                    <TextBlock Text="{Binding Module}" FontSize="11"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{StaticResource B.Accent2}" />
+                                                </Border>
+
+                                                <StackPanel Grid.Column="2" Margin="12,0,12,0"
+                                                            VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Description}" FontSize="13"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Text="{Binding StatusText}" Style="{StaticResource T.Muted}"
+                                                               Margin="0,3,0,0"
+                                                               Visibility="{Binding StatusText, Converter={StaticResource TextToVis}}" />
+                                                </StackPanel>
+
+                                                <TextBlock Grid.Column="3" Text="{Binding Value}"
+                                                           Style="{StaticResource T.Mono}" TextAlignment="Right"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{StaticResource B.TextDim}" />
+
+                                                <Button Grid.Column="4" Content="Desfazer"
+                                                        Style="{StaticResource Btn.Ghost}" FontSize="12"
+                                                        Padding="11,5" HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center" Tag="{Binding}"
+                                                        Click="OnUndo"
+                                                        Foreground="{StaticResource B.Accent2}"
+                                                        Visibility="{Binding CanUndo, Converter={StaticResource BoolToVis}}" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- ============ Registro técnico ============ -->
+            <Border x:Name="LogPanel" Style="{StaticResource Card}" Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="2,0,8,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="78" />
+                            <ColumnDefinition Width="76" />
+                            <ColumnDefinition Width="128" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="HORA" Style="{StaticResource T.Label}" />
+                        <TextBlock Grid.Column="1" Text="NÍVEL" Style="{StaticResource T.Label}" />
+                        <TextBlock Grid.Column="2" Text="ORIGEM" Style="{StaticResource T.Label}" />
+                        <TextBlock Grid.Column="3" Text="MENSAGEM" Style="{StaticResource T.Label}" />
+                    </Grid>
+
+                    <ScrollViewer x:Name="LogScroller" Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                  Padding="0,0,6,0">
+                        <ItemsControl x:Name="LogList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="2,6,8,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="78" />
+                                            <ColumnDefinition Width="76" />
+                                            <ColumnDefinition Width="128" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding TimeText}" Style="{StaticResource T.Mono}"
+                                                   Foreground="{StaticResource B.TextMuted}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding LevelText}"
+                                                   Style="{StaticResource T.Mono}" FontWeight="SemiBold"
+                                                   Foreground="{Binding Level, Converter={StaticResource LogLevelToBrush}}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Source}"
+                                                   Style="{StaticResource T.Mono}"
+                                                   Foreground="{StaticResource B.TextDim}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="3" Text="{Binding Message}"
+                                                   Style="{StaticResource T.Mono}" TextWrapping="Wrap" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,244 @@
+<UserControl x:Class="NexusGuard.Views.BackupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource F.UI}"
+             Foreground="{StaticResource B.Text}">
+
+    <Grid Margin="22,8,22,22">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="14" />
+            <ColumnDefinition Width="1.05*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ================= Coluna esquerda: o que copiar ================= -->
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}">
+                <StackPanel>
+                    <TextBlock Text="A COPIAR" Style="{StaticResource T.Label}" />
+                    <TextBlock x:Name="TotalText" Text="—" Style="{StaticResource T.Metric}" Margin="0,6,0,0" />
+                    <TextBlock x:Name="TotalSub" Style="{StaticResource T.Muted}" Margin="0,4,0,0"
+                               TextWrapping="Wrap"
+                               Text="Escolha as pastas e meça o tamanho antes de copiar." />
+
+                    <Button x:Name="MeasureButton" Content="Medir tamanhos" Style="{StaticResource Btn.Ghost}"
+                            HorizontalAlignment="Left" Margin="0,13,0,0" Click="OnMeasure" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,14,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Pastas a incluir" Style="{StaticResource T.H2}" />
+
+                    <ScrollViewer Grid.Row="1" Margin="0,14,0,0" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+                        <ItemsControl x:Name="SourceList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Row}" Padding="14,11">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <CheckBox Style="{StaticResource Chk}" IsChecked="{Binding Selected}"
+                                                      VerticalAlignment="Center" />
+
+                                            <StackPanel Grid.Column="1" Margin="13,0,12,0">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
+                                                <TextBlock Text="{Binding Path}" Style="{StaticResource T.Muted}"
+                                                           Margin="0,3,0,0" TextTrimming="CharacterEllipsis"
+                                                           ToolTip="{Binding Path}" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding SizeText}" FontWeight="SemiBold"
+                                                           FontSize="13" TextAlignment="Right" />
+                                                <TextBlock Text="{Binding Status}" Style="{StaticResource T.Muted}"
+                                                           FontSize="11" TextAlignment="Right" Margin="0,3,0,0"
+                                                           Visibility="{Binding Status, Converter={StaticResource TextToVis}}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <Button Grid.Row="2" Content="Adicionar outra pasta…" Style="{StaticResource Btn.Ghost}"
+                            HorizontalAlignment="Left" Margin="0,10,0,0" Click="OnAddFolder" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ================= Coluna direita: destino e execução ================= -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Destino e modo -->
+            <Border Grid.Row="0" Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Destino" Style="{StaticResource T.H2}" />
+
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="DriveCombo" Style="{StaticResource Cb}" DisplayMemberPath="Display"
+                                  SelectionChanged="OnDriveChanged" />
+                        <Button Grid.Column="1" Content="Procurar…" Style="{StaticResource Btn.Ghost}"
+                                Margin="8,0,0,0" Click="OnPickDestination" />
+                    </Grid>
+
+                    <TextBlock x:Name="DestText" Style="{StaticResource T.Muted}" Margin="2,9,0,0"
+                               TextWrapping="Wrap" Text="Ligue um disco externo e escolha-o acima." />
+
+                    <Border Style="{StaticResource Divider}" />
+
+                    <TextBlock Text="Modo de cópia" Style="{StaticResource T.Label}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <RadioButton x:Name="ModeIncremental" Style="{StaticResource Segment}" IsChecked="True"
+                                     Content="Incremental"
+                                     ToolTip="Cópia só o que mudou e nunca apaga nada no destino." />
+                        <RadioButton x:Name="ModeMirror" Style="{StaticResource Segment}" Margin="6,0,0,0"
+                                     Content="Espelho"
+                                     ToolTip="O destino fica igual à origem — arquivos apagados aqui desaparecem lá." />
+                        <RadioButton x:Name="ModeSnapshot" Style="{StaticResource Segment}" Margin="6,0,0,0"
+                                     Content="Instantâneo"
+                                     ToolTip="Cópia completa numa pasta com a data, mantendo as anteriores." />
+                    </StackPanel>
+
+                    <TextBlock x:Name="ModeHint" Style="{StaticResource T.Muted}" Margin="2,10,0,0"
+                               TextWrapping="Wrap"
+                               Text="Incremental: copia só o que mudou desde a última vez e nunca apaga nada no destino." />
+
+                    <Grid Margin="0,14,0,0">
+                        <TextBlock Text="Ignorar arquivos só na nuvem (OneDrive)" Style="{StaticResource T.Dim}"
+                                   VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,54,0"
+                                   ToolTip="Evita que o OneDrive descarregue tudo o que está apenas online." />
+                        <CheckBox x:Name="SkipCloud" Style="{StaticResource Switch}" IsChecked="True"
+                                  HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    </Grid>
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="RunButton" Style="{StaticResource Btn.Primary}" Padding="18,12"
+                                Click="OnRunBackup">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource I.Backup}" Stretch="Uniform" Width="17" Height="17"
+                                      Stroke="#0B0E14" StrokeThickness="1.7" StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" />
+                                <TextBlock Text="Iniciar cópia de segurança" Margin="10,0,0,0"
+                                           VerticalAlignment="Center" Foreground="#0B0E14" FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="CancelButton" Grid.Column="1" Content="Parar" Style="{StaticResource Btn.Danger}"
+                                Margin="8,0,0,0" Click="OnCancel" Visibility="Collapsed" />
+                    </Grid>
+
+                    <ProgressBar x:Name="Progress" Style="{StaticResource Pb}" Margin="0,12,0,0"
+                                 IsIndeterminate="True" Visibility="Collapsed" />
+                    <TextBlock x:Name="RunStatus" Style="{StaticResource T.Muted}" Margin="2,9,0,0"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Proteção extra -->
+            <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,14,0,0">
+                <StackPanel>
+                    <TextBlock Text="Proteção do sistema" Style="{StaticResource T.H2}" />
+                    <TextBlock Style="{StaticResource T.Muted}" Margin="0,6,0,12" TextWrapping="Wrap"
+                               Text="Um ponto de restauro desfaz alterações do sistema. A imagem completa permite repor o PC inteiro." />
+
+                    <Button x:Name="RestorePointButton" Content="Criar ponto de restauro"
+                            Style="{StaticResource Btn.Secondary}" HorizontalAlignment="Stretch"
+                            Click="OnCreateRestorePoint" />
+
+                    <Grid Margin="0,9,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="9" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="SystemImageButton" Grid.Column="0" Content="Imagem do sistema…"
+                                Style="{StaticResource Btn.Ghost}" Click="OnSystemImage" />
+                        <Button Grid.Column="2" Content="Proteção do Sistema" Style="{StaticResource Btn.Ghost}"
+                                Click="OnOpenSystemProtection" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Cópias existentes + consola -->
+            <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,14,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <TextBlock Text="Cópias neste destino" Style="{StaticResource T.H2}" />
+                        <Button x:Name="ToggleConsole" Content="Ver saída" Style="{StaticResource Btn.Ghost}"
+                                HorizontalAlignment="Right" Padding="10,5" FontSize="12" Click="OnToggleConsole" />
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1" Margin="0,12,0,0" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+                        <StackPanel>
+                            <TextBlock x:Name="BackupsEmpty" Style="{StaticResource T.Muted}" TextWrapping="Wrap"
+                                       Text="Ainda não há cópias do NexusGuard neste destino." />
+
+                            <ItemsControl x:Name="BackupList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource Row}" Padding="13,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="{Binding WhenText}" FontWeight="SemiBold"
+                                                               FontSize="12.5" />
+                                                    <TextBlock Text="{Binding Display}" Style="{StaticResource T.Muted}"
+                                                               Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                                <Button Grid.Column="1" Content="Restaurar…"
+                                                        Style="{StaticResource Btn.Ghost}" FontSize="12"
+                                                        Padding="11,5" VerticalAlignment="Center"
+                                                        Tag="{Binding}" Click="OnRestore" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <TextBox x:Name="Output" Grid.Row="2" Style="{StaticResource Console}" Height="130"
+                             Margin="0,12,0,0" Visibility="Collapsed" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
