@@ -89,15 +89,25 @@ public partial class MainWindow : Window
         StateChanged += (_, _) => UpdateChromeForState();
 
         Loaded += OnLoaded;
+
+        // O onboarding só abre depois de a janela estar mesmo desenhada: chamar ShowDialog de
+        // dentro do Loaded corre um ciclo de mensagens aninhado antes de o Show() terminar, e a
+        // janela principal ficaria invisível por trás do assistente.
+        ContentRendered += OnContentRendered;
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private void OnLoaded(object sender, RoutedEventArgs e)
     {
         Navigate("dashboard");
         RefreshScore();
 
         // A quarentena expira sozinha; não vale a pena esperar pelo resultado.
         _ = Task.Run(() => Quarantine.PurgeExpired());
+    }
+
+    private async void OnContentRendered(object? sender, EventArgs e)
+    {
+        ContentRendered -= OnContentRendered;
 
         if (!Settings.Current.FirstRunCompleted) await RunOnboardingAsync();
     }
