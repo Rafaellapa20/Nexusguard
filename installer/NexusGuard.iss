@@ -38,12 +38,11 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "startupicon"; Description: "Iniciar o {#AppName} com o Windows"; GroupDescription: "Opções:"; Flags: unchecked
 
 [Files]
 Source: "{#SourceDir}\{#AppExe}"; DestDir: "{app}"; Flags: ignoreversion
 ; Apanha quaisquer ficheiros extra de uma publicação não-single-file.
-Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist; Excludes: "*.pdb,*.xml,{#AppExe}"
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist; Excludes: "*.pdb,*.xml,{#AppExe},{#AppName}-Setup-*.exe"
 
 [Dirs]
 ; Dados partilhados: quarentena, registos e relatórios.
@@ -57,13 +56,10 @@ Name: "{commonappdata}\{#AppName}\RegistryBackups"; Permissions: users-modify
 Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExe}"
 Name: "{group}\Desinstalar o {#AppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon
-Name: "{userstartup}\{#AppName}"; Filename: "{app}\{#AppExe}"; Parameters: "--tray"; Tasks: startupicon
 
 [Run]
+; runasoriginaluser: a app arranca na conta de quem iniciou sessao, nao na do administrador.
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent runasoriginaluser
-
-[UninstallDelete]
-Type: filesandordirs; Name: "{localappdata}\{#AppName}"
 
 [Code]
 var

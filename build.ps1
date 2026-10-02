@@ -62,11 +62,15 @@ if (-not $Installer) {
 # ----------------------------------------------------------------- Instalador
 $iscc = $null
 
-foreach ($candidate in @(
-    "$env:ProgramFiles(x86)\Inno Setup 6\ISCC.exe",
-    "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
-)) {
-    if (Test-Path $candidate) { $iscc = $candidate; break }
+$candidates = @(
+    (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'),
+    (Join-Path $env:ProgramFiles 'Inno Setup 6\ISCC.exe'),
+    # O winget instala por utilizador quando nao ha elevacao.
+    (Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe')
+)
+
+foreach ($candidate in $candidates) {
+    if ($candidate -and (Test-Path $candidate)) { $iscc = $candidate; break }
 }
 
 if (-not $iscc) {
