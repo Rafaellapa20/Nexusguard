@@ -15,6 +15,12 @@ public sealed class RegistryIssue
     public string Display => ValueName is null ? KeyPath : $"{KeyPath}\\{ValueName}";
 }
 
+/// <summary>O que a correção conseguiu mesmo fazer — e o que ficou por fazer.</summary>
+public sealed record RegistryFixResult(int Fixed, int Failed, int Vanished, string? BackupFile)
+{
+    public bool AnythingDone => Fixed > 0;
+}
+
 public sealed class RegistryCategory : Observable
 {
     public required string Name { get; init; }
@@ -338,21 +344,23 @@ public static class RegistryCleaner
     /// Exporta as chaves afetadas para um .reg salvo na quarentena e só depois remove.
     /// Reverter é importar esse arquivo.
     /// </summary>
-    public static async Task<(int fixedCount, string? backupFile)> FixAsync(
+    public static async Task<RegistryFixResult> FixAsync(
         IEnumerable<RegistryCategory> categories, Action<string>? onLine = null, CancellationToken ct = default)
     {
         var issues = categories.Where(c => c.Selected).SelectMany(c => c.Issues).ToList();
-        if (issues.Count == 0) return (0, null);
+        if (issues.Count == 0) return new RegistryFixResult(0, 0, 0, null);
 
-        if (!Fmt.IsAdmin && issues.Any(i => i.Hive.Contains("LOCAL_MACHINE", StringComparison.OrdinalIgnoreCase)))
-            onLine?.Invoke("Algumas entradas são do sistema e vão ser ignoradas sem privilégios de administrador.");
+        var needAdmin = CountNeedingAdmin(issues);
+
+        if (!Fmt.IsAdmin && needAdmin > 0)
+            onLine?.Invoke($"{needAdmin} entradas são do sistema e serão recusadas sem privilégios de administrador.");
 
         var backupFile = Path.Combine(Paths.RegistryBackups, $"registro-{DateTime.Now:yyyyMMdd-HHmm}.reg");
 
         if (Settings.Current.DryRun)
         {
-            onLine?.Invoke($"[simular] {issues.Count} entradas seriam corrigidas.");
-            return (issues.Count, null);
+            onLine?.Invoke($"[simular] {issues.Count} entradas seriam corrigidas. Nada foi alterado.");
+            return new RegistryFixResult(0, 0, 0, null);
         }
 
         onLine?.Invoke($"Exportando cópia de segurança para {backupFile}…");
@@ -361,23 +369,27 @@ public static class RegistryCleaner
         if (!exported)
         {
             onLine?.Invoke("A exportação falhou — nada foi alterado.");
-            return (0, null);
+            return new RegistryFixResult(0, issues.Count, 0, null);
         }
 
-        var removed = 0;
+        int removed = 0, failed = 0, vanished = 0;
 
         foreach (var issue in issues)
         {
             ct.ThrowIfCancellationRequested();
 
+            var root = HiveOf(issue);
+
+            // Uma entrada que já não está lá não conta como trabalho feito.
+            if (!Exists(root, issue))
+            {
+                vanished++;
+                onLine?.Invoke($"Já não existia: {issue.Display}");
+                continue;
+            }
+
             try
             {
-                var root = issue.Hive.StartsWith("HKEY_CLASSES_ROOT", StringComparison.OrdinalIgnoreCase)
-                    ? Registry.ClassesRoot
-                    : issue.Hive.StartsWith("HKEY_CURRENT_USER", StringComparison.OrdinalIgnoreCase)
-                        ? Registry.CurrentUser
-                        : Registry.LocalMachine;
-
                 if (issue.ValueName is null)
                 {
                     root.DeleteSubKeyTree(issue.KeyPath, throwOnMissingSubKey: false);
@@ -385,24 +397,79 @@ public static class RegistryCleaner
                 else
                 {
                     using var key = root.OpenSubKey(issue.KeyPath, writable: true);
-                    key?.DeleteValue(issue.ValueName, throwOnMissingValue: false);
-                }
 
-                removed++;
+                    if (key is null)
+                        throw new UnauthorizedAccessException("sem permissão de escrita na chave");
+
+                    key.DeleteValue(issue.ValueName, throwOnMissingValue: false);
+                }
             }
             catch (Exception ex)
             {
-                onLine?.Invoke($"Ignorado: {issue.Display} ({ex.Message})");
+                failed++;
+                onLine?.Invoke($"Recusado: {issue.Display} ({ex.Message})");
+                continue;
             }
+
+            // Só conta depois de confirmar que desapareceu mesmo.
+            if (Exists(root, issue))
+            {
+                failed++;
+                onLine?.Invoke($"Continua lá: {issue.Display}");
+                continue;
+            }
+
+            removed++;
         }
 
-        History.Add("Registro", $"{removed} entradas inválidas corrigidas", Fmt.Count(removed),
-            UndoKind.RegistryExport, new Dictionary<string, string> { ["file"] = backupFile });
+        if (removed > 0)
+        {
+            History.Add("Registro", $"{removed} entradas inválidas corrigidas", Fmt.Count(removed),
+                UndoKind.RegistryExport, new Dictionary<string, string> { ["file"] = backupFile });
 
-        Logger.Ok("Registro", $"{removed} entradas corrigidas. Cópia em {backupFile}.");
-        onLine?.Invoke($"=== {removed} entradas corrigidas ===");
+            Logger.Ok("Registro", $"{removed} entradas corrigidas, {failed} recusadas. Cópia em {backupFile}.");
+        }
+        else
+        {
+            Logger.Warn("Registro", $"Nenhuma entrada removida ({failed} recusadas, {vanished} já não existiam).");
+        }
 
-        return (removed, backupFile);
+        onLine?.Invoke($"=== {removed} removidas · {failed} recusadas · {vanished} já não existiam ===");
+
+        return new RegistryFixResult(removed, failed, vanished, removed > 0 ? backupFile : null);
+    }
+
+    /// <summary>Quantas entradas vivem em ramos que exigem administrador.</summary>
+    public static int CountNeedingAdmin(IEnumerable<RegistryIssue> issues) =>
+        issues.Count(i =>
+            i.Hive.Contains("LOCAL_MACHINE", StringComparison.OrdinalIgnoreCase) ||
+            i.Hive.Contains("CLASSES_ROOT", StringComparison.OrdinalIgnoreCase));
+
+    public static int CountNeedingAdmin(IEnumerable<RegistryCategory> categories) =>
+        CountNeedingAdmin(categories.SelectMany(c => c.Issues));
+
+    private static RegistryKey HiveOf(RegistryIssue issue) =>
+        issue.Hive.StartsWith("HKEY_CLASSES_ROOT", StringComparison.OrdinalIgnoreCase)
+            ? Registry.ClassesRoot
+            : issue.Hive.StartsWith("HKEY_CURRENT_USER", StringComparison.OrdinalIgnoreCase)
+                ? Registry.CurrentUser
+                : Registry.LocalMachine;
+
+    /// <summary>A entrada ainda está no registo?</summary>
+    private static bool Exists(RegistryKey root, RegistryIssue issue)
+    {
+        try
+        {
+            using var key = root.OpenSubKey(issue.KeyPath);
+            if (key is null) return false;
+
+            return issue.ValueName is null || key.GetValue(issue.ValueName) is not null;
+        }
+        catch
+        {
+            // Sem permissão sequer para ler: trata-se como presente, para não dar por corrigida.
+            return true;
+        }
     }
 
     private static async Task<bool> ExportAsync(List<RegistryIssue> issues, string file,

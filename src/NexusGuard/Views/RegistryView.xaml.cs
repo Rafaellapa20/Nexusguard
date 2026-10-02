@@ -19,6 +19,9 @@ public partial class RegistryView : UserControl
         InitializeComponent();
         CategoryList.ItemsSource = _categories;
 
+        State.PrimaryClicked += (_, _) => App.RestartElevated();
+        State.SecondaryClicked += (_, _) => State.Hide();
+
         foreach (var category in RegistryCleaner.BuildCategories())
         {
             category.PropertyChanged += (_, e) =>
@@ -75,8 +78,15 @@ public partial class RegistryView : UserControl
             UpdateTotal();
             StatusLine.Text = "análise concluída";
 
-            if (!Fmt.IsAdmin) State.ShowNeedsAdmin("Corrigir entradas do sistema");
-            else State.Hide();
+            var needAdmin = RegistryCleaner.CountNeedingAdmin(_categories);
+
+            if (!Fmt.IsAdmin && needAdmin > 0)
+                State.Show("Registro", "Parte destas entradas precisa de administrador",
+                    $"{Fmt.Count(needAdmin)} das entradas encontradas estão em HKLM ou HKCR. Sem elevação o " +
+                    "Windows recusa alterá-las, e a correção só trata as restantes.",
+                    StateSeverity.Info, "Continuar como administrador", "Agora não");
+            else
+                State.Hide();
         }
         catch (OperationCanceledException)
         {
@@ -108,10 +118,18 @@ public partial class RegistryView : UserControl
             return;
         }
 
+        var needAdmin = RegistryCleaner.CountNeedingAdmin(chosen);
+
+        var warning = !Fmt.IsAdmin && needAdmin > 0
+            ? $"\n\nAtenção: {Fmt.Count(needAdmin)} dessas entradas são do sistema (HKLM/HKCR) e vão ser " +
+              "recusadas pelo Windows sem privilégios de administrador."
+            : "";
+
         if (!Ui.Confirm(this, "Corrigir registro",
-                $"Serão removidas {Fmt.Count(total)} entradas inválidas em {chosen.Count} categoria(s).\n\n" +
-                "Antes de remover, é exportado um arquivo .reg para a quarentena — pode reverter tudo " +
-                "pelo Histórico.\n\nContinuar?"))
+                $"Serão removidas {Fmt.Count(total)} entradas inválidas em {chosen.Count} categoria(s)." +
+                warning +
+                "\n\nAntes de remover, é exportado um arquivo .reg — pode reverter tudo pelo Histórico." +
+                "\n\nContinuar?"))
             return;
 
         SetBusy(true);
@@ -121,15 +139,40 @@ public partial class RegistryView : UserControl
 
         try
         {
-            var (fixedCount, backup) = await RegistryCleaner.FixAsync(chosen, line => _sink?.Write(line), _cts.Token);
+            var result = await RegistryCleaner.FixAsync(chosen, line => _sink?.Write(line), _cts.Token);
 
-            StatusLine.Text = $"{Fmt.Count(fixedCount)} entradas corrigidas";
+            StatusLine.Text = result.Failed > 0
+                ? $"{Fmt.Count(result.Fixed)} removidas · {Fmt.Count(result.Failed)} recusadas"
+                : $"{Fmt.Count(result.Fixed)} entradas removidas";
 
             await ScanAsync();
 
-            Ui.Inform(this, "Registro corrigido",
-                $"{Fmt.Count(fixedCount)} entradas removidas." +
-                (backup is null ? "" : $"\n\nCópia de segurança: {backup}"));
+            // Se alguma coisa foi recusada, o utilizador tem de ver porquê sem ir procurar.
+            if (result.Failed > 0)
+            {
+                ShowConsole(true);
+
+                if (!Fmt.IsAdmin)
+                    State.Show("Registro", "Entradas do sistema recusadas",
+                        $"{Fmt.Count(result.Failed)} entradas vivem em HKLM ou HKCR e o Windows não deixa " +
+                        "alterá-las sem elevação. Reinicie como administrador para tratar dessas.",
+                        StateSeverity.Warning, "Continuar como administrador", "Agora não");
+                else
+                    State.Show("Registro", "Algumas entradas não foram removidas",
+                        $"{Fmt.Count(result.Failed)} entradas resistiram à remoção, por estarem em uso ou " +
+                        "protegidas. O detalhe está na saída abaixo.",
+                        StateSeverity.Warning);
+            }
+
+            var detail = new System.Text.StringBuilder();
+            detail.AppendLine($"Removidas: {Fmt.Count(result.Fixed)}");
+
+            if (result.Failed > 0) detail.AppendLine($"Recusadas pelo Windows: {Fmt.Count(result.Failed)}");
+            if (result.Vanished > 0) detail.AppendLine($"Já não existiam: {Fmt.Count(result.Vanished)}");
+            if (result.BackupFile is not null) detail.Append($"\nCópia de segurança: {result.BackupFile}");
+
+            Ui.Inform(this, result.AnythingDone ? "Registro corrigido" : "Nada foi alterado",
+                detail.ToString());
         }
         catch (OperationCanceledException)
         {
