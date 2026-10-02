@@ -30,10 +30,10 @@ public static class Logger
 
     public static ObservableCollection<LogEntry> Entries { get; } = new();
 
-    public static string LogDirectory { get; } =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NexusGuard", "logs");
+    /// <summary>Fica ao lado do historico, em ProgramData\NexusGuard\Logs.</summary>
+    public static string LogDirectory => Paths.Logs;
 
-    public static string LogFile => Path.Combine(LogDirectory, $"turboclean-{DateTime.Now:yyyyMMdd}.log");
+    public static string LogFile => Path.Combine(LogDirectory, $"nexusguard-{DateTime.Now:yyyyMMdd}.log");
 
     public static void Info(string source, string message) => Write(LogLevel.Info, source, message);
 

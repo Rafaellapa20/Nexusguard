@@ -23,8 +23,8 @@
                     <Grid Margin="0,16,0,0">
                         <StackPanel Margin="0,0,60,0">
                             <TextBlock Text="Iniciar com o Windows" FontWeight="SemiBold" FontSize="13" />
-                            <TextBlock Text="Abre o NexusGuard minimizado quando o Windows arranca."
-                                       Style="{StaticResource T.Muted}" Margin="0,3,0,0" />
+                            <TextBlock Text="Arranca minimizado na bandeja, para as tarefas agendadas e o acesso rápido."
+                                       Style="{StaticResource T.Muted}" Margin="0,3,0,0" TextWrapping="Wrap" />
                         </StackPanel>
                         <CheckBox x:Name="OptStartup" Style="{StaticResource Switch}" HorizontalAlignment="Right"
                                   VerticalAlignment="Center" Click="OnStartWithWindows" />
@@ -33,7 +33,7 @@
                     <Grid Margin="0,16,0,0">
                         <StackPanel Margin="0,0,60,0">
                             <TextBlock Text="Manter na bandeja ao fechar" FontWeight="SemiBold" FontSize="13" />
-                            <TextBlock Text="Fechar a janela deixa a aplicativo em execução em segundo plano."
+                            <TextBlock Text="Fechar a janela deixa o aplicativo em execução em segundo plano."
                                        Style="{StaticResource T.Muted}" Margin="0,3,0,0" />
                         </StackPanel>
                         <CheckBox x:Name="OptTray" Style="{StaticResource Switch}" HorizontalAlignment="Right"
@@ -43,8 +43,11 @@
                     <Grid Margin="0,16,0,0">
                         <StackPanel Margin="0,0,60,0">
                             <TextBlock Text="Notificações" FontWeight="SemiBold" FontSize="13" />
-                            <TextBlock Text="Avisa quando uma tarefa agendada termina."
-                                       Style="{StaticResource T.Muted}" Margin="0,3,0,0" />
+                            <TextBlock Text="Avisa pelo ícone da bandeja quando uma tarefa agendada termina."
+                                       Style="{StaticResource T.Muted}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                            <Button x:Name="TestNotifyButton" Content="Testar notificação"
+                                    Style="{StaticResource Btn.Ghost}" HorizontalAlignment="Left"
+                                    Margin="0,8,0,0" FontSize="12" Padding="11,5" Click="OnTestNotification" />
                         </StackPanel>
                         <CheckBox x:Name="OptNotify" Style="{StaticResource Switch}" HorizontalAlignment="Right"
                                   VerticalAlignment="Center" Click="OnNotify" />

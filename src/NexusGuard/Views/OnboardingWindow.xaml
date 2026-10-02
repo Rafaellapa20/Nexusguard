@@ -49,7 +49,7 @@
                 <!-- Passo 2: o que faz / nunca faz -->
                 <StackPanel x:Name="Step2" Visibility="Collapsed">
                     <TextBlock Text="Transparência antes de tudo" Style="{StaticResource T.H1}" FontSize="24" />
-                    <TextBlock Text="É importante que saiba exactamente o que esta aplicativo faz — e o que nunca vai fazer."
+                    <TextBlock Text="É importante que saiba exactamente o que este aplicativo faz — e o que nunca vai fazer."
                                Style="{StaticResource T.Muted}" Margin="0,8,0,20" TextWrapping="Wrap" />
 
                     <Grid>

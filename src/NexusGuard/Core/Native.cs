@@ -159,6 +159,71 @@ internal static partial class Native
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool MoveFileEx(string lpExistingFileName, string? lpNewFileName, uint dwFlags);
 
+    // ---------------- Bandeja do sistema ----------------
+    internal const int NIM_ADD = 0x00000000;
+    internal const int NIM_MODIFY = 0x00000001;
+    internal const int NIM_DELETE = 0x00000002;
+
+    internal const uint NIF_MESSAGE = 0x00000001;
+    internal const uint NIF_ICON = 0x00000002;
+    internal const uint NIF_TIP = 0x00000004;
+    internal const uint NIF_INFO = 0x00000010;
+
+    internal const uint NIIF_INFO = 0x00000001;
+    internal const uint NIIF_WARNING = 0x00000002;
+    internal const uint NIIF_ERROR = 0x00000003;
+
+    internal const int WM_TRAYICON = 0x8001;
+    internal const int WM_LBUTTONUP = 0x0202;
+    internal const int WM_LBUTTONDBLCLK = 0x0203;
+    internal const int WM_RBUTTONUP = 0x0205;
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    internal struct NOTIFYICONDATA
+    {
+        public int cbSize;
+        public IntPtr hWnd;
+        public int uID;
+        public uint uFlags;
+        public int uCallbackMessage;
+        public IntPtr hIcon;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string szTip;
+
+        public uint dwState;
+        public uint dwStateMask;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+        public string szInfo;
+
+        public uint uVersion;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
+        public string szInfoTitle;
+
+        public uint dwInfoFlags;
+        public Guid guidItem;
+        public IntPtr hBalloonIcon;
+    }
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool Shell_NotifyIcon(int dwMessage, ref NOTIFYICONDATA lpData);
+
+    /// <summary>Lê o ícone já embutido no próprio executável, sem depender do System.Drawing.</summary>
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+    internal static extern int ExtractIconEx(string lpszFile, int nIconIndex,
+        out IntPtr phiconLarge, out IntPtr phiconSmall, int nIcons);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool DestroyIcon(IntPtr hIcon);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool SetForegroundWindow(IntPtr hWnd);
+
     // ---------------- Janela / tema ----------------
     [LibraryImport("dwmapi.dll")]
     internal static partial int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);

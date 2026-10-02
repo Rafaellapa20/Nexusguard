@@ -64,11 +64,45 @@ Botão **Corrigir tudo com 1 clique**.
   restauro e imagem completa do sistema (`wbadmin`).
 
 ### Sistema
-- **Agendamento** — seis tarefas no Agendador de Tarefas do Windows, que correm sem a app aberta.
+- **Agendamento** — seis tarefas no Agendador de Tarefas do Windows, que correm **sem interface**
+  (ver «Linha de comandos» abaixo), registam no histórico e notificam pelo ícone da bandeja.
 - **Histórico** — tudo o que foi alterado, com **Desfazer** por ação e exportação de
   **relatório PDF**; segundo separador com o registro técnico.
 - **Configurações** — geral, segurança (retenção, quarentena) e avançado, incluindo **modo simular**
   (dry-run), que calcula e regista tudo sem alterar nada.
+
+---
+
+## Linha de comandos e bandeja
+
+Sem argumentos, o executável abre a janela normal. Com um argumento de trabalho, corre **sem
+abrir janela nenhuma**, regista tudo no histórico, notifica pelo ícone da bandeja e sai com
+código 0 (sucesso) ou 1 (falha) — que é o que o Agendador de Tarefas regista.
+
+| Argumento | O que faz |
+|---|---|
+| `--tray` | arranca minimizado na bandeja |
+| `--scan` | análise completa, sem alterar nada |
+| `--clean` | limpeza das categorias seguras |
+| `--update-apps` | atualiza os aplicativos via winget |
+| `--backup` | backup incremental para o destino guardado |
+| `--check-drivers` | procura drivers pendentes no Windows Update |
+| `--quick-scan` | atualiza as definições e corre a análise rápida do Defender |
+| `--help` | mostra a ajuda |
+
+São exactamente estes os argumentos que as tarefas de **Agendamento** passam ao executável.
+
+O `--backup` usa o destino e as pastas da última cópia feita pela interface — a página Backup
+guarda-os em `settings.json`. Sem destino guardado, a tarefa avisa em vez de falhar em silêncio,
+e a página Agendamento mostra «sem destino guardado» ao lado da tarefa.
+
+**Bandeja** — o ícone usa `Shell_NotifyIcon` directamente, sem WinForms nem bibliotecas externas;
+o ícone vem do próprio executável. Clique esquerdo abre a janela, clique direito dá
+«Abrir / Analisar o PC agora / Sair». Com «Manter na bandeja ao fechar» ligado, fechar a janela
+apenas a esconde — a aplicação continua disponível para as tarefas agendadas.
+
+**Notificações** — são os balões do próprio ícone, que no Windows 10/11 aparecem como toast. Há um
+botão «Testar notificação» em Configurações para confirmar que funcionam nesta máquina.
 
 ---
 
@@ -90,7 +124,8 @@ Arquivos bloqueados por outro programa são agendados para remoção no próximo
 
 ## Desfazer
 
-O histórico é um JSON Lines em `C:\ProgramData\NexusGuard\Logs\history.jsonl`. Cada entrada guarda
+O histórico é um JSON Lines em `C:\ProgramData\NexusGuard\Logs\history.jsonl` (o registo técnico fica ao lado, em
+`nexusguard-AAAAMMDD.log`). Cada entrada guarda
 o necessário para reverter:
 
 | Tipo | Como reverte |

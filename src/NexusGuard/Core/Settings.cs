@@ -34,6 +34,9 @@ public sealed class Settings : Observable
         public int BackupRetentionDays { get; set; } = 30;
         public bool BetaChannel { get; set; }
         public bool DryRun { get; set; }
+        public string BackupDestination { get; set; } = string.Empty;
+        public string[] BackupSources { get; set; } = Array.Empty<string>();
+        public bool BackupSkipCloudOnly { get; set; } = true;
     }
 
     private readonly Dto _data = new();
@@ -130,6 +133,27 @@ public sealed class Settings : Observable
         set => Apply(v => _data.DryRun = v, _data.DryRun, value);
     }
 
+    // ---------------- Backup (usado pela tarefa agendada) ----------------
+
+    /// <summary>Último destino escolhido. Sem isto a tarefa «--backup» não sabe para onde copiar.</summary>
+    public string BackupDestination
+    {
+        get => _data.BackupDestination;
+        set => Apply(v => _data.BackupDestination = v, _data.BackupDestination, value ?? string.Empty);
+    }
+
+    public string[] BackupSources
+    {
+        get => _data.BackupSources;
+        set => Apply(v => _data.BackupSources = v, _data.BackupSources, value ?? Array.Empty<string>());
+    }
+
+    public bool BackupSkipCloudOnly
+    {
+        get => _data.BackupSkipCloudOnly;
+        set => Apply(v => _data.BackupSkipCloudOnly = v, _data.BackupSkipCloudOnly, value);
+    }
+
     private void Apply<T>(Action<T> assign, T current, T value, [CallerMemberName] string? name = null)
     {
         if (EqualityComparer<T>.Default.Equals(current, value)) return;
@@ -166,6 +190,9 @@ public sealed class Settings : Observable
                     settings._data.BackupRetentionDays = Math.Clamp(stored.BackupRetentionDays, 1, 365);
                     settings._data.BetaChannel = stored.BetaChannel;
                     settings._data.DryRun = stored.DryRun;
+                    settings._data.BackupDestination = stored.BackupDestination ?? string.Empty;
+                    settings._data.BackupSources = stored.BackupSources ?? Array.Empty<string>();
+                    settings._data.BackupSkipCloudOnly = stored.BackupSkipCloudOnly;
                 }
             }
         }

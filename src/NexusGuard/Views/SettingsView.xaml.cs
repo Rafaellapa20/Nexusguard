@@ -87,6 +87,21 @@ public partial class SettingsView : UserControl
         if (!_loading) Settings.Current.Notifications = OptNotify.IsChecked == true;
     }
 
+    private void OnTestNotification(object sender, RoutedEventArgs e)
+    {
+        var tray = App.Tray;
+
+        if (tray is not { IsVisible: true })
+        {
+            Ui.Warn(this, "Notificações",
+                "O ícone da bandeja não está disponível nesta sessão, por isso não há como notificar.");
+            return;
+        }
+
+        tray.Notify("NexusGuard",
+            "É assim que ficam os avisos das tarefas agendadas.");
+    }
+
     private void OnRestorePoint(object sender, RoutedEventArgs e)
     {
         if (!_loading) Settings.Current.CreateRestorePoint = OptRestore.IsChecked == true;

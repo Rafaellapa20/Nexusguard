@@ -47,6 +47,12 @@ public partial class ScheduleView : UserControl
                 ? "Nenhuma tarefa agendada neste momento."
                 : $"{active} de {_jobs.Count} tarefas ativas.";
 
+            // O backup agendado só funciona com um destino já escolhido na página Backup.
+            var backup = _jobs.FirstOrDefault(j => j.Key == "Backup");
+
+            if (backup is { Enabled: true } && string.IsNullOrWhiteSpace(Settings.Current.BackupDestination))
+                backup.Status = "sem destino guardado";
+
             if (!Fmt.IsAdmin) State.ShowNeedsAdmin("Criar ou alterar tarefas agendadas");
             else State.Hide();
         }

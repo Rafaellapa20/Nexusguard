@@ -25,6 +25,7 @@ public partial class MainWindow : Window
     private readonly Dictionary<string, ToggleButton> _buttons = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Border> _badges = new(StringComparer.OrdinalIgnoreCase);
     private string _current = "dashboard";
+    private bool _warnedAboutTray;
 
     private static readonly NavGroup[] Groups =
     {
@@ -312,7 +313,7 @@ public partial class MainWindow : Window
         {
             MessageBox.Show(this,
                 "Não foi possível reiniciar com privilégios de administrador. " +
-                "Feche a aplicativo e abra-a com o botão direito → «Executar como administrador».",
+                "Feche o aplicativo e abra-a com o botão direito → «Executar como administrador».",
                 "NexusGuard", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
@@ -323,4 +324,33 @@ public partial class MainWindow : Window
         WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
     private void OnClose(object sender, RoutedEventArgs e) => Close();
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        // Com a bandeja ligada, fechar a janela apenas a esconde — a aplicação continua a
+        // correr para as tarefas agendadas e para o acesso rápido pelo ícone.
+        if (Application.Current is App app && app.ShouldHideOnClose)
+        {
+            e.Cancel = true;
+            Hide();
+
+            if (!_warnedAboutTray)
+            {
+                _warnedAboutTray = true;
+                app.NotifyHiddenToTray();
+            }
+
+            return;
+        }
+
+        base.OnClosing(e);
+    }
+
+    /// <summary>Permite ao menu da bandeja disparar a análise sem duplicar a lógica.</summary>
+    public async Task ScanFromTrayAsync()
+    {
+        Navigate("dashboard");
+
+        if (Host.Content is Views.OverviewView overview) await overview.ScanAsync();
+    }
 }

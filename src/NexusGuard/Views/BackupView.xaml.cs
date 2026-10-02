@@ -44,9 +44,24 @@ public partial class BackupView : UserControl
             if (_loadedOnce) return;
             _loadedOnce = true;
 
+            RestoreSavedChoices();
             LoadDrives();
             UpdateTotal();
         };
+    }
+
+    /// <summary>Repõe o destino e as pastas usados da última vez.</summary>
+    private void RestoreSavedChoices()
+    {
+        var saved = Settings.Current.BackupSources;
+
+        if (saved.Length > 0)
+        {
+            foreach (var source in _sources)
+                source.Selected = saved.Contains(source.Path, StringComparer.OrdinalIgnoreCase);
+        }
+
+        SkipCloud.IsChecked = Settings.Current.BackupSkipCloudOnly;
     }
 
     private BackupMode Mode =>
@@ -128,6 +143,9 @@ public partial class BackupView : UserControl
     private void SetDestination(string path)
     {
         _destination = path;
+
+        // Guardado para a tarefa agendada «--backup» saber para onde copiar.
+        Settings.Current.BackupDestination = path;
 
         try
         {
@@ -269,6 +287,9 @@ public partial class BackupView : UserControl
                 modeWarning +
                 "\n\nNão desligue o disco externo durante a cópia. Continuar?"))
             return;
+
+        Settings.Current.BackupSources = chosen.Select(s => s.Path).ToArray();
+        Settings.Current.BackupSkipCloudOnly = SkipCloud.IsChecked == true;
 
         SetBusy(true);
         ShowConsole(true);

@@ -102,7 +102,7 @@ public partial class AppsView : UserControl
 
         if (chosen.Count == 0)
         {
-            Ui.Inform(this, "Atualizar aplicativos", "Selecione pelo menos uma aplicativo.");
+            Ui.Inform(this, "Atualizar aplicativos", "Selecione pelo menos um aplicativo.");
             return;
         }
 

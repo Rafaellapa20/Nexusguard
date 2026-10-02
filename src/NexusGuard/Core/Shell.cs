@@ -199,7 +199,7 @@ public static class Shell
         return s.Substring(start, end - start + 1);
     }
 
-    /// <summary>Abre um caminho, URL ou painel do Windows com a aplicativo associada.</summary>
+    /// <summary>Abre um caminho, URL ou painel do Windows com o aplicativo associada.</summary>
     public static void OpenExternal(string target)
     {
         try
