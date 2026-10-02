@@ -125,17 +125,25 @@ dotnet run --project src\NexusGuard\NexusGuard.csproj
 .\build.ps1 -SelfContained -Installer
 ```
 
-Gera `dist\NexusGuard-Setup-1.0.0.exe` com **Inno Setup 6** (instale-o com
-`winget install JRSoftware.InnoSetup`). O instalador:
+Gera `dist\NexusGuard-Setup-1.0.0.exe` (~44 MB) com **Inno Setup 6**. Se o compilador não
+estiver instalado, o script avisa e indica `winget install JRSoftware.InnoSetup`; procura-o em
+Program Files e também em `%LocalAppData%\Programs`, onde o winget o coloca quando corre sem
+elevação.
+
+O instalador:
 
 - assistente em português do Brasil e inglês;
 - instala em `C:\Program Files\NexusGuard\`;
 - cria `C:\ProgramData\NexusGuard\{Logs,Quarantine,Reports,RegistryBackups}` com permissão de
   escrita para os usuários;
-- atalhos no Menu Iniciar, opcional na área de trabalho e opcional no arranque;
+- atalhos no Menu Iniciar e, opcionalmente, na área de trabalho;
 - entrada em «Aplicativos instalados» com ícone, editor e versão;
 - desinstalador que pergunta se mantém a quarentena e os relatórios;
 - **sem** ofertas de terceiros.
+
+O arranque automático fica a cargo da própria aplicação (Configurações → «Iniciar com o
+Windows»), que escreve em `HKCU` na conta certa. O instalador corre elevado, por isso criar esse
+atalho a partir dele colocá-lo-ia no perfil do administrador e não no do usuário.
 
 ---
 
