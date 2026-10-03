@@ -40,7 +40,7 @@ public static class Report
             var y = MarginTop;
 
             y = DrawHeader(pdf, y);
-            y = DrawSummaryCards(pdf, y, snapshot, actions);
+            y = DrawSummaryCards(pdf, y, snapshot, actions, ScoreLog.FirstSince(from));
             y = DrawActions(pdf, y, actions);
             DrawRecommendations(pdf, y, snapshot);
             DrawFooter(pdf);
@@ -82,7 +82,7 @@ public static class Report
     }
 
     private static double DrawSummaryCards(PdfDocument pdf, double y, SystemSnapshot? snapshot,
-        List<HistoryEntry> actions)
+        List<HistoryEntry> actions, ScoreSample? earliest)
     {
         const double gap = 12;
         var cardWidth = (ContentWidth - gap * 2) / 3;
@@ -90,7 +90,11 @@ public static class Report
 
         var freed = EstimateFreed(actions);
         var score = snapshot?.Score ?? 0;
-        var before = Math.Max(0, score - EstimateImprovement(actions));
+
+        // O "antes" so aparece se existir mesmo uma medicao anterior. Antes, era deduzido do numero
+        // de acoes e impresso riscado ao lado do real, o que fazia o relatorio inventar o proprio
+        // ponto de partida — e um relatorio que faz isso nao serve de prova de coisa nenhuma.
+        var before = earliest?.Score;
 
         void Card(double x, string label, string before2, string after, string afterColor)
         {
@@ -111,7 +115,7 @@ public static class Report
         }
 
         Card(MarginX, "Saúde do sistema",
-            snapshot?.LastScan is null ? "" : before.ToString(Fmt.Pt),
+            before is { } earlier && earlier != score ? earlier.ToString(Fmt.Pt) : "",
             snapshot?.LastScan is null ? "—" : score.ToString(Fmt.Pt),
             score >= 80 ? Green : score >= 60 ? Amber : "#B91C1C");
 
@@ -258,7 +262,5 @@ public static class Report
         return total;
     }
 
-    /// <summary>Estimativa simples de quanto a pontuação subiu com as ações do período.</summary>
-    private static int EstimateImprovement(IEnumerable<HistoryEntry> actions) =>
-        Math.Min(35, actions.Count() * 2);
+
 }

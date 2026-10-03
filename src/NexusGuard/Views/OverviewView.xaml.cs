@@ -94,6 +94,10 @@ public partial class OverviewView : UserControl
             Step("A concluir…", 96);
             snapshot.LastScan = DateTime.Now;
 
+            // Uma analise concluida e o unico momento em que a pontuacao significa alguma
+            // coisa. E guardada para o relatorio poder comparar com medicoes reais.
+            ScoreLog.Record(snapshot.Score);
+
             History.Add("Visão geral", "Análise completa do PC",
                 $"saúde {snapshot.Score}", UndoKind.None);
 

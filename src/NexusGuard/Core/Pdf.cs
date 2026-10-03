@@ -194,7 +194,45 @@ public sealed class PdfDocument
         Write(Latin1(sb.ToString()));
     }
 
-    private static byte[] Latin1(string s) => Encoding.Latin1.GetBytes(s);
+    /// <summary>
+    /// Os bytes do ficheiro. Tem de ser Windows-1252 e não Latin-1: as fontes são declaradas com
+    /// <c>/WinAnsiEncoding</c>, que é o 1252, e os dois só coincidem fora da faixa 0x80–0x9F. É
+    /// precisamente aí que vivem o travessão, as aspas curvas, as reticências e o ponto de lista —
+    /// ou seja, toda a tipografia que este relatório usa. Com Latin-1 saíam como pontos de
+    /// interrogação.
+    /// </summary>
+    private static byte[] Latin1(string s) => WinAnsi.GetBytes(s);
+
+    private static readonly Encoding WinAnsi = ResolveWinAnsi();
+
+    private static Encoding ResolveWinAnsi()
+    {
+        try
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            return Encoding.GetEncoding(1252);
+        }
+        catch (Exception)
+        {
+            // Sem a página de código, o Latin-1 ainda cobre acentos, que é o que mais importa.
+            return Encoding.Latin1;
+        }
+    }
+
+    /// <summary>
+    /// Caracteres que nem o Windows-1252 tem, trocados por algo legível. Sem isto saem como "?",
+    /// que num relatório entregue a alguém parece um defeito — e é.
+    /// </summary>
+    private static readonly Dictionary<char, string> Fallbacks = new()
+    {
+        ['→'] = ">",       // seta para a direita
+        ['←'] = "<",       // seta para a esquerda
+        ['✓'] = "v",       // visto
+        ['✔'] = "v",
+        ['✗'] = "x",
+        ['×'] = "x",
+        ['•'] = "·",  // ponto de lista -> ponto medio, que existe no 1252
+    };
 
     private static string Escape(string text)
     {
@@ -202,6 +240,12 @@ public sealed class PdfDocument
 
         foreach (var c in text)
         {
+            if (Fallbacks.TryGetValue(c, out var replacement))
+            {
+                sb.Append(replacement);
+                continue;
+            }
+
             switch (c)
             {
                 case '(': sb.Append("\\("); break;
@@ -210,13 +254,24 @@ public sealed class PdfDocument
                 case '\r':
                 case '\n': sb.Append(' '); break;
                 default:
-                    // As fontes base usam WinAnsi; o que não couber vira "?" em vez de corromper o arquivo.
-                    sb.Append(c <= 'ÿ' ? c : '?');
+                    // O que a codificação do ficheiro não souber escrever vira "?" em vez de
+                    // corromper o conteúdo. Perguntar à própria codificação é mais fiável do
+                    // que comparar com um limite fixo: o 1252 escreve caracteres acima de 0xFF.
+                    sb.Append(Representable(c) ? c : '?');
                     break;
             }
         }
 
         return sb.ToString();
+    }
+
+    /// <summary>Se a codificação do ficheiro consegue escrever este caractere sem o perder.</summary>
+    private static bool Representable(char c)
+    {
+        if (c == '?') return true;
+
+        var bytes = WinAnsi.GetBytes(new[] { c });
+        return bytes.Length == 1 && bytes[0] != (byte)'?';
     }
 
     private static (double r, double g, double b) Rgb(string hex)

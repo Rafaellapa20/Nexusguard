@@ -63,7 +63,16 @@ public sealed record CleanOutcome(
     int Skipped,
     int Locked = 0,
     string? BatchId = null,
-    int ProtectedSkipped = 0);
+    int ProtectedSkipped = 0,
+
+    /// <summary>
+    /// Arquivos que o Windows vai apagar no próximo arranque. É uma remoção definitiva e sem volta,
+    /// por isso conta-se à parte dos que ficaram simplesmente por mover.
+    /// </summary>
+    int ScheduledForReboot = 0,
+
+    /// <summary>Razão por que a limpeza não chegou a acontecer. Nula quando correu.</summary>
+    string? Problem = null);
 
 /// <summary>Um arquivo candidato a limpeza, já com a indicação de estar protegido.</summary>
 public sealed record CleanFile(string Path, long Size, bool Protected)
@@ -540,8 +549,21 @@ public static class DiskCleaner
 
         if (Settings.Current.UseQuarantine)
         {
+            // A quarentena vive no disco do sistema. Encher esse disco para guardar o que se estava
+            // a limpar seria trocar um problema por outro bem pior.
+            var room = Quarantine.HasRoomFor(files.Select(f => (f.Path, f.Size)));
+
+            if (!room.Ok)
+            {
+                var problem = $"A quarentena em {room.Drive} tem {Fmt.Bytes(room.Free)} livres e " +
+                              $"precisaria de {Fmt.Bytes(room.Needed)}.";
+
+                Logger.Warn("Limpeza", $"{target.Name}: {problem}");
+                return new CleanOutcome(0, 0, files.Count, 0, null, protectedCount, 0, problem);
+            }
+
             var result = Quarantine.Move(files.Select(f => f.Path), target.Name, progress, ct);
-            var locked = LockedAfterMove(files, result.Moved);
+            var locked = StillOnDisk(files, result.Moved);
 
             CleanupEmptyFolders(target);
             RemoveWindowsOldIfRequested(target);
@@ -557,7 +579,7 @@ public static class DiskCleaner
         }
 
         long freed = 0;
-        int deleted = 0, locked2 = 0;
+        int deleted = 0, locked2 = 0, scheduled = 0;
 
         foreach (var file in files)
         {
@@ -577,9 +599,12 @@ public static class DiskCleaner
                 if (deleted % 200 == 0)
                     progress?.Report($"{target.Name}: {Fmt.Count(deleted)} arquivos removidos...");
             }
-            catch
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                if (ScheduleDeleteOnReboot(file.Path)) locked2++;
+                // Sem quarentena, quem limpa já aceitou a remoção definitiva. Um arquivo preso por
+                // outro programa só sai no arranque seguinte, antes de o Windows o voltar a abrir.
+                if (ScheduleDeleteOnReboot(file.Path)) scheduled++;
+                else locked2++;
             }
         }
 
@@ -588,11 +613,18 @@ public static class DiskCleaner
 
         History.Add("Limpeza", $"{target.Name}: {Fmt.Count(deleted)} arquivos removidos", Fmt.Bytes(freed));
 
-        return new CleanOutcome(freed, deleted, locked2, locked2, null, protectedCount);
+        return new CleanOutcome(freed, deleted, locked2 + scheduled, locked2, null, protectedCount, scheduled);
     }
 
-    /// <summary>Quantos arquivos continuaram em disco depois da tentativa de mover.</summary>
-    private static int LockedAfterMove(List<CleanFile> files, int moved)
+    /// <summary>
+    /// Quantos arquivos continuaram em disco depois da tentativa de mover para a quarentena.
+    ///
+    /// Só conta: não agenda nada. Quem liga a quarentena está a pedir que nada seja apagado sem
+    /// volta, e agendar a remoção definitiva de um arquivo que falhou a entrada na quarentena faria
+    /// exatamente o contrário do que a definição promete — sem o dizer, e sem forma de recuperar.
+    /// Ficam onde estão e a próxima limpeza tenta outra vez.
+    /// </summary>
+    private static int StillOnDisk(List<CleanFile> files, int moved)
     {
         if (moved >= files.Count) return 0;
 
@@ -600,8 +632,9 @@ public static class DiskCleaner
 
         foreach (var file in files)
         {
-            try { if (File.Exists(file.Path) && ScheduleDeleteOnReboot(file.Path)) stillThere++; }
-            catch { }
+            try { if (File.Exists(file.Path)) stillThere++; }
+            catch (IOException) { stillThere++; }
+            catch (UnauthorizedAccessException) { stillThere++; }
         }
 
         return stillThere;

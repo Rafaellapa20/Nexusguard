@@ -216,6 +216,8 @@ public partial class CleanupView : UserControl
         long freed = 0;
         var files = 0;
         var locked = 0;
+        var scheduled = 0;
+        string? problem = null;
 
         try
         {
@@ -240,20 +242,44 @@ public partial class CleanupView : UserControl
 
                 var outcome = await DiskCleaner.CleanAsync(target, progress, _cts.Token, accepted);
 
+                // Se a quarentena não tem espaço, as categorias seguintes vão esbarrar no mesmo.
+                // Insistir só encheria o registro com o mesmo erro vinte vezes.
+                if (outcome.Problem is { } why)
+                {
+                    problem = why;
+                    _sink?.Write("  " + why);
+                    break;
+                }
+
                 freed += outcome.BytesFreed;
                 files += outcome.FilesDeleted;
                 locked += outcome.Locked;
+                scheduled += outcome.ScheduledForReboot;
 
                 _sink?.Write($"  {Fmt.Bytes(outcome.BytesFreed)} · {outcome.FilesDeleted} arquivos · " +
-                             $"{outcome.Locked} em uso · {outcome.ProtectedSkipped} protegidos");
+                             $"{outcome.Locked} em uso · {outcome.ProtectedSkipped} protegidos" +
+                             (outcome.ScheduledForReboot > 0
+                                 ? $" · {outcome.ScheduledForReboot} saem no próximo arranque"
+                                 : ""));
             }
 
             StatusLine.Text = $"concluído — {Fmt.Bytes(freed)}";
             SystemMonitor.Instance.RefreshDrives();
             RefreshQuarantine();
 
-            if (locked > 0) State.ShowLockedFiles(locked, files + locked);
+            // A remoção no arranque é definitiva, por isso tem prioridade sobre o aviso dos que
+            // apenas ficaram por mover: é a que o utilizador precisa mesmo de ver.
+            if (problem is not null) State.ShowQuarantineNoSpace(problem);
+            else if (scheduled > 0) State.ShowScheduledForReboot(scheduled);
+            else if (locked > 0) State.ShowLockedFiles(locked, files + locked);
             else State.Hide();
+
+            if (problem is not null)
+            {
+                StatusLine.Text = "interrompida — sem espaço na quarentena";
+                Ui.Warn(this, "Limpeza interrompida", problem + "\n\nNada foi apagado nem movido.");
+                return;
+            }
 
             Ui.Inform(this, "Limpeza concluída",
                 $"{Fmt.Bytes(freed)} liberados · {Fmt.Count(files)} arquivos.\n\n" +

@@ -72,6 +72,10 @@ public static class Jobs
         snapshot.PendingDrivers = drivers.Count;
         snapshot.LastScan = DateTime.Now;
 
+        // Uma analise concluida e o unico momento em que a pontuacao significa alguma
+        // coisa. E guardada para o relatorio poder comparar com medicoes reais.
+        ScoreLog.Record(snapshot.Score);
+
         History.Add("Agendamento", "Análise completa do PC", $"saúde {snapshot.Score}");
 
         var message = snapshot.AttentionCount == 0

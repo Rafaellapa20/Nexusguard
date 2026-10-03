@@ -157,6 +157,55 @@ public static class Quarantine
     /// Move os arquivos indicados para um lote novo. Devolve o identificador do lote, que fica
     /// salvo no histórico para o «Desfazer».
     /// </summary>
+    /// <summary>Resultado da verificação de espaço, com os números para mostrar a quem pergunta.</summary>
+    public sealed record SpaceCheck(bool Ok, long Needed, long Free, string Drive);
+
+    /// <summary>Margem a deixar livre no disco da quarentena depois de tudo movido.</summary>
+    private const long Margin = 2L * 1024 * 1024 * 1024;
+
+    /// <summary>
+    /// Confirma que a quarentena cabe no disco onde vive, antes de mover o que quer que seja.
+    ///
+    /// A quarentena está sempre no disco do sistema. Mover um arquivo dentro do mesmo disco é só
+    /// mudar o nome e não gasta espaço nenhum, mas mover de outro disco é copiar — limpar 50 GB de
+    /// um disco de dados encheria o disco do Windows e deixaria a máquina sem conseguir arrancar.
+    /// Só conta o que vem de fora, que é o que custa espaço.
+    /// </summary>
+    public static SpaceCheck HasRoomFor(IEnumerable<(string Path, long Size)> files)
+    {
+        var store = Paths.Quarantine;
+        var storeRoot = Path.GetPathRoot(store) ?? "C:\\";
+
+        long needed = 0;
+
+        foreach (var (path, size) in files)
+        {
+            var root = Path.GetPathRoot(path);
+            if (root is null) continue;
+
+            // Mesmo disco: a mudança é instantânea e não ocupa espaço novo.
+            if (string.Equals(root, storeRoot, StringComparison.OrdinalIgnoreCase)) continue;
+
+            needed += size;
+        }
+
+        long free;
+
+        try
+        {
+            free = new DriveInfo(storeRoot).AvailableFreeSpace;
+        }
+        catch (Exception ex)
+        {
+            // Sem saber o espaço livre, deixar passar é o menor dos males: recusar uma limpeza por
+            // causa de uma leitura falhada seria pior do que o risco que se tenta evitar.
+            Logger.Warn("Quarentena", $"espaço livre de {storeRoot} indisponível — {ex.Message}");
+            return new SpaceCheck(true, needed, 0, storeRoot);
+        }
+
+        return new SpaceCheck(needed == 0 || free > needed + Margin, needed, free, storeRoot);
+    }
+
     public static QuarantineResult Move(IEnumerable<string> files, string label,
         IProgress<string>? progress = null, CancellationToken ct = default)
     {

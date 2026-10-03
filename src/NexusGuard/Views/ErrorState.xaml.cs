@@ -90,13 +90,30 @@ public partial class ErrorState : UserControl
         StateSeverity.Empty,
         "Ver agendamento");
 
+    /// <summary>
+    /// Arquivos que ficaram onde estavam. Com a quarentena ligada nada é apagado sem volta, por
+    /// isso isto não é uma perda: é só espaço que continua ocupado até à próxima limpeza.
+    /// </summary>
     public void ShowLockedFiles(int locked, int total) => Show(
         "Limpeza",
         "Alguns arquivos não foram movidos",
-        $"{locked} de {total} arquivos estão em uso por outro programa. Serão tratados na próxima " +
-        "inicialização, antes do Windows bloqueá-los.",
+        $"{locked} de {total} arquivos estavam em uso por outro programa e ficaram onde estavam. " +
+        "Nada foi perdido. Feche esses programas, ou reinicie o PC, e limpe outra vez.",
         StateSeverity.Warning,
-        "Agendar para a inicialização", $"Ver os {locked} arquivos");
+        secondary: $"Ver os {locked} arquivos");
+
+    /// <summary>
+    /// Arquivos que o Windows vai apagar no arranque seguinte. Só acontece com a quarentena
+    /// desligada, e dizer "serão tratados" escondia que a remoção é definitiva.
+    /// </summary>
+    public void ShowScheduledForReboot(int scheduled) => Show(
+        "Limpeza",
+        $"{scheduled} arquivos saem no próximo arranque",
+        "Estavam presos por outro programa e não puderam ser apagados agora. O Windows remove-os " +
+        "ao arrancar, antes de os voltar a abrir. Como a quarentena está desligada, a remoção é " +
+        "definitiva e não há como repô-los.",
+        StateSeverity.Warning,
+        secondary: "Ver os arquivos");
 
     public void ShowNotEnoughSpace(string drive, string free, string needed) => Show(
         "Backup",
@@ -105,6 +122,18 @@ public partial class ErrorState : UserControl
         "reduza o que está incluído.",
         StateSeverity.Danger,
         "Escolher outro destino", "Ajustar conteúdo");
+
+    /// <summary>
+    /// A quarentena não cabe no disco onde vive. Não é um erro da limpeza: é a limpeza a recusar
+    /// encher o disco do sistema para guardar o que ia apagar.
+    /// </summary>
+    public void ShowQuarantineNoSpace(string detail) => Show(
+        "Limpeza",
+        "A quarentena não tem espaço",
+        detail + " Nada foi apagado. Esvazie a quarentena no Histórico, liberte espaço nesse disco, " +
+        "ou desligue a quarentena em Configurações — nesse caso a limpeza passa a ser definitiva.",
+        StateSeverity.Danger,
+        "Abrir o Histórico", "Abrir as Configurações");
 
     public void ShowUnsignedDriver(string name, string version) => Show(
         "Drivers",
