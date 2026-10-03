@@ -1,3 +1,4 @@
+using NexusGuard.Modules;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -117,6 +118,29 @@ public sealed class StateToBrush : IValueConverter
 public sealed class StateToText : IValueConverter
 {
     public object Convert(object? value, Type t, object? p, CultureInfo c) => value is true ? "Ativo" : "Inativo";
+
+    public object ConvertBack(object? value, Type t, object? p, CultureInfo c) => Binding.DoNothing;
+}
+
+/// <summary>
+/// Estado de uma instalacao em lote na cor do ponto da fila: cinza na fila, roxo a instalar,
+/// verde instalada, vermelho falhou.
+/// </summary>
+public sealed class InstallStateToBrush : IValueConverter
+{
+    public object Convert(object? value, Type t, object? p, CultureInfo c)
+    {
+        var color = value switch
+        {
+            InstallState.Running => Color.FromRgb(0x7C, 0x5C, 0xF6),
+            InstallState.Done => Color.FromRgb(0x34, 0xD3, 0x99),
+            InstallState.AlreadyThere => Color.FromRgb(0x5A, 0x6B, 0x84),
+            InstallState.Failed => Color.FromRgb(0xF8, 0x71, 0x71),
+            _ => Color.FromRgb(0x3A, 0x44, 0x55)
+        };
+
+        return new SolidColorBrush(color);
+    }
 
     public object ConvertBack(object? value, Type t, object? p, CultureInfo c) => Binding.DoNothing;
 }

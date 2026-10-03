@@ -36,6 +36,7 @@ public partial class MainWindow : Window
         new("Atualizar", new[]
         {
             new NavEntry("apps", "Aplicativos", "I.Apps", () => new AppsView()),
+            new NavEntry("install", "Instalar em lote", "I.Grid", () => new InstallView()),
             new NavEntry("drivers", "Drivers", "I.Driver", () => new DriversView()),
             new NavEntry("uninstall", "Desinstalar", "I.Trash", () => new UninstallView())
         }),

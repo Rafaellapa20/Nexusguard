@@ -1,0 +1,212 @@
+<UserControl x:Class="NexusGuard.Views.InstallView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource F.UI}"
+             Foreground="{StaticResource B.Text}">
+
+    <Grid Margin="22,8,22,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Cabeçalho -->
+        <Border Grid.Row="0" Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="INSTALAR EM LOTE" Style="{StaticResource T.Label}" />
+                    <TextBlock x:Name="CountText" Text="Nenhum selecionado" Style="{StaticResource T.Metric}"
+                               Margin="0,6,0,0" />
+                    <TextBlock Style="{StaticResource T.Muted}" Margin="0,4,0,0" TextWrapping="Wrap"
+                               Text="Para um PC recém-formatado: escolha os aplicativos e o NexusGuard instala-os em sequência, sem perguntas pelo caminho." />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="LoadButton" Content="Carregar perfil" Style="{StaticResource Btn.Ghost}"
+                            Click="OnLoadProfile" />
+                    <Button x:Name="SaveButton" Content="Guardar perfil" Style="{StaticResource Btn.Ghost}"
+                            Margin="8,0,0,0" Click="OnSaveProfile" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Aviso de winget em falta -->
+        <Border x:Name="WingetWarning" Grid.Row="1" Style="{StaticResource Card.Flat}" Margin="0,12,0,0"
+                Background="{StaticResource B.WarnSoft}" BorderBrush="{StaticResource B.Warn}"
+                Visibility="Collapsed">
+            <StackPanel>
+                <TextBlock Text="O winget não está instalado" FontWeight="SemiBold" FontSize="13"
+                           Foreground="{StaticResource B.Warn}" />
+                <TextBlock Style="{StaticResource T.Muted}" Margin="0,4,0,0" TextWrapping="Wrap"
+                           Text="A instalação em lote usa o winget, o gerenciador de pacotes da Microsoft. Sem ele não há de onde instalar." />
+            </StackPanel>
+        </Border>
+
+        <!-- Catálogo e fila -->
+        <Grid Grid.Row="2" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="292" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Catálogo -->
+            <Border Style="{StaticResource Card}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="CONJUNTOS PRONTOS" Style="{StaticResource T.Label}" />
+                        <WrapPanel x:Name="PresetPanel" Margin="0,8,0,0" />
+                        <Border Style="{StaticResource Divider}" Margin="0,4,0,10" />
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="GroupList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,16">
+                                        <TextBlock Text="{Binding Name}" Style="{StaticResource T.Group}" />
+
+                                        <ItemsControl ItemsSource="{Binding Apps}" Margin="0,8,0,0">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="230" Margin="0,0,10,10" CornerRadius="10"
+                                                            Padding="12,10" Background="{StaticResource B.SurfaceAlt}"
+                                                            BorderThickness="1"
+                                                            BorderBrush="{StaticResource B.Border}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+
+                                                            <Border Width="32" Height="32" CornerRadius="8"
+                                                                    Background="{StaticResource B.AccentSoft}"
+                                                                    VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding Initial}"
+                                                                           FontWeight="Bold" FontSize="14"
+                                                                           Foreground="{StaticResource B.Accent}"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center" />
+                                                            </Border>
+
+                                                            <StackPanel Grid.Column="1" Margin="10,0,8,0"
+                                                                        VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding Name}" FontSize="13"
+                                                                           FontWeight="SemiBold"
+                                                                           TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Text="{Binding Id}"
+                                                                           Style="{StaticResource T.Mono}"
+                                                                           FontSize="10"
+                                                                           Foreground="{StaticResource B.TextMuted}"
+                                                                           TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Text="{Binding Status}"
+                                                                           Style="{StaticResource T.Muted}"
+                                                                           FontSize="10" Margin="0,2,0,0" />
+                                                            </StackPanel>
+
+                                                            <CheckBox Grid.Column="2" Style="{StaticResource Chk}"
+                                                                      VerticalAlignment="Center"
+                                                                      IsChecked="{Binding Selected, Mode=TwoWay}"
+                                                                      Checked="OnPick" Unchecked="OnPick" />
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- Fila -->
+            <Border Grid.Column="1" Style="{StaticResource Card}" Margin="12,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="FILA DE INSTALAÇÃO" Style="{StaticResource T.Label}" />
+                        <TextBlock x:Name="QueueCount" Text="vazia" Style="{StaticResource T.Dim}"
+                                   Margin="0,6,0,0" />
+                        <Border Style="{StaticResource Divider}" Margin="0,10,0,8" />
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="QueueList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                                 Fill="{Binding State, Converter={StaticResource StateDot}}" />
+
+                                        <StackPanel Grid.Column="1" Margin="9,0,0,0">
+                                            <TextBlock Text="{Binding Name}" FontSize="12" />
+                                            <TextBlock Text="{Binding StateText}" Style="{StaticResource T.Muted}"
+                                                       FontSize="10" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Style="{StaticResource Divider}" Margin="0,8,0,10" />
+
+                        <ProgressBar x:Name="Progress" Style="{StaticResource Pb}" Minimum="0" Maximum="1"
+                                     Value="0" Visibility="Collapsed" Margin="0,0,0,10" />
+
+                        <CheckBox x:Name="ShutdownWhenDone" Style="{StaticResource Chk}"
+                                  Content="Desligar o PC ao terminar" Margin="0,0,0,10" />
+
+                        <Button x:Name="InstallButton" Content="Instalar" Style="{StaticResource Btn.Primary}"
+                                HorizontalAlignment="Stretch" IsEnabled="False" Click="OnInstall" />
+
+                        <Button x:Name="CancelButton" Content="Parar" Style="{StaticResource Btn.Danger}"
+                                HorizontalAlignment="Stretch" Margin="0,8,0,0" Visibility="Collapsed"
+                                Click="OnCancel" />
+
+                        <Button x:Name="ClearButton" Content="Limpar seleção" Style="{StaticResource Btn.Ghost}"
+                                HorizontalAlignment="Stretch" Margin="0,8,0,0" Click="OnClear" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Registro -->
+        <Expander x:Name="LogExpander" Grid.Row="3" Header="Detalhes da instalação" Margin="0,12,0,0"
+                  Foreground="{StaticResource B.TextDim}" FontSize="12">
+            <TextBox x:Name="LogBox" Style="{StaticResource Console}" Height="150" Margin="0,8,0,0" />
+        </Expander>
+    </Grid>
+</UserControl>

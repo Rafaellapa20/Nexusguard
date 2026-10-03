@@ -17,6 +17,7 @@
             <core:CountToVis x:Key="CountToVis" />
             <core:LoadToBrush x:Key="LoadToBrush" />
             <core:StateToBrush x:Key="StateToBrush" />
+            <core:InstallStateToBrush x:Key="StateDot" />
             <core:StateToText x:Key="StateToText" />
             <core:PercentToWidth x:Key="PercentToWidth" />
             <core:LogLevelToBrush x:Key="LogLevelToBrush" />
