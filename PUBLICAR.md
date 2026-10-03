@@ -1,41 +1,25 @@
 # Publicar no GitHub
 
-Passo a passo para pôr o NexusGuard num repositório e distribuir atualizações a partir dele.
+Como o NexusGuard chega ao repositório e distribui atualizações a partir dele.
+
+Repositório: <https://github.com/Rafaellapa20/Nexusguard> — público, ramo `main`.
 
 ---
 
-## 1. Criar o repositório
+## 1. Enviar o código
 
-O `gh` (CLI do GitHub) não está instalado nesta máquina. Duas opções:
-
-**Pelo site** — <https://github.com/new>, nome `NexusGuard`, **sem** README/`.gitignore`/licença
-(o repositório local já os tem). Depois:
+O remoto local já está configurado. Para enviar:
 
 ```powershell
 cd C:\Users\Lapa\Documents\APPlimpezawindows
-git branch -M main
-git remote add origin https://github.com/SEU-UTILIZADOR/NexusGuard.git
 git push -u origin main
 ```
 
-**Pelo CLI** — `winget install GitHub.cli`, depois:
+### Porque é público
 
-```powershell
-cd C:\Users\Lapa\Documents\APPlimpezawindows
-gh auth login
-git branch -M main
-gh repo create NexusGuard --source . --public --push
-```
-
-### Público ou privado?
-
-**O repositório tem de ser público para as atualizações funcionarem.** A aplicação consulta a API
-do GitHub sem qualquer credencial; num repositório privado todos os pedidos devolvem 404 e a única
-alternativa seria embutir um token no executável — o que o entregaria a quem o instalasse.
-
-Se o código não puder ser público, a saída é separar as coisas: o código num repositório privado e
-só os ficheiros do release num repositório público à parte, mudando o `Repo` em
-`Modules/Updater.cs`.
+A aplicação consulta a API do GitHub sem qualquer credencial. Num repositório privado todos os
+pedidos devolveriam 404, e a única alternativa seria embutir um token no executável — que ficaria
+nas mãos de quem o instalasse. Sendo público, as atualizações funcionam sem nada disso.
 
 ### Licença
 
@@ -46,17 +30,17 @@ contribuir, é preciso escolher uma licença, e essa decisão é sua.
 
 ---
 
-## 2. Apontar a aplicação para o repositório
+## 2. Aplicação já apontada para o repositório
 
 Em `src/NexusGuard/Modules/Updater.cs`:
 
 ```csharp
-public const string Owner = "SEU-UTILIZADOR";   // ← troque pelo seu nome de usuário
-public const string Repo  = "NexusGuard";
+public const string Owner = "Rafaellapa20";
+public const string Repo  = "Nexusguard";
 ```
 
-Enquanto o `Owner` começar por `SEU-`, a aplicação sabe que não está configurada: a secção de
-atualizações aparece desligada em vez de dar erros de rede.
+Confirmado com um pedido real à API: a aplicação encontra o repositório e responde
+«Ainda não há nenhuma versão publicada», que é o correcto enquanto não houver releases.
 
 ---
 
@@ -114,3 +98,28 @@ tempo e de downloads suficientes, ou imediatamente com um certificado EV, que te
 uma autoridade certificadora.
 
 As notas de cada release já explicam isto a quem descarregar.
+
+---
+
+## 6. Email nos commits
+
+Num repositório público, o email do autor fica visível em cada commit, para sempre. O GitHub dá um
+endereço alternativo que não revela o pessoal:
+
+```
+223636372+Rafaellapa20@users.noreply.github.com
+```
+
+Para passar a usá-lo nos commits futuros:
+
+```powershell
+cd C:\Users\Lapa\Documents\APPlimpezawindows
+git config user.email "223636372+Rafaellapa20@users.noreply.github.com"
+git config user.name "Rafaellapa20"
+```
+
+Para reescrever também os commits já feitos — só possível **antes** do primeiro push:
+
+```powershell
+git filter-branch -f --env-filter "GIT_AUTHOR_EMAIL='223636372+Rafaellapa20@users.noreply.github.com'; GIT_COMMITTER_EMAIL='223636372+Rafaellapa20@users.noreply.github.com'" -- --all
+```
