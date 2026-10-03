@@ -34,10 +34,11 @@ public sealed record UpdateCheck(UpdateState State, UpdateInfo? Update, string M
 public static class Updater
 {
     /// <summary>Dono e nome do repositório que publica as versões.</summary>
-    public const string Owner = "SEU-UTILIZADOR";
+    public const string Owner = "Rafaellapa20";
 
-    public const string Repo = "NexusGuard";
+    public const string Repo = "Nexusguard";
 
+    /// <summary>Falso enquanto o repositório for o marcador, para não dar erros de rede sem razão.</summary>
     public static bool IsConfigured => !Owner.StartsWith("SEU-", StringComparison.OrdinalIgnoreCase);
 
     public static string ReleasesUrl => $"https://github.com/{Owner}/{Repo}/releases";
