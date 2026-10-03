@@ -91,10 +91,21 @@ begin
 
     if DirExists(DataDir) then
     begin
+      // Numa desinstalação silenciosa o MsgBox não chega a aparecer e devolve o botão por
+      // omissão, que em MB_YESNO é o "Sim". Apagar a quarentena de alguém sem que ninguém
+      // tenha respondido à pergunta não é aceitável, por isso em modo silencioso fica tudo.
+      // Quem quiser mesmo apagar tem a pasta à mão.
+      if UninstallSilent() then
+        Exit;
+
+      // MB_DEFBUTTON2 põe o "Não" como botão selecionado: carregar Enter distraído mantém
+      // os arquivos em vez de os perder.
       if MsgBox('Remover também a quarentena, os registros e os relatórios do NexusGuard?' + #13#10 +
                 'Os arquivos em quarentena serão perdidos de forma definitiva.',
-                mbConfirmation, MB_YESNO) = IDYES then
-        DelTree(DataDir, True, True, True);
+                mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDNO then
+        Exit;
+
+      DelTree(DataDir, True, True, True);
     end;
   end;
 end;
