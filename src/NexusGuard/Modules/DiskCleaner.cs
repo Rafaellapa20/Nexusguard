@@ -240,6 +240,10 @@ public static class DiskCleaner
             }
         };
 
+        // Caches das aplicacoes instaladas, a seguir as categorias do sistema. So aparecem as
+        // aplicacoes que existem nesta maquina e cuja pasta de cache tem alguma coisa dentro.
+        targets.AddRange(AppCleaners.BuildTargets());
+
         return targets;
     }
 
