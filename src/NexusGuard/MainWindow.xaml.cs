@@ -116,8 +116,9 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Consulta discreta ao arrancar: se houver versao nova, avisa pela bandeja e marca
-    /// Configuracoes. Nada e baixado nem instalado sem o utilizador pedir.
+    /// Consulta ao arrancar. Havendo versao nova, mostra-a numa janela por cima da aplicacao, que
+    /// e o que quem abre o programa ve; arrancado para a bandeja, avisa pelo balao. Em qualquer dos
+    /// casos marca Configuracoes. Nada e baixado nem instalado sem o utilizador pedir.
     /// </summary>
     private async Task CheckForUpdatesQuietlyAsync()
     {
@@ -132,6 +133,19 @@ public partial class MainWindow : Window
             if (check.State != UpdateState.Available || check.Update is null) return;
 
             SetBadge("settings", 1, "ok");
+
+            // Dispensada de proposito para esta versao: fica so o ponto em Configuracoes.
+            if (string.Equals(Settings.Current.SkippedUpdateVersion, check.Update.Version.ToString(),
+                    StringComparison.Ordinal))
+                return;
+
+            // Com a janela a tapar o ecra, uma caixa modal e o que se ve; arrancado para a bandeja,
+            // seria uma janela a saltar sem ninguem ter aberto nada, e ai o balao e o correto.
+            if (IsVisible && WindowState != WindowState.Minimized)
+            {
+                new UpdateWindow(check.Update) { Owner = this }.ShowDialog();
+                return;
+            }
 
             App.Tray?.Notify("NexusGuard",
                 $"Versao {check.Update.Version} disponivel. Abra Configuracoes para instalar.");

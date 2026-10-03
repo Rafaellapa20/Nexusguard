@@ -38,6 +38,7 @@ public sealed class Settings : Observable
         public string[] BackupSources { get; set; } = Array.Empty<string>();
         public bool BackupSkipCloudOnly { get; set; } = true;
         public bool CheckUpdatesOnStart { get; set; } = true;
+        public string SkippedUpdateVersion { get; set; } = string.Empty;
     }
 
     private readonly Dto _data = new();
@@ -162,6 +163,17 @@ public sealed class Settings : Observable
         set => Apply(v => _data.CheckUpdatesOnStart = v, _data.CheckUpdatesOnStart, value);
     }
 
+    /// <summary>
+    /// Versão que o usuário mandou não voltar a anunciar. Guarda-se a versão e não um simples
+    /// "não perguntar mais": quando sair uma versão seguinte, o aviso volta a aparecer, que é o
+    /// que a pessoa quis dizer — dispensou aquela, não todas as futuras.
+    /// </summary>
+    public string SkippedUpdateVersion
+    {
+        get => _data.SkippedUpdateVersion;
+        set => Apply(v => _data.SkippedUpdateVersion = v, _data.SkippedUpdateVersion, value ?? string.Empty);
+    }
+
     private void Apply<T>(Action<T> assign, T current, T value, [CallerMemberName] string? name = null)
     {
         if (EqualityComparer<T>.Default.Equals(current, value)) return;
@@ -202,6 +214,7 @@ public sealed class Settings : Observable
                     settings._data.BackupSources = stored.BackupSources ?? Array.Empty<string>();
                     settings._data.BackupSkipCloudOnly = stored.BackupSkipCloudOnly;
                     settings._data.CheckUpdatesOnStart = stored.CheckUpdatesOnStart;
+                    settings._data.SkippedUpdateVersion = stored.SkippedUpdateVersion ?? string.Empty;
                 }
             }
         }
