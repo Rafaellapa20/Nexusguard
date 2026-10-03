@@ -2,7 +2,12 @@
 ; Compilar: iscc installer\NexusGuard.iss  (depois de .\build.ps1 -SelfContained)
 
 #define AppName        "NexusGuard"
-#define AppVersion     "1.0.0"
+
+; A versao pode vir do compilador (iscc /DAppVersion=1.2.3), para cada release
+; levar a sua. Sem isso, assume a versao de desenvolvimento.
+#ifndef AppVersion
+  #define AppVersion   "1.0.0"
+#endif
 #define AppPublisher   "NexusGuard"
 #define AppExe         "NexusGuard.exe"
 #define SourceDir      "..\dist"

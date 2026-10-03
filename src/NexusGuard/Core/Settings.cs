@@ -37,6 +37,7 @@ public sealed class Settings : Observable
         public string BackupDestination { get; set; } = string.Empty;
         public string[] BackupSources { get; set; } = Array.Empty<string>();
         public bool BackupSkipCloudOnly { get; set; } = true;
+        public bool CheckUpdatesOnStart { get; set; } = true;
     }
 
     private readonly Dto _data = new();
@@ -154,6 +155,13 @@ public sealed class Settings : Observable
         set => Apply(v => _data.BackupSkipCloudOnly = v, _data.BackupSkipCloudOnly, value);
     }
 
+    /// <summary>Procurar versões novas no arranque (uma consulta ao GitHub, nada é instalado).</summary>
+    public bool CheckUpdatesOnStart
+    {
+        get => _data.CheckUpdatesOnStart;
+        set => Apply(v => _data.CheckUpdatesOnStart = v, _data.CheckUpdatesOnStart, value);
+    }
+
     private void Apply<T>(Action<T> assign, T current, T value, [CallerMemberName] string? name = null)
     {
         if (EqualityComparer<T>.Default.Equals(current, value)) return;
@@ -193,6 +201,7 @@ public sealed class Settings : Observable
                     settings._data.BackupDestination = stored.BackupDestination ?? string.Empty;
                     settings._data.BackupSources = stored.BackupSources ?? Array.Empty<string>();
                     settings._data.BackupSkipCloudOnly = stored.BackupSkipCloudOnly;
+                    settings._data.CheckUpdatesOnStart = stored.CheckUpdatesOnStart;
                 }
             }
         }

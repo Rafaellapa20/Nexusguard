@@ -1,0 +1,103 @@
+name: Release
+
+# Publica uma versão quando se cria uma etiqueta v1.2.3.
+#   git tag v1.2.3 && git push origin v1.2.3
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão a construir (ex.: 1.2.3)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar o .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Determinar a versão
+        id: version
+        shell: pwsh
+        run: |
+          $version = if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+            '${{ github.event.inputs.version }}'
+          } else {
+            '${{ github.ref_name }}'
+          }
+
+          $version = $version.TrimStart('v')
+
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw "Versao invalida: '$version'"
+          }
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Versao: $version"
+
+      - name: Garantir o Inno Setup
+        shell: pwsh
+        run: |
+          $iscc = Get-ChildItem 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe',
+                                'C:\Program Files\Inno Setup 6\ISCC.exe' -ErrorAction SilentlyContinue |
+                  Select-Object -First 1
+
+          if (-not $iscc) {
+            Write-Host 'Inno Setup nao encontrado na imagem; a instalar.'
+            choco install innosetup --no-progress -y
+          } else {
+            Write-Host "Inno Setup ja presente: $($iscc.FullName)"
+          }
+
+      - name: Compilar a aplicação e o instalador
+        shell: pwsh
+        run: ./build.ps1 -SelfContained -Installer -Version ${{ steps.version.outputs.version }}
+
+      - name: Calcular o SHA-256
+        shell: pwsh
+        working-directory: dist
+        run: |
+          # Formato do sha256sum, que e o que o Updater sabe ler.
+          Get-ChildItem 'NexusGuard-Setup-*.exe' | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)"
+          } | Set-Content -Path 'SHA256SUMS.txt' -Encoding ascii
+
+          Get-Content 'SHA256SUMS.txt'
+
+      - name: Publicar o release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: NexusGuard ${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            dist/NexusGuard-Setup-*.exe
+            dist/SHA256SUMS.txt
+          body: |
+            ## Instalação
+
+            Baixe o `NexusGuard-Setup-${{ steps.version.outputs.version }}.exe` e execute-o.
+            Já inclui o .NET — não é preciso instalar mais nada.
+
+            O executável **não está assinado**: o SmartScreen vai avisar na primeira execução.
+            Em «Mais informações» → «Executar assim mesmo».
+
+            ### Verificar o download
+
+            ```powershell
+            Get-FileHash .\NexusGuard-Setup-${{ steps.version.outputs.version }}.exe -Algorithm SHA256
+            ```
+
+            Compare com o `SHA256SUMS.txt` publicado aqui.

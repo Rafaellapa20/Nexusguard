@@ -224,6 +224,23 @@ A app pede elevação só quando é preciso, e indica-o em cada local com um car
 
 ---
 
+## Atualizações
+
+As versões são publicadas nas **Releases do GitHub**. Criar uma etiqueta `v1.2.3` dispara o
+workflow que compila a aplicação e o instalador, calcula o `SHA256SUMS.txt` e publica tudo no
+release — a versão vem da etiqueta e entra no executável, no instalador e no nome do ficheiro.
+
+Na aplicação, **Configurações → Atualizações** procura versões novas (no arranque e a pedido),
+mostra as notas do release, descarrega o instalador, confere o SHA-256 publicado e instala.
+
+O passo a passo completo — criar o repositório, apontar o `Updater` para ele e publicar — está em
+[PUBLICAR.md](PUBLICAR.md).
+
+> A verificação de hash apanha um download corrompido. **Não** prova que o release é legítimo: quem
+> controlar o repositório publica o ficheiro e o hash. Isso só a assinatura de código resolve.
+
+---
+
 ## Limitações conhecidas
 
 - **Assinatura de código:** o executável e o instalador não estão assinados. Sem um certificado EV
@@ -234,7 +251,8 @@ A app pede elevação só quando é preciso, e indica-o em cada local com um car
   terceiros (LibreHardwareMonitor).
 - **Telemetria:** o interruptor existe e fica guardado, mas não há servidor para onde enviar — nada
   sai do computador.
-- **Auto-update:** não implementado; precisa de um servidor de distribuição e da assinatura acima.
+- **Auto-update:** implementado sobre as Releases do GitHub, com verificação de SHA-256. Falta-lhe
+  a assinatura de código, que é o que provaria a autenticidade do que se instala.
 - **Classificação de bloatware:** assenta numa lista de nomes conhecidos, não num serviço de
   reputação.
 

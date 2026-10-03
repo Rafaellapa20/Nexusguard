@@ -11,6 +11,8 @@ public partial class SettingsView : UserControl
     private const string RunValue = "NexusGuard";
 
     private bool _loading = true;
+    private NexusGuard.Modules.UpdateInfo? _pendingUpdate;
+    private CancellationTokenSource? _updateCts;
 
     public SettingsView()
     {
@@ -40,6 +42,16 @@ public partial class SettingsView : UserControl
             BackupDays.SelectedItem = s.BackupRetentionDays;
 
             PathsText.Text = $"Dados: {Paths.SharedRoot}    ·    Configuração: {Paths.UserRoot}";
+
+            OptCheckUpdates.IsChecked = s.CheckUpdatesOnStart;
+            VersionText.Text = "v" + NexusGuard.Modules.Updater.CurrentVersion;
+            ReleasesButton.IsEnabled = NexusGuard.Modules.Updater.IsConfigured;
+
+            if (!NexusGuard.Modules.Updater.IsConfigured)
+            {
+                CheckUpdateButton.IsEnabled = false;
+                UpdateStatus.Text = "Esta compilação não tem repositório de atualizações configurado.";
+            }
 
             _loading = false;
         };
@@ -175,5 +187,110 @@ public partial class SettingsView : UserControl
         OptWhql.IsChecked = Settings.Current.WhqlDriversOnly;
         OptTelemetry.IsChecked = Settings.Current.Telemetry;
         _loading = false;
+    }
+
+    // ---------------- Atualizações ----------------
+
+    private void OnCheckUpdatesToggle(object sender, RoutedEventArgs e)
+    {
+        if (!_loading) Settings.Current.CheckUpdatesOnStart = OptCheckUpdates.IsChecked == true;
+    }
+
+    private void OnOpenReleases(object sender, RoutedEventArgs e) =>
+        Shell.OpenExternal(NexusGuard.Modules.Updater.ReleasesUrl);
+
+    private async void OnCheckUpdates(object sender, RoutedEventArgs e)
+    {
+        CheckUpdateButton.IsEnabled = false;
+        InstallUpdateButton.Visibility = Visibility.Collapsed;
+        NotesBox.Visibility = Visibility.Collapsed;
+        UpdateStatus.Text = "Procurando…";
+
+        _updateCts = new CancellationTokenSource();
+
+        try
+        {
+            var check = await NexusGuard.Modules.Updater.CheckAsync(_updateCts.Token);
+
+            UpdateStatus.Text = check.Message;
+            _pendingUpdate = check.Update;
+
+            if (check.State != NexusGuard.Modules.UpdateState.Available || check.Update is null) return;
+
+            InstallUpdateButton.Content = $"Baixar e instalar {check.Update.Version}";
+            InstallUpdateButton.Visibility = Visibility.Visible;
+
+            if (!string.IsNullOrWhiteSpace(check.Update.Notes))
+            {
+                NotesText.Text = check.Update.Notes;
+                NotesBox.Visibility = Visibility.Visible;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            UpdateStatus.Text = "Procura cancelada.";
+        }
+        finally
+        {
+            CheckUpdateButton.IsEnabled = true;
+            _updateCts?.Dispose();
+            _updateCts = null;
+        }
+    }
+
+    private async void OnInstallUpdate(object sender, RoutedEventArgs e)
+    {
+        if (_pendingUpdate is not { } update) return;
+
+        if (!Ui.Confirm(this, "Atualizar o NexusGuard",
+                $"Versão {update.Version} · {update.SizeText}\n\n" +
+                "O arquivo é baixado do GitHub, conferido contra o hash publicado e instalado por cima " +
+                "desta versão.\n\n" +
+                "O NexusGuard fecha-se para o instalador poder substituir o executável. Continuar?"))
+            return;
+
+        InstallUpdateButton.IsEnabled = false;
+        CheckUpdateButton.IsEnabled = false;
+        UpdateProgress.Visibility = Visibility.Visible;
+        UpdateProgress.Value = 0;
+
+        _updateCts = new CancellationTokenSource();
+
+        try
+        {
+            var progress = new Progress<double>(p => UpdateProgress.Value = p);
+
+            var setup = await NexusGuard.Modules.Updater.DownloadAsync(
+                update, progress, line => UpdateStatus.Text = line, _updateCts.Token);
+
+            if (setup is null)
+            {
+                Ui.Warn(this, "Atualização",
+                    "O download falhou ou o arquivo não corresponde ao hash publicado. Nada foi instalado.");
+                return;
+            }
+
+            if (!NexusGuard.Modules.Updater.Install(setup, out var message))
+            {
+                UpdateStatus.Text = message;
+                Ui.Warn(this, "Atualização", message);
+                return;
+            }
+
+            // O instalador não consegue substituir o executável com ele em uso.
+            if (Application.Current is App app) app.ExitApplication();
+        }
+        catch (OperationCanceledException)
+        {
+            UpdateStatus.Text = "Download cancelado.";
+        }
+        finally
+        {
+            UpdateProgress.Visibility = Visibility.Collapsed;
+            InstallUpdateButton.IsEnabled = true;
+            CheckUpdateButton.IsEnabled = true;
+            _updateCts?.Dispose();
+            _updateCts = null;
+        }
     }
 }

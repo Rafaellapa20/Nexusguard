@@ -12,13 +12,23 @@ param(
     [switch]$SelfContained,
     [switch]$Installer,
     [string]$Runtime = 'win-x64',
-    [string]$Output
+    [string]$Output,
+    # Versao do release. Aceita 1.2.3 ou v1.2.3 (como vem da etiqueta do git).
+    [string]$Version
 )
 
 $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 if (-not $Output) { $Output = Join-Path $root 'dist' }
+
+if ($Version) {
+    $Version = $Version.TrimStart('v', 'V')
+
+    if ($Version -notmatch '^\d+\.\d+\.\d+$') {
+        throw "Versao invalida: '$Version'. Use o formato 1.2.3."
+    }
+}
 
 $project = Join-Path $root 'src\NexusGuard\NexusGuard.csproj'
 
@@ -40,6 +50,14 @@ $publishArgs = @(
 )
 
 if ($SelfContained) { $publishArgs += 'true' } else { $publishArgs += 'false' }
+
+# Depois do valor de --self-contained: inserir aqui no meio parte o argumento em dois.
+if ($Version) {
+    $publishArgs += "-p:Version=$Version"
+    $publishArgs += "-p:FileVersion=$Version.0"
+    $publishArgs += "-p:AssemblyVersion=$Version.0"
+    Write-Host "Versao: $Version"
+}
 
 & dotnet @publishArgs
 
@@ -87,7 +105,11 @@ if (-not $iscc) {
 Write-Host ''
 Write-Host 'Gerando o instalador...' -ForegroundColor Cyan
 
-& $iscc (Join-Path $root 'installer\NexusGuard.iss')
+$isccArgs = @()
+if ($Version) { $isccArgs += "/DAppVersion=$Version" }
+$isccArgs += (Join-Path $root 'installer\NexusGuard.iss')
+
+& $iscc @isccArgs
 
 if ($LASTEXITCODE -ne 0) {
     throw "O Inno Setup falhou (código $LASTEXITCODE)."

@@ -110,6 +110,35 @@ public partial class MainWindow : Window
         ContentRendered -= OnContentRendered;
 
         if (!Settings.Current.FirstRunCompleted) await RunOnboardingAsync();
+
+        await CheckForUpdatesQuietlyAsync();
+    }
+
+    /// <summary>
+    /// Consulta discreta ao arrancar: se houver versao nova, avisa pela bandeja e marca
+    /// Configuracoes. Nada e baixado nem instalado sem o utilizador pedir.
+    /// </summary>
+    private async Task CheckForUpdatesQuietlyAsync()
+    {
+        if (!Settings.Current.CheckUpdatesOnStart || !Updater.IsConfigured) return;
+
+        Updater.CleanOldDownloads();
+
+        try
+        {
+            var check = await Updater.CheckAsync();
+
+            if (check.State != UpdateState.Available || check.Update is null) return;
+
+            SetBadge("settings", 1, "ok");
+
+            App.Tray?.Notify("NexusGuard",
+                $"Versao {check.Update.Version} disponivel. Abra Configuracoes para instalar.");
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Atualizacao", $"Verificacao de arranque falhou: {ex.Message}");
+        }
     }
 
     private async Task RunOnboardingAsync()
