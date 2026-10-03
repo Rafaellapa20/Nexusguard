@@ -220,6 +220,8 @@
                                 Click="OnOpenLogs" />
                         <Button Content="Revisar configuração inicial" Style="{StaticResource Btn.Secondary}"
                                 Margin="0,0,8,8" Click="OnRerunOnboarding" />
+                        <Button Content="Componentes de terceiros" Style="{StaticResource Btn.Ghost}"
+                                Margin="0,0,8,8" Click="OnThirdParty" />
                     </WrapPanel>
 
                     <TextBlock x:Name="PathsText" Style="{StaticResource T.Muted}" Margin="2,6,0,0"

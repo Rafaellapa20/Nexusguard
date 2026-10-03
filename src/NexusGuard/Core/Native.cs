@@ -56,6 +56,34 @@ internal static partial class Native
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool GetSystemTimes(out long lpIdleTime, out long lpKernelTime, out long lpUserTime);
 
+    /// <summary>Uma entrada por processador lógico, na ordem em que o Windows os numera.</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct PROCESSOR_POWER_INFORMATION
+    {
+        public uint Number;
+        public uint MaxMhz;
+        public uint CurrentMhz;
+        public uint MhzLimit;
+        public uint MaxIdleState;
+        public uint CurrentIdleState;
+    }
+
+    /// <summary>Nível ProcessorInformation do <c>CallNtPowerInformation</c>.</summary>
+    internal const int ProcessorInformation = 11;
+
+    /// <summary>
+    /// Frequência actual e máxima de cada núcleo. É a via do próprio Windows, sem driver de kernel
+    /// pelo meio, por isso funciona com a Integridade de Memória ligada — ao contrário da leitura
+    /// de frequência das bibliotecas de sensores, que depende de acesso directo ao hardware.
+    /// </summary>
+    [LibraryImport("powrprof.dll", EntryPoint = "CallNtPowerInformation")]
+    internal static partial uint CallNtPowerInformation(
+        int informationLevel,
+        IntPtr inputBuffer,
+        uint inputBufferSize,
+        IntPtr outputBuffer,
+        uint outputBufferSize);
+
     // ---------------- Disco ----------------
     [LibraryImport("kernel32.dll", EntryPoint = "GetDiskFreeSpaceExW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]

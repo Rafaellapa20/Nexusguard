@@ -239,7 +239,14 @@ public static class Hardware
     {
         Logger.Info("Hardware", "Inventariando componentes…");
 
-        var payload = await Shell.PowerShellJsonAsync<Payload>(Script, ct).ConfigureAwait(true);
+        // Duas fontes independentes: o inventário (nomes, drivers, módulos de memória) vem do WMI,
+        // os valores vivos (temperaturas, VRAM real, S.M.A.R.T.) vêm dos sensores. Correm ao mesmo
+        // tempo porque não dependem uma da outra, e a leitura de sensores bloqueia — daí o Task.Run.
+        var inventory = Shell.PowerShellJsonAsync<Payload>(Script, ct);
+        var reading = Task.Run(() => Sensors.Read(force: true), ct);
+
+        var payload = await inventory.ConfigureAwait(true);
+        var sensors = await reading.ConfigureAwait(true);
         var list = new List<HardwareComponent>();
 
         if (payload is null)
@@ -248,43 +255,70 @@ public static class Hardware
             return list;
         }
 
-        if (payload.Cpu is { } cpu) list.Add(BuildCpu(cpu));
-        foreach (var gpu in payload.Gpus ?? new()) list.Add(BuildGpu(gpu));
+        if (payload.Cpu is { } cpu) list.Add(BuildCpu(cpu, sensors.Cpu, sensors.LowLevelNote));
+        foreach (var gpu in payload.Gpus ?? new()) list.Add(BuildGpu(gpu, Match(sensors.Gpus, g => g.Name, gpu.Name)));
         if (payload.Memory is { Count: > 0 }) list.Add(BuildMemory(payload.Memory));
-        foreach (var disk in payload.Disks ?? new()) list.Add(BuildDisk(disk));
+        foreach (var disk in payload.Disks ?? new()) list.Add(BuildDisk(disk, Match(sensors.Disks, d => d.Name, disk.Model)));
         if (payload.Battery is { } battery) list.Add(BuildBattery(battery));
 
         Logger.Ok("Hardware", $"{list.Count} componentes inventariados.");
         return list;
     }
 
-    private static HardwareComponent BuildCpu(CpuInfo cpu)
+    private static HardwareComponent BuildCpu(CpuInfo cpu, CpuSensors? sensors, string? lowLevelNote)
     {
+        var tempC = sensors?.PackageTempC ?? cpu.TemperatureC;
+
         var metrics = new List<HardwareMetric>
         {
-            new() { Label = "Núcleos", Value = $"{cpu.Cores} físicos · {cpu.Threads} lógicos" },
-            // O WMI costuma devolver CurrentClockSpeed igual ao máximo — nesse caso é só a
-            // frequência base repetida, e mostrá-la como "atual" seria inventar uma leitura.
-            cpu.CurrentClock > 0 && cpu.CurrentClock != cpu.MaxClock
-                ? new HardwareMetric
-                {
-                    Label = "Frequência",
-                    Value = $"{cpu.CurrentClock} MHz de {cpu.MaxClock} MHz"
-                }
-                : new HardwareMetric
-                {
-                    Label = "Frequência base",
-                    Value = cpu.MaxClock > 0 ? $"{cpu.MaxClock} MHz" : "—"
-                },
-            new() { Label = "Carga", Value = $"{cpu.LoadPercent}%" },
-            new()
-            {
-                Label = "Temperatura",
-                Value = cpu.TemperatureC is { } t ? $"{t:0.#} °C" : "não exposta pelo WMI"
-            }
+            new() { Label = "Núcleos", Value = $"{cpu.Cores} físicos · {cpu.Threads} lógicos" }
         };
 
-        var level = cpu.TemperatureC switch
+        // O WMI devolve CurrentClockSpeed igual ao máximo, o que é só a frequência base repetida.
+        // A via do powrprof dá o valor verdadeiro e não depende de driver nenhum.
+        // Quando a frequência actual vem igual à máxima, não é uma medição: é a frequência nominal
+        // repetida, e apresentá-la como "4201 de 4201 MHz" só dá a ilusão de uma leitura ao vivo.
+        var clock = Sensors.CpuClock();
+
+        if (clock is { MaxMhz: > 0 } live && live.CurrentMhz != live.MaxMhz)
+        {
+            metrics.Add(new HardwareMetric
+            {
+                Label = "Frequência",
+                Value = $"{live.CurrentMhz} MHz de {live.MaxMhz} MHz"
+            });
+        }
+        else
+        {
+            var baseMhz = clock?.MaxMhz > 0 ? clock.Value.MaxMhz : cpu.MaxClock;
+            metrics.Add(new HardwareMetric
+            {
+                Label = "Frequência base",
+                Value = baseMhz > 0 ? $"{baseMhz} MHz" : "—"
+            });
+        }
+
+        metrics.Add(new HardwareMetric { Label = "Carga", Value = $"{cpu.LoadPercent}%" });
+
+        if (sensors is { CoreLoads.Count: > 1 })
+        {
+            metrics.Add(new HardwareMetric
+            {
+                Label = "Carga por núcleo",
+                Value = $"mais ocupado {sensors.CoreLoads.Max():0}% · mais livre {sensors.CoreLoads.Min():0}%"
+            });
+        }
+
+        metrics.Add(new HardwareMetric
+        {
+            Label = "Temperatura",
+            Value = tempC is { } t ? $"{t:0.#} °C" : "indisponível"
+        });
+
+        if (sensors?.PackagePowerW is { } watts)
+            metrics.Add(new HardwareMetric { Label = "Consumo", Value = $"{watts:0.#} W" });
+
+        var level = tempC switch
         {
             null => HealthLevel.Healthy,
             >= 90 => HealthLevel.Critical,
@@ -295,31 +329,96 @@ public static class Hardware
         return new HardwareComponent
         {
             Kind = "Processador",
-            Name = cpu.Name ?? "Processador",
+            Name = sensors?.Name is { Length: > 0 } named ? named : cpu.Name ?? "Processador",
             Level = level,
-            Note = cpu.TemperatureC is null
-                ? "A maioria das placas não publica a temperatura no WMI."
-                : "",
+            Note = tempC is null ? lowLevelNote ?? "" : "",
             Metrics = metrics
         };
     }
 
-    private static HardwareComponent BuildGpu(GpuInfo gpu)
+    private static HardwareComponent BuildGpu(GpuInfo gpu, GpuSensors? sensors)
     {
         var old = DateTime.TryParse(gpu.DriverDate, out var date) && (DateTime.Now - date).TotalDays > 540;
+        var metrics = new List<HardwareMetric>();
+
+        // AdapterRAM do WMI é um campo de 32 bits: satura nos 4 GB e mente em qualquer placa maior
+        // do que isso. Quando os sensores dão a memória, é essa que vale — e vem com o uso ao vivo.
+        if (sensors is { IsIntegrated: true })
+        {
+            metrics.Add(new HardwareMetric
+            {
+                Label = "Memória",
+                Value = "partilhada com a memória do sistema"
+            });
+        }
+        else if (sensors?.MemoryTotalMb is { } totalMb and > 0)
+        {
+            metrics.Add(new HardwareMetric
+            {
+                Label = "Memória",
+                Value = sensors.MemoryUsedMb is { } used
+                    ? $"{totalMb / 1024.0:0.#} GB · {used / 1024.0:0.#} GB em uso"
+                    : $"{totalMb / 1024.0:0.#} GB"
+            });
+        }
+        else if (gpu.AdapterRam is > 0 and < 4L * 1024 * 1024 * 1024)
+        {
+            metrics.Add(new HardwareMetric { Label = "Memória", Value = Fmt.Bytes(gpu.AdapterRam) });
+        }
+        else
+        {
+            metrics.Add(new HardwareMetric { Label = "Memória", Value = "indisponível" });
+        }
+
+        if (sensors?.CoreTempC is { } temp)
+        {
+            metrics.Add(new HardwareMetric
+            {
+                Label = "Temperatura",
+                Value = sensors.HotSpotTempC is { } hot
+                    ? $"{temp:0} °C · ponto quente {hot:0} °C"
+                    : $"{temp:0} °C"
+            });
+        }
+
+        if (sensors?.FanRpm is { } rpm)
+        {
+            metrics.Add(new HardwareMetric
+            {
+                Label = "Ventoinha",
+                Value = rpm > 0 ? $"{rpm:0} rpm" : "parada — a placa está fria"
+            });
+        }
+
+        if (sensors?.LoadPercent is { } load)
+            metrics.Add(new HardwareMetric { Label = "Uso", Value = $"{load:0}%" });
+
+        if (sensors?.PowerW is { } watts)
+            metrics.Add(new HardwareMetric { Label = "Consumo", Value = $"{watts:0.#} W" });
+
+        metrics.Add(new HardwareMetric { Label = "Driver", Value = gpu.DriverVersion ?? "—" });
+        metrics.Add(new HardwareMetric
+        {
+            Label = "Data do driver",
+            Value = string.IsNullOrWhiteSpace(gpu.DriverDate) ? "—" : gpu.DriverDate!
+        });
+
+        var level = sensors?.CoreTempC switch
+        {
+            >= 95 => HealthLevel.Critical,
+            >= 85 => HealthLevel.Attention,
+            _ => old ? HealthLevel.Attention : HealthLevel.Healthy
+        };
 
         return new HardwareComponent
         {
             Kind = "Placa gráfica",
             Name = gpu.Name ?? "GPU",
-            Level = old ? HealthLevel.Attention : HealthLevel.Healthy,
-            Note = old ? "O driver tem mais de 18 meses." : "",
-            Metrics = new List<HardwareMetric>
-            {
-                new() { Label = "Memória", Value = gpu.AdapterRam > 0 ? Fmt.Bytes(gpu.AdapterRam) : "—" },
-                new() { Label = "Driver", Value = gpu.DriverVersion ?? "—" },
-                new() { Label = "Data do driver", Value = string.IsNullOrWhiteSpace(gpu.DriverDate) ? "—" : gpu.DriverDate! }
-            }
+            Level = level,
+            Note = sensors?.CoreTempC >= 85
+                ? "A placa está quente. Verifique a ventilação da caixa e o pó nos dissipadores."
+                : old ? "O driver tem mais de 18 meses." : "",
+            Metrics = metrics
         };
     }
 
@@ -361,37 +460,95 @@ public static class Hardware
         return part.Length > 0 ? part : "fabricante não identificado";
     }
 
-    private static HardwareComponent BuildDisk(DiskInfo disk)
+    private static HardwareComponent BuildDisk(DiskInfo disk, DiskSensors? sensors)
     {
-        var level = disk.PredictFailure
-            ? HealthLevel.Critical
-            : disk.SmartAvailable ? HealthLevel.Healthy : HealthLevel.Unknown;
-
         var metrics = new List<HardwareMetric>
         {
             new() { Label = "Capacidade", Value = disk.Size > 0 ? Fmt.Bytes(disk.Size) : "—" },
-            new() { Label = "Tipo", Value = string.IsNullOrWhiteSpace(disk.MediaType) ? "—" : disk.MediaType! },
-            new()
-            {
-                Label = "S.M.A.R.T.",
-                Value = disk.SmartAvailable
-                    ? (disk.PredictFailure ? "falha prevista" : "sem avisos")
-                    : "não disponível"
-            }
+            new() { Label = "Tipo", Value = string.IsNullOrWhiteSpace(disk.MediaType) ? "—" : disk.MediaType! }
         };
+
+        // Num NVMe a vida restante vem directa; nos que só dão desgaste acumulado, é o complemento.
+        var life = sensors?.LifePercent ?? (sensors?.UsedPercent is { } used ? 100 - used : null);
+
+        if (life is { } remaining)
+            metrics.Add(new HardwareMetric { Label = "Saúde", Value = $"{remaining:0}%" });
+
+        if (sensors?.SparePercent is { } spare)
+            metrics.Add(new HardwareMetric { Label = "Blocos de reserva", Value = $"{spare:0}% disponíveis" });
+
+        if (sensors?.TempC is { } temp)
+        {
+            metrics.Add(new HardwareMetric
+            {
+                Label = "Temperatura",
+                Value = sensors.WarningTempC is { } warn
+                    ? $"{temp:0} °C · avisa aos {warn:0} °C"
+                    : $"{temp:0} °C"
+            });
+        }
+
+        if (sensors?.PowerOnHours is { } hours and > 0)
+        {
+            metrics.Add(new HardwareMetric
+            {
+                Label = "Tempo ligado",
+                Value = sensors.PowerOnCount is { } starts and > 0
+                    ? $"{hours:0} h em {starts:0} arranques"
+                    : $"{hours:0} h"
+            });
+        }
+
+        if (sensors?.DataWrittenGb is { } written and > 0)
+        {
+            metrics.Add(new HardwareMetric
+            {
+                Label = "Escrito desde novo",
+                Value = written >= 1024 ? $"{written / 1024.0:0.#} TB" : $"{written:0} GB"
+            });
+        }
+
+        metrics.Add(new HardwareMetric
+        {
+            Label = "S.M.A.R.T.",
+            Value = disk.PredictFailure ? "falha prevista"
+                  : life is not null ? "lido em detalhe"
+                  : disk.SmartAvailable ? "sem avisos"
+                  : "não disponível"
+        });
+
+        var level = disk.PredictFailure
+            ? HealthLevel.Critical
+            : life switch
+            {
+                < 10 => HealthLevel.Critical,
+                < 30 => HealthLevel.Attention,
+                not null => HealthLevel.Healthy,
+                null => disk.SmartAvailable ? HealthLevel.Healthy : HealthLevel.Unknown
+            };
+
+        // Reserva no limite que o próprio disco declara é o aviso mais fiável que um NVMe dá.
+        if (sensors is { SparePercent: { } sp, SpareThresholdPercent: { } threshold } && sp <= threshold)
+            level = HealthLevel.Critical;
+
+        var note = disk.PredictFailure
+            ? "O disco prevê falha. Faça uma cópia de segurança agora e substitua-o."
+            : level == HealthLevel.Critical
+                ? "O disco está no fim da vida útil. Faça uma cópia de segurança e planeie a troca."
+                : level == HealthLevel.Attention
+                    ? "O disco já gastou boa parte da vida prevista. Vale ir acompanhando."
+                    : life is not null || disk.SmartAvailable
+                        ? ""
+                        : Fmt.IsAdmin
+                            ? "Este disco não publica dados S.M.A.R.T."
+                            : "Os dados S.M.A.R.T. só ficam visíveis com privilégios de administrador.";
 
         return new HardwareComponent
         {
             Kind = "Disco",
-            Name = disk.Model?.Trim() ?? "Disco",
+            Name = disk.Model?.Trim() ?? sensors?.Name ?? "Disco",
             Level = level,
-            Note = disk.PredictFailure
-                ? "O disco prevê falha. Faça uma cópia de segurança agora e substitua-o."
-                : disk.SmartAvailable
-                    ? ""
-                    : Fmt.IsAdmin
-                        ? "Este disco não publica dados S.M.A.R.T. pelo WMI."
-                        : "Os dados S.M.A.R.T. só ficam visíveis com privilégios de administrador.",
+            Note = note,
             Metrics = metrics
         };
     }
@@ -434,6 +591,43 @@ public static class Hardware
             }
         };
     }
+
+    /// <summary>
+    /// O WMI e os sensores dão nomes parecidos mas não iguais — "Samsung SSD 9100 PRO with Heatsink
+    /// 2TB" contra "Samsung SSD 9100 PRO 2TB" — por isso a correspondência é por palavras em comum
+    /// e não por igualdade. Com uma só peça do género, não há nada para desambiguar.
+    /// </summary>
+    private static T? Match<T>(List<T> candidates, Func<T, string> nameOf, string? target) where T : class
+    {
+        if (candidates.Count == 0) return null;
+        if (string.IsNullOrWhiteSpace(target)) return candidates.Count == 1 ? candidates[0] : null;
+
+        var wanted = Words(target);
+        if (wanted.Count == 0) return candidates.Count == 1 ? candidates[0] : null;
+
+        T? best = null;
+        var bestScore = 0;
+
+        foreach (var candidate in candidates)
+        {
+            var score = Words(nameOf(candidate)).Count(wanted.Contains);
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = candidate;
+            }
+        }
+
+        // Uma palavra em comum é coincidência ("AMD" aparece no processador e na gráfica);
+        // duas já identificam a peça.
+        return bestScore >= 2 ? best : candidates.Count == 1 ? candidates[0] : null;
+    }
+
+    private static HashSet<string> Words(string text) =>
+        text.Split(new[] { ' ', '(', ')', '-', '/', '.', ',' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(w => w.ToLowerInvariant())
+            .Where(w => w.Length > 1 && w is not ("tm" or "with" or "the" or "and"))
+            .ToHashSet();
 
     /// <summary>Teste de carga: ocupa todos os núcleos durante o tempo pedido.</summary>
     public static async Task<string> StressTestAsync(TimeSpan duration, IProgress<string>? progress = null,

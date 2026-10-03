@@ -35,4 +35,22 @@
     <Resource Include="Assets\brand\*.png" />
   </ItemGroup>
 
+  <!--
+    Sensores de hardware. Unica dependencia externa do projeto, usada sem
+    qualquer alteracao aos ficheiros dela, que e o que o MPL-2.0 exige para
+    poder viver dentro de uma aplicacao de codigo fechado. Os avisos de
+    licenca de tudo o que entra por aqui estao em TERCEIROS.md.
+  -->
+  <ItemGroup>
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
+  </ItemGroup>
+
+  <!--
+    Os avisos de licenca viajam dentro do executavel. Quem recebe so o instalador tem de os poder
+    ler, e um ficheiro deixado no repositorio nao cumpre isso.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\TERCEIROS.md" LogicalName="NexusGuard.Terceiros.md" />
+  </ItemGroup>
+
 </Project>

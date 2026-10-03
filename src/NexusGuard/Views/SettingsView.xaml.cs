@@ -1,3 +1,5 @@
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
@@ -174,6 +176,37 @@ public partial class SettingsView : UserControl
     private void OnOpenData(object sender, RoutedEventArgs e) => Shell.OpenExternal(Paths.SharedRoot);
 
     private void OnOpenLogs(object sender, RoutedEventArgs e) => Shell.OpenExternal(Paths.Logs);
+
+    /// <summary>
+    /// Escreve os avisos de licenca dos componentes de terceiros e abre-os. O texto viaja embutido
+    /// no executavel: as licencas MPL-2.0 obrigam a disponibilizar estes avisos a quem recebe o
+    /// binario, e nao apenas a quem tem acesso ao repositorio.
+    /// </summary>
+    private void OnThirdParty(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            using var stream = typeof(SettingsView).Assembly
+                .GetManifestResourceStream("NexusGuard.Terceiros.md");
+
+            if (stream is null)
+            {
+                Ui.Warn(this, "Componentes de terceiros",
+                    "Os avisos de licenca nao foram encontrados nesta compilacao.");
+                return;
+            }
+
+            using var reader = new StreamReader(stream);
+            var path = Path.Combine(Paths.SharedRoot, "Componentes-de-terceiros.txt");
+            File.WriteAllText(path, reader.ReadToEnd(), new UTF8Encoding(false));
+            Shell.OpenExternal(path);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Configuracoes", "nao foi possivel abrir os avisos de terceiros", ex);
+            Ui.Warn(this, "Componentes de terceiros", "Nao foi possivel abrir os avisos de licenca.");
+        }
+    }
 
     private void OnRerunOnboarding(object sender, RoutedEventArgs e)
     {
