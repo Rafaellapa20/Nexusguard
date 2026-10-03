@@ -11,7 +11,7 @@ Repositório: <https://github.com/Rafaellapa20/Nexusguard> — público, ramo `m
 O remoto local já está configurado. Para enviar:
 
 ```powershell
-cd C:\Users\Lapa\Documents\APPlimpezawindows
+cd caminho\para\NexusGuard
 git push -u origin main
 ```
 
@@ -113,7 +113,7 @@ endereço alternativo que não revela o pessoal:
 Para passar a usá-lo nos commits futuros:
 
 ```powershell
-cd C:\Users\Lapa\Documents\APPlimpezawindows
+cd caminho\para\NexusGuard
 git config user.email "223636372+Rafaellapa20@users.noreply.github.com"
 git config user.name "Rafaellapa20"
 ```
