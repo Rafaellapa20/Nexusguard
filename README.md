@@ -2,10 +2,16 @@
 
 **Tudo que o seu Windows precisa, num só lugar.**
 
-Utilitário de manutenção para Windows 10/11 em **C# / WPF (.NET 10)**, sem dependências externas:
-tudo assenta em APIs do próprio Windows (winget, Microsoft Defender, agente do Windows Update,
-robocopy, powercfg, schtasks, DISM, SFC, WMI) e em chamadas nativas (`psapi`, `ntdll`, `shell32`,
-`kernel32`).
+Utilitário de manutenção para Windows 10/11 em **C# / WPF (.NET 10)**. Quase tudo assenta em APIs
+do próprio Windows (winget, Microsoft Defender, agente do Windows Update, robocopy, powercfg,
+schtasks, DISM, SFC, WMI) e em chamadas nativas (`psapi`, `ntdll`, `shell32`, `kernel32`,
+`powrprof`).
+
+A única dependência externa é a **LibreHardwareMonitorLib** (MPL-2.0), para os sensores de
+hardware: o WMI não publica temperaturas, e o campo de memória de vídeo dele é de 32 bits, o que o
+faz mentir em qualquer placa com mais de 4 GB. Usada sem alterações, como a licença exige para
+viver numa aplicação fechada. Avisos de licença em [TERCEIROS.md](TERCEIROS.md), também legíveis
+dentro da aplicação em Configurações.
 
 Interface em **português do Brasil**. Público: técnicos de assistência e usuários avançados,
 em uso local num único PC.
@@ -37,14 +43,21 @@ inicialização) com ponto de severidade, recursos em tempo real e as cinco últ
 Botão **Corrigir tudo com 1 clique**.
 
 ### Atualizar
-- **Aplicativos** — winget, com parser de tabela independente do idioma do sistema.
+- **Aplicativos** — winget, Scoop e Chocolatey na mesma lista, com leitura de tabela independente
+  do idioma do sistema. Cada atualização volta pelo gestor de onde veio. Gestores instalados são
+  detectados, nunca instalados. Uma listagem que falha é dita, nunca contada como «nada a fazer».
+- **Instalar em lote** — catálogo de 20 aplicativos em quatro grupos e três conjuntos prontos (PC
+  básico, Escritório, Desenvolvedor), para um PC recém-formatado. Instala em sequência com uma
+  repetição por falha, mostra o estado de cada um e exporta perfis para repetir noutra máquina.
 - **Drivers** — agente do Windows Update (serviço Microsoft Update), atualizações do Windows e
   dispositivos com problemas.
 - **Desinstalar** — programas do registro, classificados como *Bloatware*, *Inseguro*,
   *Redundante* ou *Em uso*; desinstalação silenciosa e varredura de resíduos para a quarentena.
 
 ### Limpar e otimizar
-- **Limpeza** — 15 categorias com tamanho e nível de risco; **pré-visualização obrigatória** antes
+- **Limpeza** — 15 categorias do sistema mais as caches das aplicações instaladas (Discord, Steam,
+  VS Code, Spotify, Teams, Slack, WhatsApp, Zoom, Epic, Adobe, NVIDIA); as que não estão instaladas
+  não aparecem. **Pré-visualização obrigatória** antes
   de remover, com filtros por categoria e aviso do que foi protegido; painel de **quarentena** ao
   lado, com restaurar/apagar por lote.
 - **Registro** — extensões órfãs, App Paths inválidos, desinstaladores inexistentes, SharedDLLs
@@ -54,8 +67,10 @@ Botão **Corrigir tudo com 1 clique**.
 - **Inicialização** — mesma chave `StartupApproved` do Gerenciador de Tarefas; sempre reversível.
 
 ### Proteger
-- **Hardware** — CPU, GPU, memória, discos (com S.M.A.R.T.) e bateria, com estado por componente
-  e teste de estresse de 5 minutos.
+- **Hardware** — sensores reais através da LibreHardwareMonitor: temperatura e ponto quente da
+  GPU, ventoinhas, relógios, consumo e memória de vídeo com uso ao vivo; dos discos, vida restante,
+  blocos de reserva, horas ligado, arranques e total escrito. Mais CPU, memória, bateria e teste de
+  estresse de 5 minutos.
 - **Segurança** — estado completo do Defender e da firewall, análise rápida/completa/de pasta,
   remoção de ameaças, `sfc /scannow` e `DISM /RestoreHealth`.
 - **Privacidade** — oito chaves documentadas (telemetria, ID de publicidade, Cortana, localização,
@@ -207,7 +222,7 @@ limitada a [0, 100]. Aparece no rodapé da barra lateral, com a barra colorida p
 
 ### Relatório PDF
 
-Gerado sem bibliotecas externas por um escritor de PDF próprio (`Core/Pdf.cs`): A4 claro, cabeçalho
+Gerado por um escritor de PDF próprio, sem bibliotecas (`Core/Pdf.cs`): A4 claro, cabeçalho
 com marca e identificação da máquina, três cartões antes/depois, tabela de ações realizadas,
 recomendações e rodapé com o identificador do ponto de restauração. Fica em
 `C:\ProgramData\NexusGuard\Reports`.
@@ -246,9 +261,11 @@ O passo a passo completo — criar o repositório, apontar o `Updater` para ele 
 - **Assinatura de código:** o executável e o instalador não estão assinados. Sem um certificado EV
   (que tem de ser adquirido a uma autoridade certificadora), o SmartScreen avisa os primeiros
   usuários. É o passo que falta para a distribuição pública.
-- **Temperaturas de CPU/GPU:** a maioria das placas não as publica no WMI. Os campos aparecem como
-  indisponíveis em vez de mostrarem um valor inventado. Expô-las exigiria uma biblioteca de
-  terceiros (LibreHardwareMonitor).
+- **Temperatura do processador:** vem de um driver de kernel (`WinRing0`) que o Windows bloqueia
+  quando a Integridade de Memória está ligada, que é o normal no Windows 11. O campo aparece como
+  indisponível com a razão escrita, em vez de um zero que parece avaria. **A aplicação nunca pede
+  para desligar essa protecção** — é uma defesa real contra drivers maliciosos, e aqui só custa um
+  número. As temperaturas de GPU e de disco não dependem desse driver e funcionam sempre.
 - **Telemetria:** o interruptor existe e fica guardado, mas não há servidor para onde enviar — nada
   sai do computador.
 - **Auto-update:** implementado sobre as Releases do GitHub, com verificação de SHA-256. Falta-lhe
@@ -261,6 +278,10 @@ O passo a passo completo — criar o repositório, apontar o `Updater` para ele 
 ## Avisos
 
 - O modo **espelho** do backup apaga, no destino, tudo o que já não exista na origem.
+- Com a quarentena **desligada**, arquivos presos por outro programa são removidos definitivamente
+  no arranque seguinte. Com ela ligada nada é agendado: ficam onde estão.
+- A quarentena vive no disco do sistema. Limpar grandes volumes de **outro** disco é copiar para
+  esse, por isso a limpeza recusa-se a avançar se não houver espaço, em vez de o encher.
 - Apagar o **Windows.old** impede voltar à versão anterior do Windows.
 - Apagar o **Prefetch** torna os primeiros arranques de cada programa mais lentos.
 - Depois de a quarentena expirar, a remoção é definitiva.
