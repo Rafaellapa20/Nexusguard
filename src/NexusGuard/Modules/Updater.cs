@@ -214,13 +214,23 @@ public static class Updater
     public static async Task<string?> DownloadAsync(UpdateInfo update, IProgress<double>? progress = null,
         Action<string>? onLine = null, CancellationToken ct = default)
     {
+        // Os dois parâmetros acima pareciam equivalentes e não eram. O `progress` é um Progress<T>,
+        // que captura o contexto de sincronização e entrega na thread de quem chamou; o `onLine`
+        // era um Action cru, invocado na thread em que o download calhasse estar. As vistas punham
+        // o texto num TextBlock, e depois do primeiro ConfigureAwait(false) isso dava exceção de
+        // thread — a atualização morria precisamente na linha em que ia verificar o arquivo.
+        //
+        // Embrulhar em Progress<string> faz os dois comportarem-se da mesma maneira, que é o que
+        // qualquer pessoa assumiria ao ver a assinatura.
+        IProgress<string>? say = onLine is null ? null : new Progress<string>(onLine);
+
         try
         {
             Directory.CreateDirectory(UpdateFolder);
 
             var target = Path.Combine(UpdateFolder, $"NexusGuard-Setup-{update.Version}.exe");
 
-            onLine?.Invoke($"Baixando {update.SizeText}…");
+            say?.Report($"Baixando {update.SizeText}…");
 
             using var client = CreateClient();
 
@@ -247,15 +257,15 @@ public static class Updater
                 }
             }
 
-            onLine?.Invoke("Verificando a integridade do arquivo…");
+            say?.Report("Verificando a integridade do arquivo…");
 
             var expected = await FetchChecksumAsync(client, update, ct).ConfigureAwait(false);
             var actual = await ComputeSha256Async(target, ct).ConfigureAwait(false);
 
             if (expected is null)
             {
-                onLine?.Invoke($"O release não publica SHA256SUMS.txt — não foi possível verificar.");
-                onLine?.Invoke($"SHA-256 do arquivo baixado: {actual}");
+                say?.Report($"O release não publica SHA256SUMS.txt — não foi possível verificar.");
+                say?.Report($"SHA-256 do arquivo baixado: {actual}");
                 Logger.Warn("Atualização", "Release sem ficheiro de somas; integridade não verificada.");
             }
             else if (!expected.Equals(actual, StringComparison.OrdinalIgnoreCase))
@@ -263,14 +273,14 @@ public static class Updater
                 File.Delete(target);
 
                 var message = "O arquivo baixado não corresponde ao hash publicado — foi descartado.";
-                onLine?.Invoke(message);
+                say?.Report(message);
                 Logger.Error("Atualização", $"{message} Esperado {expected}, obtido {actual}.");
 
                 return null;
             }
             else
             {
-                onLine?.Invoke("Integridade confirmada.");
+                say?.Report("Integridade confirmada.");
                 Logger.Ok("Atualização", $"SHA-256 confere ({actual[..16]}…).");
             }
 
@@ -283,7 +293,7 @@ public static class Updater
         catch (Exception ex)
         {
             Logger.Error("Atualização", "Falha ao baixar a atualização", ex);
-            onLine?.Invoke($"Falhou: {ex.Message}");
+            say?.Report($"Falhou: {ex.Message}");
             return null;
         }
     }
