@@ -75,11 +75,53 @@ public static class AppUpdater
         foreach (var item in list.Where(i => !i.IdIsReliable))
             item.Status = "ID truncado — atualize pelo nome";
 
+        await AddOtherManagersAsync(list, onLine, ct).ConfigureAwait(false);
+
         Logger.Ok("Aplicativos", list.Count == 0
             ? "Todas as aplicativos estão atualizadas."
             : $"{list.Count} aplicativos com atualização disponível.");
 
         return list;
+    }
+
+    /// <summary>Gestores detectados nesta sessão, para não os procurar a cada operação.</summary>
+    private static List<PackageManagerInfo>? _others;
+
+    private static async Task<List<PackageManagerInfo>> OtherManagersAsync(CancellationToken ct) =>
+        _others ??= await PackageManagers.DetectAsync(ct).ConfigureAwait(false);
+
+    /// <summary>
+    /// Junta as atualizações do Scoop e do Chocolatey, quando estão instalados. Uma listagem que
+    /// falha é dita em voz alta: o pior resultado seria o utilizador ver a lista do winget e
+    /// concluir que está tudo em ordem quando um dos outros gestores nem foi lido.
+    /// </summary>
+    private static async Task AddOtherManagersAsync(List<AppUpgrade> list, Action<string>? onLine,
+        CancellationToken ct)
+    {
+        foreach (var manager in await OtherManagersAsync(ct).ConfigureAwait(false))
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var listing = await PackageManagers.ListUpgradesAsync(manager, ct).ConfigureAwait(false);
+
+            if (listing.Failed)
+            {
+                Logger.Warn("Aplicativos", $"{manager.Name}: {listing.Problem}");
+                onLine?.Invoke($"{manager.Name}: {listing.Problem} As atualizações dele não entram nesta lista.");
+                continue;
+            }
+
+            // O mesmo programa pode estar nos dois gestores; o winget manda, porque é o do sistema.
+            foreach (var item in listing.Items)
+            {
+                if (list.Any(e => e.Id.Equals(item.Id, StringComparison.OrdinalIgnoreCase))) continue;
+                list.Add(item);
+            }
+
+            onLine?.Invoke(listing.Items.Count == 0
+                ? $"{manager.Label}: nada a atualizar."
+                : $"{manager.Label}: {listing.Items.Count} com atualização.");
+        }
     }
 
     /// <summary>Le a tabela do winget sem depender dos nomes (localizados) das colunas.</summary>
@@ -158,6 +200,11 @@ public static class AppUpdater
 
     public static async Task<bool> UpgradeAsync(AppUpgrade app, Action<string>? onLine = null, CancellationToken ct = default)
     {
+        // Cada entrada sabe de que gestor veio, e tem de voltar pelo mesmo caminho: pedir ao winget
+        // para atualizar um pacote do Chocolatey não falha com erro, simplesmente não faz nada.
+        if (!app.Source.Equals("winget", StringComparison.OrdinalIgnoreCase))
+            return await UpgradeByManagerAsync(app, onLine, ct).ConfigureAwait(false);
+
         var exe = WingetPath;
         if (exe is null) return false;
 
@@ -190,6 +237,40 @@ public static class AppUpdater
         Logger.Warn("Aplicativos", $"{app.Name}: winget devolveu {r.ExitCode}.");
         onLine?.Invoke($"{app.Name}: winget devolveu o código {r.ExitCode}.");
         return false;
+    }
+
+    private static async Task<bool> UpgradeByManagerAsync(AppUpgrade app, Action<string>? onLine,
+        CancellationToken ct)
+    {
+        var managers = await OtherManagersAsync(ct).ConfigureAwait(false);
+        var manager = managers.FirstOrDefault(m =>
+            m.Key.Equals(app.Source, StringComparison.OrdinalIgnoreCase) ||
+            m.Name.Equals(app.Source, StringComparison.OrdinalIgnoreCase));
+
+        if (manager is null)
+        {
+            app.Status = $"{app.Source} não está disponível";
+            onLine?.Invoke($"{app.Name}: o gestor {app.Source} já não está disponível nesta máquina.");
+            return false;
+        }
+
+        app.Status = "Atualizando...";
+        onLine?.Invoke($"=== {app.Name} ({app.CurrentVersion} → {app.AvailableVersion}) via {manager.Name} ===");
+
+        var ok = await PackageManagers.UpgradeAsync(manager, app.Id, onLine, ct).ConfigureAwait(false);
+
+        if (ok)
+        {
+            app.Status = "Atualizada";
+            app.Done = true;
+            app.Selected = false;
+        }
+        else
+        {
+            app.Status = "Falhou";
+        }
+
+        return ok;
     }
 
     public static async Task<int> UpgradeManyAsync(IEnumerable<AppUpgrade> apps, Action<string>? onLine = null,
