@@ -27,7 +27,7 @@
                                           StrokeLineJoin="Round" Fill="Transparent" />
                                 </Border>
                                 <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock x:Name="ShieldTitle" Text="Verificando…" Style="{StaticResource T.H2}" />
+                                    <TextBlock x:Name="ShieldTitle" Text="A verificar…" Style="{StaticResource T.H2}" />
                                     <TextBlock x:Name="ShieldSubtitle" Style="{StaticResource T.Muted}"
                                                Margin="0,3,0,0" TextWrapping="Wrap" />
                                 </StackPanel>
@@ -108,9 +108,9 @@
                 <!-- Integridade do sistema -->
                 <Border Style="{StaticResource Card}" Margin="0,14,0,0">
                     <StackPanel>
-                        <TextBlock Text="Integridade dos arquivos do Windows" Style="{StaticResource T.H2}" />
+                        <TextBlock Text="Integridade dos ficheiros do Windows" Style="{StaticResource T.H2}" />
                         <TextBlock Style="{StaticResource T.Muted}" Margin="0,6,0,13" TextWrapping="Wrap"
-                                   Text="Repara arquivos do sistema corrompidos — útil depois de uma infeção ou de falhas estranhas." />
+                                   Text="Repara ficheiros do sistema corrompidos — útil depois de uma infeção ou de falhas estranhas." />
 
                         <Button x:Name="SfcButton" Style="{StaticResource Btn.Secondary}" Content="Verificar (sfc /scannow)"
                                 Click="OnSfc" HorizontalAlignment="Stretch" />

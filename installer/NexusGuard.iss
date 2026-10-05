@@ -38,7 +38,7 @@ LicenseFile=LICENSE.txt
 ; Sem ofertas de terceiros: o instalador traz apenas o NexusGuard.
 
 [Languages]
-Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
+Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
@@ -99,9 +99,9 @@ begin
         Exit;
 
       // MB_DEFBUTTON2 põe o "Não" como botão selecionado: carregar Enter distraído mantém
-      // os arquivos em vez de os perder.
-      if MsgBox('Remover também a quarentena, os registros e os relatórios do NexusGuard?' + #13#10 +
-                'Os arquivos em quarentena serão perdidos de forma definitiva.',
+      // os ficheiros em vez de os perder.
+      if MsgBox('Remover também a quarentena, os registos e os relatórios do NexusGuard?' + #13#10 +
+                'Os ficheiros em quarentena serão perdidos de forma definitiva.',
                 mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDNO then
         Exit;
 

@@ -80,8 +80,8 @@ public sealed class InstalledApp : Observable
 }
 
 /// <summary>
-/// Lê os programas instalados do registro, classifica-os e desinstala em modo silencioso,
-/// varrendo os resíduos que ficam para trás (pastas e chaves órfãs) para a quarentena.
+/// Lê os programas instalados do registo, classifica-os e desinstala em modo silencioso,
+/// a varrer os resíduos que ficam para trás (pastas e chaves órfãs) para a quarentena.
 /// </summary>
 public static class Uninstaller
 {
@@ -158,7 +158,7 @@ public static class Uninstaller
                     var name = sub.GetValue("DisplayName") as string;
                     if (string.IsNullOrWhiteSpace(name)) continue;
 
-                    // Atualizações e componentes do sistema não são programas para o usuário desinstalar.
+                    // Atualizações e componentes do sistema não são programas para o utilizador desinstalar.
                     if (sub.GetValue("SystemComponent") is int sc && sc == 1) continue;
                     if (sub.GetValue("ParentKeyName") is string p && p.Length > 0) continue;
                     if (sub.GetValue("ReleaseType") is string rt &&
@@ -235,7 +235,7 @@ public static class Uninstaller
 
     /// <summary>
     /// Corre o desinstalador em modo silencioso quando o programa o suporta. Sem versão silenciosa,
-    /// abre o desinstalador normal para o usuário seguir os passos.
+    /// abre o desinstalador normal para o utilizador seguir os passos.
     /// </summary>
     public static async Task<bool> UninstallAsync(InstalledApp app, Action<string>? onLine = null,
         CancellationToken ct = default)
@@ -253,7 +253,7 @@ public static class Uninstaller
             return true;
         }
 
-        app.Status = "Desinstalando…";
+        app.Status = "A desinstalar…";
         onLine?.Invoke($"=== {app.Name} ===");
 
         var command = string.IsNullOrWhiteSpace(app.QuietUninstallCommand)

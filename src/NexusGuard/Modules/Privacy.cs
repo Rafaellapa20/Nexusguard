@@ -4,7 +4,7 @@ using NexusGuard.Core;
 
 namespace NexusGuard.Modules;
 
-/// <summary>Uma definição de privacidade: uma chave de registro documentada, sempre reversível.</summary>
+/// <summary>Uma definição de privacidade: uma chave de registo documentada, sempre reversível.</summary>
 public sealed class PrivacyToggle : Observable
 {
     public required string Name { get; init; }
@@ -23,7 +23,7 @@ public sealed class PrivacyToggle : Observable
 
     public bool NeedsAdmin { get; init; }
 
-    /// <summary>Ações especiais que não são uma simples chave (ex.: arquivo hosts).</summary>
+    /// <summary>Ações especiais que não são uma simples chave (ex.: ficheiro hosts).</summary>
     public Func<bool, bool>? CustomApply { get; init; }
 
     public Func<bool>? CustomRead { get; init; }
@@ -34,11 +34,11 @@ public sealed class PrivacyToggle : Observable
     private string _status = "";
     public string Status { get => _status; set => Set(ref _status, value); }
 
-    public string Scope => NeedsAdmin ? "Todo o computador" : "Apenas este usuário";
+    public string Scope => NeedsAdmin ? "Todo o computador" : "Apenas este utilizador";
 }
 
 /// <summary>
-/// Configurações de privacidade do Windows. Cada uma corresponde a uma chave de registro conhecida;
+/// Definições de privacidade do Windows. Cada uma corresponde a uma chave de registo conhecida;
 /// nada é escondido e tudo pode ser revertido pelo Histórico.
 /// </summary>
 public static class Privacy
@@ -73,7 +73,7 @@ public static class Privacy
         new PrivacyToggle
         {
             Name = "ID de publicidade",
-            Description = "Impede que os aplicativos usem um identificador único para anúncios dirigidos.",
+            Description = "Impede que os programas usem um identificador único para anúncios dirigidos.",
             KeyPath = @"HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo",
             ValueName = "Enabled",
             ProtectedValue = 0,
@@ -91,7 +91,7 @@ public static class Privacy
         new PrivacyToggle
         {
             Name = "Localização em segundo plano",
-            Description = "Impede que aplicativos leiam a sua localização quando não estão em uso.",
+            Description = "Impede que programas leiam a sua localização quando não estão em uso.",
             KeyPath = @"HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location",
             ValueName = "Value",
             ProtectedValue = 0,
@@ -100,7 +100,7 @@ public static class Privacy
         new PrivacyToggle
         {
             Name = "Sugestões, dicas e anúncios",
-            Description = "Remove as sugestões do menu Iniciar, da tela de bloqueio e das notificações.",
+            Description = "Remove as sugestões do menu Iniciar, da ecrã de bloqueio e das notificações.",
             KeyPath = @"HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",
             ValueName = "SilentInstalledAppsEnabled",
             ProtectedValue = 0,
@@ -109,7 +109,7 @@ public static class Privacy
         new PrivacyToggle
         {
             Name = "Histórico de atividades",
-            Description = "Deixa de salvar e enviar a linha do tempo das aplicativos que você usa.",
+            Description = "Deixa de guardar e enviar o histórico de atividades dos programas que usa.",
             KeyPath = @"HKLM\SOFTWARE\Policies\Microsoft\Windows\System",
             ValueName = "PublishUserActivities",
             ProtectedValue = 0,
@@ -119,8 +119,8 @@ public static class Privacy
         new PrivacyToggle
         {
             Name = "Bloquear telemetria de terceiros (hosts)",
-            Description = "Acrescenta ao arquivo hosts os servidores de telemetria mais conhecidos.",
-            KeyPath = "(arquivo hosts)",
+            Description = "Acrescenta ao ficheiro hosts os servidores de telemetria mais conhecidos.",
+            KeyPath = "(ficheiro hosts)",
             ValueName = "",
             ProtectedValue = 1,
             DefaultValue = 0,
@@ -130,8 +130,8 @@ public static class Privacy
         },
         new PrivacyToggle
         {
-            Name = "Câmera e microfone por aplicativo",
-            Description = "Abre as permissões do Windows para revisar que aplicativos têm acesso.",
+            Name = "Câmera e microfone por programa",
+            Description = "Abre as permissões do Windows para revisar que programas têm acesso.",
             KeyPath = @"HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam",
             ValueName = "Value",
             ProtectedValue = 0,
@@ -203,7 +203,7 @@ public static class Privacy
             else
             {
                 var (root, sub) = Split(toggle.KeyPath);
-                if (root is null) throw new InvalidOperationException("ramo do registro desconhecido");
+                if (root is null) throw new InvalidOperationException("ramo do registo desconhecido");
 
                 using var key = root.CreateSubKey(sub, writable: true)
                                 ?? throw new InvalidOperationException("não foi possível abrir a chave");
@@ -256,7 +256,7 @@ public static class Privacy
         return (root, parts[1]);
     }
 
-    // ---------------- Arquivo hosts ----------------
+    // ---------------- Ficheiro hosts ----------------
 
     private static string HostsFile => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.System), "drivers", "etc", "hosts");
@@ -299,7 +299,7 @@ public static class Privacy
         }
         catch (Exception ex)
         {
-            Logger.Error("Privacidade", "Não foi possível alterar o arquivo hosts", ex);
+            Logger.Error("Privacidade", "Não foi possível alterar o ficheiro hosts", ex);
             return false;
         }
     }

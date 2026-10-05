@@ -8,7 +8,7 @@ public sealed record MemoryResult(long FreedBytes, int ProcessesTrimmed, bool St
 
 /// <summary>
 /// Otimização de memória: reduz os working sets dos processos e, com privilégios de administrador,
-/// liberta a lista de espera (standby list) e a cache de arquivos do sistema.
+/// liberta a lista de espera (standby list) e a cache de ficheiros do sistema.
 /// </summary>
 public static class MemoryOptimizer
 {
@@ -88,7 +88,7 @@ public static class MemoryOptimizer
         return count;
     }
 
-    /// <summary>Esvazia a lista de espera, a lista modificada e a cache de arquivos do sistema.</summary>
+    /// <summary>Esvazia a lista de espera, a lista modificada e a cache de ficheiros do sistema.</summary>
     private static bool PurgeSystemCaches()
     {
         if (!Fmt.IsAdmin) return false;
@@ -133,7 +133,7 @@ public static class MemoryOptimizer
         }
     }
 
-    /// <summary>SYSTEM_FILECACHE_INFORMATION com flags de purga esvazia a cache de arquivos.</summary>
+    /// <summary>SYSTEM_FILECACHE_INFORMATION com flags de purga esvazia a cache de ficheiros.</summary>
     private static bool PurgeSystemFileCache()
     {
         // Estrutura: nuint CurrentSize, PeakSize; uint PageFaultCount; nuint Min/MaxWorkingSet; nuint CurrentSizeIncludingTransitionInPages,

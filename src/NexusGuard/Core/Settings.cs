@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace NexusGuard.Core;
 
-/// <summary>Preferências do usuário, gravadas em %LocalAppData%\NexusGuard\settings.json.</summary>
+/// <summary>Preferências do utilizador, gravadas em %LocalAppData%\NexusGuard\settings.json.</summary>
 public sealed class Settings : Observable
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -29,7 +29,7 @@ public sealed class Settings : Observable
         public bool StartWithWindows { get; set; }
         public bool MinimizeToTray { get; set; } = true;
         public bool Notifications { get; set; } = true;
-        public string Language { get; set; } = "pt-BR";
+        public string Language { get; set; } = "pt-PT";
         public int QuarantineDays { get; set; } = 7;
         public int BackupRetentionDays { get; set; } = 30;
         public bool BetaChannel { get; set; }
@@ -105,7 +105,7 @@ public sealed class Settings : Observable
     public string Language
     {
         get => _data.Language;
-        set => Apply(v => _data.Language = v, _data.Language, value ?? "pt-BR");
+        set => Apply(v => _data.Language = v, _data.Language, value ?? "pt-PT");
     }
 
     // ---------------- Segurança e retenção ----------------
@@ -164,7 +164,7 @@ public sealed class Settings : Observable
     }
 
     /// <summary>
-    /// Versão que o usuário mandou não voltar a anunciar. Guarda-se a versão e não um simples
+    /// Versão que o utilizador mandou não voltar a anunciar. Guarda-se a versão e não um simples
     /// "não perguntar mais": quando sair uma versão seguinte, o aviso volta a aparecer, que é o
     /// que a pessoa quis dizer — dispensou aquela, não todas as futuras.
     /// </summary>
@@ -205,7 +205,7 @@ public sealed class Settings : Observable
                     settings._data.StartWithWindows = stored.StartWithWindows;
                     settings._data.MinimizeToTray = stored.MinimizeToTray;
                     settings._data.Notifications = stored.Notifications;
-                    settings._data.Language = string.IsNullOrWhiteSpace(stored.Language) ? "pt-BR" : stored.Language;
+                    settings._data.Language = string.IsNullOrWhiteSpace(stored.Language) ? "pt-PT" : stored.Language;
                     settings._data.QuarantineDays = Math.Clamp(stored.QuarantineDays, 1, 90);
                     settings._data.BackupRetentionDays = Math.Clamp(stored.BackupRetentionDays, 1, 365);
                     settings._data.BetaChannel = stored.BetaChannel;
@@ -220,7 +220,7 @@ public sealed class Settings : Observable
         }
         catch (Exception ex)
         {
-            Logger.Warn("Configurações", $"Não foi possível ler as configurações: {ex.Message}");
+            Logger.Warn("Definições", $"Não foi possível ler as definições: {ex.Message}");
         }
 
         settings._loading = false;
@@ -233,14 +233,14 @@ public sealed class Settings : Observable
         {
             Directory.CreateDirectory(Paths.UserRoot);
 
-            // Grava num temporário e troca: uma falha a meio não deixa o arquivo corrompido.
+            // Grava num temporário e troca: uma falha a meio não deixa o ficheiro corrompido.
             var temp = Paths.SettingsFile + ".tmp";
             File.WriteAllText(temp, JsonSerializer.Serialize(_data, JsonOptions));
             File.Move(temp, Paths.SettingsFile, overwrite: true);
         }
         catch (Exception ex)
         {
-            Logger.Warn("Configurações", $"Não foi possível gravar as configurações: {ex.Message}");
+            Logger.Warn("Definições", $"Não foi possível gravar as definições: {ex.Message}");
         }
     }
 }

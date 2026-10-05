@@ -41,8 +41,8 @@ public sealed class RegistryCategory : Observable
 }
 
 /// <summary>
-/// Procura entradas do registro que apontam para coisas que já não existem. Antes de remover
-/// seja o que for, exporta um .reg para a quarentena — reverter é só importar esse arquivo.
+/// Procura entradas do registo que apontam para coisas que já não existem. Antes de remover
+/// seja o que for, exporta um .reg para a quarentena — reverter é só importar esse ficheiro.
 /// </summary>
 public static class RegistryCleaner
 {
@@ -50,8 +50,8 @@ public static class RegistryCleaner
     {
         new RegistryCategory
         {
-            Name = "Extensões de arquivo órfãs",
-            Description = "Tipos de arquivo em HKCR que apontam para programas que já não existem."
+            Name = "Extensões de ficheiro órfãs",
+            Description = "Tipos de ficheiro em HKCR que apontam para programas que já não existem."
         },
         new RegistryCategory
         {
@@ -66,7 +66,7 @@ public static class RegistryCleaner
         new RegistryCategory
         {
             Name = "Bibliotecas partilhadas ausentes",
-            Description = "SharedDLLs registadas para arquivos que já não estão em disco."
+            Description = "SharedDLLs registadas para ficheiros que já não estão em disco."
         },
         new RegistryCategory
         {
@@ -76,7 +76,7 @@ public static class RegistryCleaner
         new RegistryCategory
         {
             Name = "Históricos e listas recentes",
-            Description = "MRU de diálogos de abrir/salvar e listas de execução recente."
+            Description = "MRU de diálogos de abrir/guardar e listas de execução recente."
         }
     };
 
@@ -86,7 +86,7 @@ public static class RegistryCleaner
         {
             c.Issues.Clear();
             c.Count = 0;
-            c.Status = "Verificando…";
+            c.Status = "A verificar…";
         }
 
         ScanFileExtensions(categories[0], ct);
@@ -102,7 +102,7 @@ public static class RegistryCleaner
             c.Status = c.Count == 0 ? "Nada encontrado" : "Pronto para corrigir";
         }
 
-        Logger.Ok("Registro", $"{categories.Sum(c => c.Count)} entradas inválidas encontradas.");
+        Logger.Ok("Registo", $"{categories.Sum(c => c.Count)} entradas inválidas encontradas.");
     }
 
     private static void ScanFileExtensions(RegistryCategory category, CancellationToken ct)
@@ -140,7 +140,7 @@ public static class RegistryCleaner
         }
         catch (Exception ex)
         {
-            Logger.Warn("Registro", $"Extensões: {ex.Message}");
+            Logger.Warn("Registo", $"Extensões: {ex.Message}");
         }
     }
 
@@ -183,7 +183,7 @@ public static class RegistryCleaner
             }
             catch (Exception ex)
             {
-                Logger.Warn("Registro", $"App Paths: {ex.Message}");
+                Logger.Warn("Registo", $"App Paths: {ex.Message}");
             }
         }
     }
@@ -229,7 +229,7 @@ public static class RegistryCleaner
         }
         catch (Exception ex)
         {
-            Logger.Warn("Registro", $"Desinstaladores: {ex.Message}");
+            Logger.Warn("Registo", $"Desinstaladores: {ex.Message}");
         }
     }
 
@@ -253,13 +253,13 @@ public static class RegistryCleaner
                     Hive = Registry.LocalMachine.Name,
                     KeyPath = path,
                     ValueName = name,
-                    Detail = "arquivo ausente"
+                    Detail = "ficheiro ausente"
                 });
             }
         }
         catch (Exception ex)
         {
-            Logger.Warn("Registro", $"SharedDLLs: {ex.Message}");
+            Logger.Warn("Registo", $"SharedDLLs: {ex.Message}");
         }
     }
 
@@ -298,7 +298,7 @@ public static class RegistryCleaner
             }
             catch (Exception ex)
             {
-                Logger.Warn("Registro", $"Run: {ex.Message}");
+                Logger.Warn("Registo", $"Run: {ex.Message}");
             }
         }
     }
@@ -341,8 +341,8 @@ public static class RegistryCleaner
     }
 
     /// <summary>
-    /// Exporta as chaves afetadas para um .reg salvo na quarentena e só depois remove.
-    /// Reverter é importar esse arquivo.
+    /// Exporta as chaves afetadas para um .reg guardado na quarentena e só depois remove.
+    /// Reverter é importar esse ficheiro.
     /// </summary>
     public static async Task<RegistryFixResult> FixAsync(
         IEnumerable<RegistryCategory> categories, Action<string>? onLine = null, CancellationToken ct = default)
@@ -355,7 +355,7 @@ public static class RegistryCleaner
         if (!Fmt.IsAdmin && needAdmin > 0)
             onLine?.Invoke($"{needAdmin} entradas são do sistema e serão recusadas sem privilégios de administrador.");
 
-        var backupFile = Path.Combine(Paths.RegistryBackups, $"registro-{DateTime.Now:yyyyMMdd-HHmm}.reg");
+        var backupFile = Path.Combine(Paths.RegistryBackups, $"registo-{DateTime.Now:yyyyMMdd-HHmm}.reg");
 
         if (Settings.Current.DryRun)
         {
@@ -424,14 +424,14 @@ public static class RegistryCleaner
 
         if (removed > 0)
         {
-            History.Add("Registro", $"{removed} entradas inválidas corrigidas", Fmt.Count(removed),
+            History.Add("Registo", $"{removed} entradas inválidas corrigidas", Fmt.Count(removed),
                 UndoKind.RegistryExport, new Dictionary<string, string> { ["file"] = backupFile });
 
-            Logger.Ok("Registro", $"{removed} entradas corrigidas, {failed} recusadas. Cópia em {backupFile}.");
+            Logger.Ok("Registo", $"{removed} entradas corrigidas, {failed} recusadas. Cópia em {backupFile}.");
         }
         else
         {
-            Logger.Warn("Registro", $"Nenhuma entrada removida ({failed} recusadas, {vanished} já não existiam).");
+            Logger.Warn("Registo", $"Nenhuma entrada removida ({failed} recusadas, {vanished} já não existiam).");
         }
 
         onLine?.Invoke($"=== {removed} removidas · {failed} recusadas · {vanished} já não existiam ===");
@@ -528,7 +528,7 @@ public static class RegistryCleaner
         }
         catch (Exception ex)
         {
-            Logger.Error("Registro", "Falha ao exportar a cópia de segurança", ex);
+            Logger.Error("Registo", "Falha ao exportar a cópia de segurança", ex);
             return false;
         }
     }
@@ -539,15 +539,15 @@ public static class RegistryCleaner
     {
         if (!File.Exists(regFile))
         {
-            onLine?.Invoke($"O arquivo {regFile} já não existe.");
+            onLine?.Invoke($"O ficheiro {regFile} já não existe.");
             return false;
         }
 
         var reg = Shell.Which("reg.exe") ?? "reg.exe";
         var r = await Shell.RunAsync(reg, $"import \"{regFile}\"", onLine, ct).ConfigureAwait(true);
 
-        if (r.Success) Logger.Ok("Registro", $"Entradas repostas a partir de {regFile}.");
-        else Logger.Warn("Registro", $"A importação de {regFile} devolveu {r.ExitCode}.");
+        if (r.Success) Logger.Ok("Registo", $"Entradas repostas a partir de {regFile}.");
+        else Logger.Warn("Registo", $"A importação de {regFile} devolveu {r.ExitCode}.");
 
         return r.Success;
     }

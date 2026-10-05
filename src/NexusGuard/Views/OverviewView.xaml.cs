@@ -61,12 +61,12 @@ public partial class OverviewView : UserControl
                 ScanProgress.Value = percent;
             }
 
-            Step("Verificando a proteção antivírus…", 8);
+            Step("A verificar a proteção antivírus…", 8);
             var defender = await SecurityManager.GetStatusAsync();
             var threats = await SecurityManager.GetThreatsAsync();
             snapshot.Threats = threats.Count(t => t.ThreatStatusID is 1 or 6);
 
-            Step("Procurando atualizações de aplicativos…", 26);
+            Step("A procurar atualizações de programas…", 26);
             var apps = AppUpdater.IsAvailable ? await AppUpdater.ListUpgradesAsync() : new List<AppUpgrade>();
             snapshot.OutdatedApps = apps.Count;
 
@@ -84,10 +84,10 @@ public partial class OverviewView : UserControl
             recoverable += DiskCleaner.RecycleBinSize();
             snapshot.RecoverableBytes = recoverable;
 
-            Step("Verificando os programas de inicialização…", 70);
+            Step("A verificar os programas de inicialização…", 70);
             snapshot.StartupItems = StartupManager.Load().Count(i => i.Enabled);
 
-            Step("Procurando drivers pendentes…", 84);
+            Step("A procurar drivers pendentes…", 84);
             var (drivers, _) = await UpdateAgent.SearchAsync(drivers: true);
             snapshot.PendingDrivers = drivers.Count;
 
@@ -113,7 +113,7 @@ public partial class OverviewView : UserControl
         catch (Exception ex)
         {
             Logger.Error("Visão geral", "A análise falhou", ex);
-            ScanStep.Text = "A análise falhou. Consulte o registro técnico.";
+            ScanStep.Text = "A análise falhou. Consulte o registo técnico.";
         }
         finally
         {
@@ -191,11 +191,11 @@ public partial class OverviewView : UserControl
 
         if (!Ui.Confirm(this, "Corrigir tudo",
                 "Será feito o seguinte:\n\n" +
-                "• limpar os arquivos temporários e caches seguras (para a quarentena)\n" +
-                "• esvaziar a lixeira\n" +
+                "• limpar os ficheiros temporários e caches seguras (para a quarentena)\n" +
+                "• esvaziar a reciclagem\n" +
                 "• liberar memória\n\n" +
                 "Documentos, fotos e perfis de navegador nunca são tocados.\n\n" +
-                "As atualizações de aplicativos e drivers ficam para si decidir, nas respetivas páginas. Continuar?"))
+                "As atualizações de programas e drivers ficam para si decidir, nas respetivas páginas. Continuar?"))
             return;
 
         _scanning = true;
@@ -217,7 +217,7 @@ public partial class OverviewView : UserControl
 
             foreach (var target in targets)
             {
-                ScanStep.Text = $"Limpando: {target.Name}…";
+                ScanStep.Text = $"A limpar: {target.Name}…";
                 ScanProgress.Value = ++step * 80.0 / targets.Count;
 
                 await DiskCleaner.ScanAsync(target);
@@ -242,13 +242,13 @@ public partial class OverviewView : UserControl
                 $"Disco: {Fmt.Bytes(freed)} liberados.\n" +
                 $"Memória: {Fmt.Bytes(memory.FreedBytes)} liberados.\n\n" +
                 (Settings.Current.UseQuarantine
-                    ? $"Os arquivos ficaram em quarentena durante {Settings.Current.QuarantineDays} dias."
-                    : "Os arquivos foram apagados de forma definitiva."));
+                    ? $"Os ficheiros ficaram em quarentena durante {Settings.Current.QuarantineDays} dias."
+                    : "Os ficheiros foram apagados de forma definitiva."));
         }
         catch (Exception ex)
         {
             Logger.Error("Visão geral", "A correção automática falhou", ex);
-            ScanStep.Text = "A correção falhou. Consulte o registro técnico.";
+            ScanStep.Text = "A correção falhou. Consulte o registo técnico.";
         }
         finally
         {

@@ -29,7 +29,7 @@ public sealed record UpdateCheck(UpdateState State, UpdateInfo? Update, string M
 ///
 /// O hash protege contra um download corrompido ou truncado — não contra um release malicioso:
 /// quem controlar o repositório publica o ficheiro e o hash. Só a assinatura de código resolve
-/// isso, e por isso a verificação é apresentada ao usuário pelo que é.
+/// isso, e por isso a verificação é apresentada ao utilizador pelo que é.
 /// </summary>
 public static class Updater
 {
@@ -91,7 +91,7 @@ public static class Updater
                 "O repositório de atualizações ainda não está configurado nesta compilação.");
 
         var channel = Settings.Current.BetaChannel ? "pré-lançamentos incluídos" : "versões estáveis";
-        Logger.Info("Atualização", $"Procurando versões novas no GitHub ({channel})…");
+        Logger.Info("Atualização", $"A procurar versões novas no GitHub ({channel})…");
 
         try
         {
@@ -218,7 +218,7 @@ public static class Updater
         // que captura o contexto de sincronização e entrega na thread de quem chamou; o `onLine`
         // era um Action cru, invocado na thread em que o download calhasse estar. As vistas punham
         // o texto num TextBlock, e depois do primeiro ConfigureAwait(false) isso dava exceção de
-        // thread — a atualização morria precisamente na linha em que ia verificar o arquivo.
+        // thread — a atualização morria precisamente na linha em que ia verificar o ficheiro.
         //
         // Embrulhar em Progress<string> faz os dois comportarem-se da mesma maneira, que é o que
         // qualquer pessoa assumiria ao ver a assinatura.
@@ -230,7 +230,7 @@ public static class Updater
 
             var target = Path.Combine(UpdateFolder, $"NexusGuard-Setup-{update.Version}.exe");
 
-            say?.Report($"Baixando {update.SizeText}…");
+            say?.Report($"A transferir {update.SizeText}…");
 
             using var client = CreateClient();
 
@@ -257,7 +257,7 @@ public static class Updater
                 }
             }
 
-            say?.Report("Verificando a integridade do arquivo…");
+            say?.Report("A verificar a integridade do ficheiro…");
 
             var expected = await FetchChecksumAsync(client, update, ct).ConfigureAwait(false);
             var actual = await ComputeSha256Async(target, ct).ConfigureAwait(false);
@@ -265,14 +265,14 @@ public static class Updater
             if (expected is null)
             {
                 say?.Report($"O release não publica SHA256SUMS.txt — não foi possível verificar.");
-                say?.Report($"SHA-256 do arquivo baixado: {actual}");
+                say?.Report($"SHA-256 do ficheiro transferido: {actual}");
                 Logger.Warn("Atualização", "Release sem ficheiro de somas; integridade não verificada.");
             }
             else if (!expected.Equals(actual, StringComparison.OrdinalIgnoreCase))
             {
                 File.Delete(target);
 
-                var message = "O arquivo baixado não corresponde ao hash publicado — foi descartado.";
+                var message = "O ficheiro transferido não corresponde ao hash publicado — foi descartado.";
                 say?.Report(message);
                 Logger.Error("Atualização", $"{message} Esperado {expected}, obtido {actual}.");
 
@@ -292,7 +292,7 @@ public static class Updater
         }
         catch (Exception ex)
         {
-            Logger.Error("Atualização", "Falha ao baixar a atualização", ex);
+            Logger.Error("Atualização", "Falha ao transferir a atualização", ex);
             say?.Report($"Falhou: {ex.Message}");
             return null;
         }
@@ -346,14 +346,14 @@ public static class Updater
     // ---------------- Instalação ----------------
 
     /// <summary>
-    /// Corre o instalador baixado e devolve o controlo ao chamador para encerrar a aplicação —
+    /// Corre o instalador transferido e devolve o controlo ao chamador para encerrar a aplicação —
     /// o setup não consegue substituir o executável com ele em uso.
     /// </summary>
     public static bool Install(string setupPath, out string message)
     {
         if (!File.Exists(setupPath))
         {
-            message = "O instalador baixado já não está no disco.";
+            message = "O instalador transferido já não está no disco.";
             return false;
         }
 
@@ -374,7 +374,7 @@ public static class Updater
         }
         catch (Exception ex)
         {
-            // O usuário pode ter recusado o UAC.
+            // O utilizador pode ter recusado o UAC.
             message = $"Não foi possível iniciar o instalador: {ex.Message}";
             Logger.Warn("Atualização", message);
             return false;

@@ -67,15 +67,15 @@ public partial class ErrorState : UserControl
         "Continuar como administrador", "Agora não");
 
     public void ShowNoWinget() => Show(
-        "Aplicativos",
+        "Programas",
         "winget não está instalado",
-        "O gerenciador de pacotes do Windows é necessário para atualizar apps. " +
-        "É gratuito e oficial da Microsoft (Instalador de Aplicativos).",
+        "O gestor de pacotes do Windows é necessário para atualizar apps. " +
+        "É gratuito e oficial da Microsoft (Instalador de Programas).",
         StateSeverity.Warning,
         "Instalar winget", "Saber mais");
 
     public void ShowOffline() => Show(
-        "Aplicativos",
+        "Programas",
         "Sem conexão com a internet",
         "Não foi possível consultar atualizações. Limpeza, memória e inicialização continuam " +
         "funcionando offline.",
@@ -91,29 +91,29 @@ public partial class ErrorState : UserControl
         "Ver agendamento");
 
     /// <summary>
-    /// Arquivos que ficaram onde estavam. Com a quarentena ligada nada é apagado sem volta, por
+    /// Ficheiros que ficaram onde estavam. Com a quarentena ligada nada é apagado sem volta, por
     /// isso isto não é uma perda: é só espaço que continua ocupado até à próxima limpeza.
     /// </summary>
     public void ShowLockedFiles(int locked, int total) => Show(
         "Limpeza",
-        "Alguns arquivos não foram movidos",
-        $"{locked} de {total} arquivos estavam em uso por outro programa e ficaram onde estavam. " +
+        "Alguns ficheiros não foram movidos",
+        $"{locked} de {total} ficheiros estavam em uso por outro programa e ficaram onde estavam. " +
         "Nada foi perdido. Feche esses programas, ou reinicie o PC, e limpe outra vez.",
         StateSeverity.Warning,
-        secondary: $"Ver os {locked} arquivos");
+        secondary: $"Ver os {locked} ficheiros");
 
     /// <summary>
-    /// Arquivos que o Windows vai apagar no arranque seguinte. Só acontece com a quarentena
+    /// Ficheiros que o Windows vai apagar no arranque seguinte. Só acontece com a quarentena
     /// desligada, e dizer "serão tratados" escondia que a remoção é definitiva.
     /// </summary>
     public void ShowScheduledForReboot(int scheduled) => Show(
         "Limpeza",
-        $"{scheduled} arquivos saem no próximo arranque",
+        $"{scheduled} ficheiros saem no próximo arranque",
         "Estavam presos por outro programa e não puderam ser apagados agora. O Windows remove-os " +
         "ao arrancar, antes de os voltar a abrir. Como a quarentena está desligada, a remoção é " +
         "definitiva e não há como repô-los.",
         StateSeverity.Warning,
-        secondary: "Ver os arquivos");
+        secondary: "Ver os ficheiros");
 
     public void ShowNotEnoughSpace(string drive, string free, string needed) => Show(
         "Backup",
@@ -131,9 +131,9 @@ public partial class ErrorState : UserControl
         "Limpeza",
         "A quarentena não tem espaço",
         detail + " Nada foi apagado. Esvazie a quarentena no Histórico, liberte espaço nesse disco, " +
-        "ou desligue a quarentena em Configurações — nesse caso a limpeza passa a ser definitiva.",
+        "ou desligue a quarentena em Definições — nesse caso a limpeza passa a ser definitiva.",
         StateSeverity.Danger,
-        "Abrir o Histórico", "Abrir as Configurações");
+        "Abrir o Histórico", "Abrir as Definições");
 
     public void ShowUnsignedDriver(string name, string version) => Show(
         "Drivers",

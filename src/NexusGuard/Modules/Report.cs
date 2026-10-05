@@ -202,7 +202,7 @@ public static class Report
         if (snapshot is null) return items;
 
         if (snapshot.OutdatedApps > 0)
-            items.Add($"{snapshot.OutdatedApps} aplicativo(s) continuam desatualizados — atualizar reduz a superfície de ataque.");
+            items.Add($"{snapshot.OutdatedApps} programa(s) continuam desatualizados — atualizar reduz a superfície de ataque.");
 
         if (snapshot.PendingDrivers > 0)
             items.Add($"{snapshot.PendingDrivers} driver(s) com atualização pendente no Windows Update.");

@@ -105,7 +105,7 @@ public static class Jobs
             files += outcome.FilesDeleted;
         }
 
-        // Em modo simular nada e removido, por isso a contagem de arquivos fica a zero:
+        // Em modo simular nada e removido, por isso a contagem de ficheiros fica a zero:
         // o que interessa reportar e o espaco que seria libertado.
         if (Settings.Current.DryRun)
             return new JobResult(true, "Simulação concluída",
@@ -121,7 +121,7 @@ public static class Jobs
             : "";
 
         return new JobResult(true, "Limpeza concluída",
-            $"{Fmt.Bytes(freed)} em {Fmt.Count(files)} arquivos.{where}");
+            $"{Fmt.Bytes(freed)} em {Fmt.Count(files)} ficheiros.{where}");
     }
 
     /// <summary>Categorias seguras que a tarefa agendada pode tratar sem perguntar nada.</summary>
@@ -131,24 +131,24 @@ public static class Jobs
             .Where(t => !t.NeedsAdmin || Fmt.IsAdmin)
             .ToList();
 
-    // ---------------- Aplicativos ----------------
+    // ---------------- Programas ----------------
 
     private static async Task<JobResult> UpdateAppsAsync(CancellationToken ct)
     {
         if (!AppUpdater.IsAvailable)
-            return new JobResult(false, "Atualização de aplicativos",
+            return new JobResult(false, "Atualização de programas",
                 "O winget não está instalado.", NotifyLevel.Warning);
 
         var pending = await AppUpdater.ListUpgradesAsync(null, ct);
 
         if (pending.Count == 0)
-            return new JobResult(true, "Aplicativos", "Está tudo atualizado.");
+            return new JobResult(true, "Programas", "Está tudo atualizado.");
 
         var updated = await AppUpdater.UpgradeManyAsync(pending, null, ct);
 
-        return new JobResult(true, "Aplicativos atualizados",
+        return new JobResult(true, "Programas atualizados",
             updated == pending.Count
-                ? $"{updated} aplicativo(s) atualizados."
+                ? $"{updated} programa(s) atualizados."
                 : $"{updated} de {pending.Count} atualizados — veja o histórico.",
             updated == pending.Count ? NotifyLevel.Info : NotifyLevel.Warning);
     }
@@ -179,7 +179,7 @@ public static class Jobs
         }
 
         if (sources.All(s => !s.Selected))
-            return new JobResult(false, "Backup", "Nenhuma pasta selecionada nas configurações.",
+            return new JobResult(false, "Backup", "Nenhuma pasta selecionada nas definições.",
                 NotifyLevel.Warning);
 
         var result = await BackupManager.RunAsync(sources, settings.BackupDestination,
@@ -187,7 +187,7 @@ public static class Jobs
 
         return new JobResult(result.Success, result.Success ? "Backup concluído" : "Backup com erros",
             result.Success
-                ? $"{Fmt.Count(result.Files)} arquivos · {Fmt.Bytes(result.Bytes)}."
+                ? $"{Fmt.Count(result.Files)} ficheiros · {Fmt.Bytes(result.Bytes)}."
                 : result.Message,
             result.Success ? NotifyLevel.Info : NotifyLevel.Error);
     }

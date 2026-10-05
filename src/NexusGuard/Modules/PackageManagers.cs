@@ -58,7 +58,7 @@ public static class PackageManagers
         }
 
         if (found.Count > 0)
-            Logger.Info("Aplicativos", $"Gestores adicionais: {string.Join(", ", found.Select(f => f.Label))}.");
+            Logger.Info("Programas", $"Gestores adicionais: {string.Join(", ", found.Select(f => f.Label))}.");
 
         return found;
     }
@@ -99,7 +99,7 @@ public static class PackageManagers
         }
         catch (Exception ex)
         {
-            Logger.Warn("Aplicativos", $"não foi possível ler a versão de {exe} — {ex.Message}");
+            Logger.Warn("Programas", $"não foi possível ler a versão de {exe} — {ex.Message}");
             return null;
         }
     }
@@ -330,7 +330,7 @@ public static class PackageManagers
             return false;
         }
 
-        var verb = upgrade ? "Atualizando" : "Instalando";
+        var verb = upgrade ? "A atualizar" : "A instalar";
         onLine?.Invoke($"{verb} {id} pelo {manager.Name}…");
 
         var r = await Shell.RunAsync(manager.Exe, args, onLine, ct, null, Utf8).ConfigureAwait(false);
@@ -340,13 +340,13 @@ public static class PackageManagers
 
         if (ok)
         {
-            Logger.Ok("Aplicativos", $"{id} ({manager.Name}) concluído.");
+            Logger.Ok("Programas", $"{id} ({manager.Name}) concluído.");
             if (r.ExitCode is 1641 or 3010)
                 onLine?.Invoke($"{id}: concluído, mas pede reinício do Windows.");
         }
         else
         {
-            Logger.Warn("Aplicativos", $"{id} ({manager.Name}) devolveu {r.ExitCode}.");
+            Logger.Warn("Programas", $"{id} ({manager.Name}) devolveu {r.ExitCode}.");
             onLine?.Invoke($"{id}: {manager.Name} devolveu o código {r.ExitCode}.");
         }
 

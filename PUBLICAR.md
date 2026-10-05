@@ -66,26 +66,26 @@ indicando a versão.
 
 ---
 
-## 4. Como a atualização chega ao usuário
+## 4. Como a atualização chega ao utilizador
 
-Em **Configurações → Atualizações**:
+Em **Definições → Atualizações**:
 
 - **Procurar ao iniciar** (ligado) consulta a API uma vez no arranque. Havendo versão nova, surge
-  uma notificação na bandeja e um emblema em Configurações. Nada é baixado sem confirmação.
+  uma notificação na bandeja e um emblema em Definições. Nada é transferido sem confirmação.
 - **Procurar agora** faz a mesma consulta a pedido e mostra as notas do release.
-- **Baixar e instalar** descarrega o instalador, confere o SHA-256 contra o `SHA256SUMS.txt`
+- **Transferir e instalar** descarrega o instalador, confere o SHA-256 contra o `SHA256SUMS.txt`
   publicado, corre o setup em modo silencioso e fecha a aplicação para o executável poder ser
   substituído.
 - O **canal beta**, em Avançado, faz a procura incluir pré-lançamentos.
 
-Instaladores baixados são apagados ao fim de 7 dias.
+Instaladores transferidos são apagados ao fim de 7 dias.
 
 ### O que a verificação de hash garante — e o que não garante
 
 Confere que o ficheiro recebido é byte a byte o que o release publica, o que apanha um download
 corrompido ou interrompido. **Não** prova que o release é legítimo: quem controlar o repositório
 publica o instalador e o hash. Só a assinatura de código resolve isso, e o executável continua por
-assinar. Está escrito na própria página de Configurações, para não dar uma falsa sensação de
+assinar. Está escrito na própria página de Definições, para não dar uma falsa sensação de
 segurança.
 
 ---

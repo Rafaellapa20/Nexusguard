@@ -100,7 +100,7 @@ public partial class BackupView : UserControl
         ModeHint.Text = Mode switch
         {
             BackupMode.Mirror =>
-                "Espelho: o destino fica exatamente igual à origem. Arquivos que apagar no PC também desaparecem da cópia.",
+                "Espelho: o destino fica exatamente igual à origem. Ficheiros que apagar no PC também desaparecem da cópia.",
             BackupMode.Snapshot =>
                 "Instantâneo: cria uma pasta nova com a data de hoje e mantém as cópias anteriores intactas. Ocupa mais espaço.",
             _ =>
@@ -314,12 +314,12 @@ public partial class BackupView : UserControl
         catch (OperationCanceledException)
         {
             RunStatus.Text = "cópia interrompida";
-            _sink?.Write("=== Cópia interrompida pelo usuário ===");
+            _sink?.Write("=== Cópia interrompida pelo utilizador ===");
         }
         catch (Exception ex)
         {
             Logger.Error("Backup", "Falha na cópia de segurança", ex);
-            RunStatus.Text = "a cópia falhou — consulte o registro";
+            RunStatus.Text = "a cópia falhou — consulte o registo";
         }
         finally
         {
@@ -332,7 +332,7 @@ public partial class BackupView : UserControl
     private void OnCancel(object sender, RoutedEventArgs e)
     {
         _cts?.Cancel();
-        RunStatus.Text = "interrompendo…";
+        RunStatus.Text = "a interromper…";
     }
 
     // ---------------- Restauro ----------------
@@ -351,18 +351,18 @@ public partial class BackupView : UserControl
             return;
         }
 
-        var target = Ui.PickFolder("Escolha onde colocar os arquivos restaurados");
+        var target = Ui.PickFolder("Escolha onde colocar os ficheiros restaurados");
         if (target is null) return;
 
         if (!Ui.Confirm(this, "Restaurar cópia",
                 $"Origem: {backupRoot}\nDestino: {target}\n\n" +
-                "Arquivos mais recentes no destino não são substituídos e nada é apagado. Continuar?"))
+                "Ficheiros mais recentes no destino não são substituídos e nada é apagado. Continuar?"))
             return;
 
         SetBusy(true);
         ShowConsole(true);
         _cts = new CancellationTokenSource();
-        RunStatus.Text = "restaurando…";
+        RunStatus.Text = "a restaurar…";
 
         try
         {
@@ -407,7 +407,7 @@ public partial class BackupView : UserControl
         SetBusy(true);
         ShowConsole(true);
         _cts = new CancellationTokenSource();
-        RunStatus.Text = "criando ponto de restauro…";
+        RunStatus.Text = "a criar ponto de restauro…";
 
         try
         {
@@ -468,7 +468,7 @@ public partial class BackupView : UserControl
         SetBusy(true);
         ShowConsole(true);
         _cts = new CancellationTokenSource();
-        RunStatus.Text = "criando imagem do sistema…";
+        RunStatus.Text = "a criar imagem do sistema…";
 
         try
         {

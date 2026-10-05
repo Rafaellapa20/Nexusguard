@@ -11,7 +11,7 @@ namespace NexusGuard.Views;
 /// bandeja que desaparece em segundos — duas coisas fáceis de nunca ver. Quem abre o programa deve
 /// saber que há versão nova sem ter de ir procurar.
 ///
-/// Nada é baixado sem o usuário carregar no botão.
+/// Nada é transferido sem o utilizador carregar no botão.
 /// </summary>
 public partial class UpdateWindow : Window
 {
@@ -34,7 +34,7 @@ public partial class UpdateWindow : Window
 
         Closing += (_, e) =>
         {
-            // Fechar a meio de um download deixaria um arquivo por confirmar e a aplicação a meio
+            // Fechar a meio de um download deixaria um ficheiro por confirmar e a aplicação a meio
             // caminho de uma atualização. Mais vale cancelar e deixar a janela fechar depois.
             if (_busy)
             {
@@ -78,7 +78,7 @@ public partial class UpdateWindow : Window
 
             if (setup is null)
             {
-                StatusText.Text = "O download falhou ou o arquivo não corresponde ao hash publicado. " +
+                StatusText.Text = "O download falhou ou o ficheiro não corresponde ao hash publicado. " +
                                   "Nada foi instalado.";
                 return;
             }
@@ -99,7 +99,7 @@ public partial class UpdateWindow : Window
         catch (Exception ex)
         {
             Logger.Error("Atualização", "a atualização falhou", ex);
-            StatusText.Text = "Não foi possível concluir a atualização. Veja os registros.";
+            StatusText.Text = "Não foi possível concluir a atualização. Veja os registos.";
         }
         finally
         {
@@ -117,7 +117,7 @@ public partial class UpdateWindow : Window
         LaterButton.IsEnabled = !busy;
         SkipThis.IsEnabled = !busy;
 
-        InstallButton.Content = busy ? "Baixando…" : "Baixar e instalar";
+        InstallButton.Content = busy ? "A transferir…" : "Transferir e instalar";
         Progress.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
         StatusText.Visibility = busy ? Visibility.Visible : StatusText.Visibility;
     }

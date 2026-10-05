@@ -17,15 +17,15 @@ public sealed class CleanTarget : Observable
     /// <summary>Pastas a limpar. O conteúdo e removido, a pasta em si fica.</summary>
     public List<string> Folders { get; init; } = new();
 
-    /// <summary>Arquivos individuais ou padrões glob (ex.: thumbcache_*.db).</summary>
+    /// <summary>Ficheiros individuais ou padrões glob (ex.: thumbcache_*.db).</summary>
     public List<string> FilePatterns { get; init; } = new();
 
-    /// <summary>Limpeza especial (lixeira, cache DNS, etc.).</summary>
+    /// <summary>Limpeza especial (reciclagem, cache DNS, etc.).</summary>
     public Func<CancellationToken, Task<CleanOutcome>>? CustomClean { get; init; }
 
     public Func<CancellationToken, Task<long>>? CustomSize { get; init; }
 
-    /// <summary>Arquivos mais recentes do que isto são preservados (evita apagar temporários em uso).</summary>
+    /// <summary>Ficheiros mais recentes do que isto são preservados (evita apagar temporários em uso).</summary>
     public TimeSpan? MinimumAge { get; init; }
 
     private bool _selected = true;
@@ -47,7 +47,7 @@ public sealed class CleanTarget : Observable
 
     public string SizeText => Size < 0 ? "—" : Fmt.Bytes(Size);
 
-    public string DetailText => FileCount > 0 ? $"{Fmt.Count(FileCount)} arquivos" : string.Empty;
+    public string DetailText => FileCount > 0 ? $"{Fmt.Count(FileCount)} ficheiros" : string.Empty;
 
     public string RiskText => Risk switch
     {
@@ -66,7 +66,7 @@ public sealed record CleanOutcome(
     int ProtectedSkipped = 0,
 
     /// <summary>
-    /// Arquivos que o Windows vai apagar no próximo arranque. É uma remoção definitiva e sem volta,
+    /// Ficheiros que o Windows vai apagar no próximo arranque. É uma remoção definitiva e sem volta,
     /// por isso conta-se à parte dos que ficaram simplesmente por mover.
     /// </summary>
     int ScheduledForReboot = 0,
@@ -74,7 +74,7 @@ public sealed record CleanOutcome(
     /// <summary>Razão por que a limpeza não chegou a acontecer. Nula quando correu.</summary>
     string? Problem = null);
 
-/// <summary>Um arquivo candidato a limpeza, já com a indicação de estar protegido.</summary>
+/// <summary>Um ficheiro candidato a limpeza, já com a indicação de estar protegido.</summary>
 public sealed record CleanFile(string Path, long Size, bool Protected)
 {
     public string Name => System.IO.Path.GetFileName(Path);
@@ -107,14 +107,14 @@ public static class DiskCleaner
         {
             new()
             {
-                Name = "Arquivos temporários do usuário",
+                Name = "Ficheiros temporários do utilizador",
                 Description = "Conteúdo de %TEMP% deixado para trás por instaladores e programas.",
                 Folders = { Path.GetTempPath() },
                 MinimumAge = TimeSpan.FromHours(1)
             },
             new()
             {
-                Name = "Arquivos temporários do Windows",
+                Name = "Ficheiros temporários do Windows",
                 Description = @"C:\Windows\Temp — temporários de serviços e componentes do sistema.",
                 NeedsAdmin = true,
                 Folders = { Path.Combine(Win, "Temp") },
@@ -122,8 +122,8 @@ public static class DiskCleaner
             },
             new()
             {
-                Name = "Lixeira",
-                Description = "Esvazia a lixeira de todas as unidades.",
+                Name = "Reciclagem",
+                Description = "Esvazia a reciclagem de todas as unidades.",
                 Risk = CleanRisk.Moderate,
                 CustomSize = _ => Task.FromResult(RecycleBinSize()),
                 CustomClean = _ => Task.FromResult(EmptyRecycleBin())
@@ -138,7 +138,7 @@ public static class DiskCleaner
             new()
             {
                 Name = "Cache de otimização de entrega",
-                Description = "Arquivos de partilha de atualizações (Delivery Optimization).",
+                Description = "Ficheiros de partilha de atualizações (Delivery Optimization).",
                 NeedsAdmin = true,
                 Folders =
                 {
@@ -160,7 +160,7 @@ public static class DiskCleaner
             new()
             {
                 Name = "Relatórios de erros (WER)",
-                Description = "Arquivos e filas de relatórios de falhas de aplicativos.",
+                Description = "Ficheiros e filas de relatórios de falhas de programas.",
                 Folders =
                 {
                     Path.Combine(local, @"Microsoft\Windows\WER\ReportArchive"),
@@ -172,7 +172,7 @@ public static class DiskCleaner
             new()
             {
                 Name = "Despejos de memória (crash dumps)",
-                Description = "Minidumps e MEMORY.DMP gerados por telas azuis.",
+                Description = "Minidumps e MEMORY.DMP gerados por ecrãs azuis.",
                 NeedsAdmin = true,
                 Folders = { Path.Combine(Win, "Minidump") },
                 FilePatterns = { Path.Combine(Win, "MEMORY.DMP") }
@@ -194,13 +194,13 @@ public static class DiskCleaner
             new()
             {
                 Name = "Cache de navegadores",
-                Description = "Cache do Edge, Chrome, Brave, Opera, Vivaldi e Firefox (sessões e senhas intactas).",
+                Description = "Cache do Edge, Chrome, Brave, Opera, Vivaldi e Firefox (sessões e palavras-passe intactas).",
                 Risk = CleanRisk.Moderate,
                 Folders = BrowserCacheFolders()
             },
             new()
             {
-                Name = "Registros do sistema",
+                Name = "Registos do sistema",
                 Description = "Logs do CBS, DISM e Panther que crescem sem limite.",
                 NeedsAdmin = true,
                 Risk = CleanRisk.Moderate,
@@ -214,7 +214,7 @@ public static class DiskCleaner
             new()
             {
                 Name = "Cache de Internet (INetCache)",
-                Description = "Arquivos temporários de Internet do WinINet.",
+                Description = "Ficheiros temporários de Internet do WinINet.",
                 Folders = { Path.Combine(local, @"Microsoft\Windows\INetCache") }
             },
             new()
@@ -327,7 +327,7 @@ public static class DiskCleaner
         target.Status = "Na fila...";
 
         await ScanGate.WaitAsync(ct);
-        target.Status = "Analisando...";
+        target.Status = "A analisar...";
 
         try
         {
@@ -362,7 +362,7 @@ public static class DiskCleaner
     }
 
     /// <summary>
-    /// Lista os arquivos que este alvo removeria. Os que caem na lista branca de proteção vêm
+    /// Lista os ficheiros que este alvo removeria. Os que caem na lista branca de proteção vêm
     /// marcados em vez de omitidos, para a pré-visualização poder explicar porque ficam de fora.
     /// </summary>
     public static List<CleanFile> Enumerate(CleanTarget target, CancellationToken ct)
@@ -384,7 +384,7 @@ public static class DiskCleaner
             }
             catch
             {
-                // Arquivo desapareceu ou está sem permissão de leitura.
+                // Ficheiro desapareceu ou está sem permissão de leitura.
             }
         }
 
@@ -427,7 +427,7 @@ public static class DiskCleaner
         foreach (var m in matches) yield return m;
     }
 
-    /// <summary>Enumera arquivos recursivamente ignorando pastas sem permissão.</summary>
+    /// <summary>Enumera ficheiros recursivamente ignorando pastas sem permissão.</summary>
     private static IEnumerable<string> SafeFiles(string root, CancellationToken ct)
     {
         var stack = new Stack<string>();
@@ -466,13 +466,13 @@ public static class DiskCleaner
     // ---------------- Limpeza ----------------
 
     /// <summary>
-    /// Limpa o alvo. Com <paramref name="only"/> trata apenas os arquivos escolhidos na
+    /// Limpa o alvo. Com <paramref name="only"/> trata apenas os ficheiros escolhidos na
     /// pré-visualização; sem ele, varre o alvo inteiro.
     /// </summary>
     public static async Task<CleanOutcome> CleanAsync(CleanTarget target, IProgress<string>? progress = null,
         CancellationToken ct = default, IReadOnlyCollection<string>? only = null)
     {
-        target.Status = Settings.Current.DryRun ? "Simulando..." : "Limpando...";
+        target.Status = Settings.Current.DryRun ? "Simulando..." : "A limpar...";
 
         try
         {
@@ -503,7 +503,7 @@ public static class DiskCleaner
                 : Settings.Current.UseQuarantine ? "movido para quarentena" : "removido";
 
             Logger.Ok("Limpeza", $"{target.Name}: {Fmt.Bytes(outcome.BytesFreed)} {verb} " +
-                                 $"({outcome.FilesDeleted} arquivos, {outcome.Locked} em uso, " +
+                                 $"({outcome.FilesDeleted} ficheiros, {outcome.Locked} em uso, " +
                                  $"{outcome.ProtectedSkipped} protegidos).");
 
             return outcome;
@@ -522,7 +522,7 @@ public static class DiskCleaner
     }
 
     /// <summary>
-    /// Move para quarentena (padrão) ou apaga. Arquivos bloqueados por outro programa ficam
+    /// Move para quarentena (padrão) ou apaga. Ficheiros bloqueados por outro programa ficam
     /// agendados para serem removidos no próximo arranque, antes de o Windows os travar.
     /// </summary>
     private static CleanOutcome Purge(CleanTarget target, IReadOnlyCollection<string>? only,
@@ -543,7 +543,7 @@ public static class DiskCleaner
 
         if (Settings.Current.DryRun)
         {
-            progress?.Report($"{target.Name}: {Fmt.Count(files.Count)} arquivos seriam tratados (modo simular).");
+            progress?.Report($"{target.Name}: {Fmt.Count(files.Count)} ficheiros seriam tratados (modo simular).");
             return new CleanOutcome(files.Sum(f => f.Size), 0, 0, 0, null, protectedCount);
         }
 
@@ -570,7 +570,7 @@ public static class DiskCleaner
 
             if (result.BatchId is not null)
             {
-                History.Add("Limpeza", $"{target.Name}: {Fmt.Count(result.Moved)} arquivos em quarentena",
+                History.Add("Limpeza", $"{target.Name}: {Fmt.Count(result.Moved)} ficheiros em quarentena",
                     Fmt.Bytes(result.Bytes), UndoKind.QuarantineBatch,
                     new Dictionary<string, string> { ["batch"] = result.BatchId });
             }
@@ -597,11 +597,11 @@ public static class DiskCleaner
                 deleted++;
 
                 if (deleted % 200 == 0)
-                    progress?.Report($"{target.Name}: {Fmt.Count(deleted)} arquivos removidos...");
+                    progress?.Report($"{target.Name}: {Fmt.Count(deleted)} ficheiros removidos...");
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                // Sem quarentena, quem limpa já aceitou a remoção definitiva. Um arquivo preso por
+                // Sem quarentena, quem limpa já aceitou a remoção definitiva. Um ficheiro preso por
                 // outro programa só sai no arranque seguinte, antes de o Windows o voltar a abrir.
                 if (ScheduleDeleteOnReboot(file.Path)) scheduled++;
                 else locked2++;
@@ -611,16 +611,16 @@ public static class DiskCleaner
         CleanupEmptyFolders(target);
         RemoveWindowsOldIfRequested(target);
 
-        History.Add("Limpeza", $"{target.Name}: {Fmt.Count(deleted)} arquivos removidos", Fmt.Bytes(freed));
+        History.Add("Limpeza", $"{target.Name}: {Fmt.Count(deleted)} ficheiros removidos", Fmt.Bytes(freed));
 
         return new CleanOutcome(freed, deleted, locked2 + scheduled, locked2, null, protectedCount, scheduled);
     }
 
     /// <summary>
-    /// Quantos arquivos continuaram em disco depois da tentativa de mover para a quarentena.
+    /// Quantos ficheiros continuaram em disco depois da tentativa de mover para a quarentena.
     ///
     /// Só conta: não agenda nada. Quem liga a quarentena está a pedir que nada seja apagado sem
-    /// volta, e agendar a remoção definitiva de um arquivo que falhou a entrada na quarentena faria
+    /// volta, e agendar a remoção definitiva de um ficheiro que falhou a entrada na quarentena faria
     /// exatamente o contrário do que a definição promete — sem o dizer, e sem forma de recuperar.
     /// Ficam onde estão e a próxima limpeza tenta outra vez.
     /// </summary>
@@ -688,7 +688,7 @@ public static class DiskCleaner
         }
     }
 
-    // ---------------- Lixeira ----------------
+    // ---------------- Reciclagem ----------------
 
     public static long RecycleBinSize()
     {
@@ -715,13 +715,13 @@ public static class DiskCleaner
 
             // 0 = OK; -2147418113 (E_UNEXPECTED) surge quando já esta vazia.
             if (hr != 0 && before > 0)
-                Logger.Warn("Limpeza", $"Lixeira devolveu o código 0x{hr:X8}.");
+                Logger.Warn("Limpeza", $"Reciclagem devolveu o código 0x{hr:X8}.");
 
             return new CleanOutcome(before, 1, 0);
         }
         catch (Exception ex)
         {
-            Logger.Error("Limpeza", "Falha ao esvaziar a lixeira", ex);
+            Logger.Error("Limpeza", "Falha ao esvaziar a reciclagem", ex);
             return new CleanOutcome(0, 0, 1);
         }
     }

@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace NexusGuard.Core;
 
-/// <summary>Interop com as APIs do Windows usadas pela app (memória, CPU, disco, lixeira, privilégios).</summary>
+/// <summary>Interop com as APIs do Windows usadas pela app (memória, CPU, disco, reciclagem, privilégios).</summary>
 internal static partial class Native
 {
     // ---------------- Memória ----------------
@@ -90,7 +90,7 @@ internal static partial class Native
     internal static partial bool GetDiskFreeSpaceEx(string lpDirectoryName, out ulong lpFreeBytesAvailable,
         out ulong lpTotalNumberOfBytes, out ulong lpTotalNumberOfFreeBytes);
 
-    // ---------------- Lixeira ----------------
+    // ---------------- Reciclagem ----------------
     [StructLayout(LayoutKind.Sequential, Pack = 0)]
     internal struct SHQUERYRBINFO
     {

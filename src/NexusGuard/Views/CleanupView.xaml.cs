@@ -61,7 +61,7 @@ public partial class CleanupView : UserControl
 
         TotalText.Text = total > 0 ? Fmt.Bytes(total) : "0 B";
         TotalDetail.Text = total > 0
-            ? $"{Fmt.Count(files)} arquivos em {selected.Count} categoria(s) selecionada(s)."
+            ? $"{Fmt.Count(files)} ficheiros em {selected.Count} categoria(s) selecionada(s)."
             : "Nada selecionado com conteúdo a remover.";
 
         if (MainWindow.Instance is { } main) main.Snapshot.RecoverableBytes = _targets.Sum(t => Math.Max(0, t.Size));
@@ -77,7 +77,7 @@ public partial class CleanupView : UserControl
 
         SetBusy(true);
         _cts = new CancellationTokenSource();
-        StatusLine.Text = "analisando…";
+        StatusLine.Text = "a analisar…";
 
         try
         {
@@ -92,7 +92,7 @@ public partial class CleanupView : UserControl
                     continue;
                 }
 
-                StatusLine.Text = $"analisando: {target.Name}";
+                StatusLine.Text = $"a analisar: {target.Name}";
                 await DiskCleaner.ScanAsync(target, _cts.Token);
                 UpdateTotal();
             }
@@ -197,7 +197,7 @@ public partial class CleanupView : UserControl
 
             if (preview.ShowDialog() != true)
             {
-                StatusLine.Text = "cancelado pelo usuário";
+                StatusLine.Text = "cancelado pelo utilizador";
                 SetBusy(false);
                 return;
             }
@@ -223,12 +223,12 @@ public partial class CleanupView : UserControl
         {
             if (makeRestorePoint && Fmt.IsAdmin)
             {
-                StatusLine.Text = "criando ponto de restauração…";
+                StatusLine.Text = "a criar ponto de restauro…";
                 var (ok, message) = await BackupManager.CreateRestorePointAsync(
                     $"NexusGuard {DateTime.Now:yyyy-MM-dd HH:mm}", line => _sink?.Write(line), _cts.Token);
 
                 _sink?.Write(message);
-                if (!ok) _sink?.Write("A limpeza continua — o ponto de restauração é opcional.");
+                if (!ok) _sink?.Write("A limpeza continua — o ponto de restauro é opcional.");
             }
 
             var progress = new Progress<string>(line => _sink?.Write(line));
@@ -237,13 +237,13 @@ public partial class CleanupView : UserControl
             {
                 _cts.Token.ThrowIfCancellationRequested();
 
-                StatusLine.Text = $"limpando: {target.Name}";
+                StatusLine.Text = $"a limpar: {target.Name}";
                 _sink?.Write($"=== {target.Name} ===");
 
                 var outcome = await DiskCleaner.CleanAsync(target, progress, _cts.Token, accepted);
 
                 // Se a quarentena não tem espaço, as categorias seguintes vão esbarrar no mesmo.
-                // Insistir só encheria o registro com o mesmo erro vinte vezes.
+                // Insistir só encheria o registo com o mesmo erro vinte vezes.
                 if (outcome.Problem is { } why)
                 {
                     problem = why;
@@ -256,7 +256,7 @@ public partial class CleanupView : UserControl
                 locked += outcome.Locked;
                 scheduled += outcome.ScheduledForReboot;
 
-                _sink?.Write($"  {Fmt.Bytes(outcome.BytesFreed)} · {outcome.FilesDeleted} arquivos · " +
+                _sink?.Write($"  {Fmt.Bytes(outcome.BytesFreed)} · {outcome.FilesDeleted} ficheiros · " +
                              $"{outcome.Locked} em uso · {outcome.ProtectedSkipped} protegidos" +
                              (outcome.ScheduledForReboot > 0
                                  ? $" · {outcome.ScheduledForReboot} saem no próximo arranque"
@@ -282,10 +282,10 @@ public partial class CleanupView : UserControl
             }
 
             Ui.Inform(this, "Limpeza concluída",
-                $"{Fmt.Bytes(freed)} liberados · {Fmt.Count(files)} arquivos.\n\n" +
+                $"{Fmt.Bytes(freed)} liberados · {Fmt.Count(files)} ficheiros.\n\n" +
                 (Settings.Current.UseQuarantine
                     ? $"Ficaram em quarentena durante {Settings.Current.QuarantineDays} dias — pode repô-los no Histórico."
-                    : "Os arquivos foram apagados de forma definitiva."));
+                    : "Os ficheiros foram apagados de forma definitiva."));
         }
         catch (OperationCanceledException)
         {
@@ -339,7 +339,7 @@ public partial class CleanupView : UserControl
         if (sender is not Button { Tag: QuarantineBatch batch }) return;
 
         if (!Ui.Confirm(this, "Restaurar lote",
-                $"{batch.Label}\n{batch.Summary}\n\nOs arquivos voltam aos locais originais. Continuar?"))
+                $"{batch.Label}\n{batch.Summary}\n\nOs ficheiros voltam aos locais originais. Continuar?"))
             return;
 
         var (restored, skipped) = Quarantine.Restore(batch);
@@ -347,8 +347,8 @@ public partial class CleanupView : UserControl
 
         Ui.Inform(this, "Restauro",
             restored > 0
-                ? $"{Fmt.Count(restored)} arquivos repostos" + (skipped > 0 ? $" ({skipped} ignorados)." : ".")
-                : "Nada foi reposto — os arquivos já não estão na quarentena ou os destinos já existem.");
+                ? $"{Fmt.Count(restored)} ficheiros repostos" + (skipped > 0 ? $" ({skipped} ignorados)." : ".")
+                : "Nada foi reposto — os ficheiros já não estão na quarentena ou os destinos já existem.");
     }
 
     private void OnDeleteBatch(object sender, RoutedEventArgs e)
@@ -356,7 +356,7 @@ public partial class CleanupView : UserControl
         if (sender is not Button { Tag: QuarantineBatch batch }) return;
 
         if (!Ui.Confirm(this, "Apagar definitivamente",
-                $"{batch.Label}\n{batch.Summary}\n\nIsto apaga os arquivos de vez. Não há como voltar atrás. Continuar?"))
+                $"{batch.Label}\n{batch.Summary}\n\nIsto apaga os ficheiros de vez. Não há como voltar atrás. Continuar?"))
             return;
 
         Quarantine.Delete(batch);

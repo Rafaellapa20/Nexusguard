@@ -20,7 +20,7 @@ public sealed record LogEntry(DateTime Time, LogLevel Level, string Source, stri
     };
 }
 
-/// <summary>Registro central: arquivo em %LocalAppData%\NexusGuard\logs e lista observavel para a UI.</summary>
+/// <summary>Registo central: ficheiro em %LocalAppData%\NexusGuard\logs e lista observavel para a UI.</summary>
 public static class Logger
 {
     private static readonly object Gate = new();
@@ -62,7 +62,7 @@ public static class Logger
         }
         catch
         {
-            // O registro nunca deve derrubar a app.
+            // O registo nunca deve derrubar a app.
         }
 
         var app = Application.Current;

@@ -40,7 +40,7 @@ public partial class StartupView : UserControl
             if (MainWindow.Instance is { } main) main.Snapshot.StartupItems = enabled;
 
             if (!Fmt.IsAdmin && items.Any(i => i.NeedsAdmin))
-                State.ShowNeedsAdmin("Alterar itens de inicialização de todos os usuários");
+                State.ShowNeedsAdmin("Alterar itens de inicialização de todos os utilizadores");
             else
                 State.Hide();
         }

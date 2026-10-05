@@ -244,7 +244,7 @@ public static class SecurityManager
     /// <summary>Atualiza as definições de virus.</summary>
     public static async Task<bool> UpdateSignaturesAsync(Action<string>? onLine = null, CancellationToken ct = default)
     {
-        Logger.Info("Segurança", "Atualizando as definições de virus...");
+        Logger.Info("Segurança", "A atualizar as definições de virus...");
 
         var mp = FindMpCmdRun();
         if (mp is not null)
@@ -252,7 +252,7 @@ public static class SecurityManager
             var r = await Shell.RunAsync(mp, "-SignatureUpdate", onLine, ct).ConfigureAwait(false);
             if (r.Success)
             {
-                Logger.Ok("Segurança", "Configurações de virus atualizadas.");
+                Logger.Ok("Segurança", "Definições de virus atualizadas.");
                 return true;
             }
             onLine?.Invoke($"MpCmdRun devolveu o código {r.ExitCode}; a tentar via PowerShell...");
@@ -261,7 +261,7 @@ public static class SecurityManager
         var ps = await Shell.PowerShellAsync("Update-MpSignature -UpdateSource MicrosoftUpdateServer; 'ok'", onLine, ct)
             .ConfigureAwait(false);
 
-        if (ps.Success) Logger.Ok("Segurança", "Configurações de virus atualizadas.");
+        if (ps.Success) Logger.Ok("Segurança", "Definições de virus atualizadas.");
         else Logger.Warn("Segurança", "Não foi possível atualizar as definições de virus.");
 
         return ps.Success;
@@ -335,7 +335,7 @@ public static class SecurityManager
             return false;
         }
 
-        onLine?.Invoke("Removendo ameaças detetadas...");
+        onLine?.Invoke("A remover ameaças detetadas...");
         var r = await Shell.PowerShellAsync("Remove-MpThreat -ErrorAction Stop; 'ok'", onLine, ct).ConfigureAwait(false);
 
         if (r.Success) Logger.Ok("Segurança", "Pedido de remoção de ameaças enviado ao Defender.");
@@ -344,7 +344,7 @@ public static class SecurityManager
         return r.Success;
     }
 
-    /// <summary>Verificador de arquivos do sistema.</summary>
+    /// <summary>Verificador de ficheiros do sistema.</summary>
     public static async Task<bool> RunSfcAsync(Action<string>? onLine = null, CancellationToken ct = default)
     {
         if (!Fmt.IsAdmin)

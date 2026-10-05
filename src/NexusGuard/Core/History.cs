@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace NexusGuard.Core;
 
-/// <summary>O que é preciso salvar para conseguir reverter uma ação.</summary>
+/// <summary>O que é preciso guardar para conseguir reverter uma ação.</summary>
 public enum UndoKind
 {
     None,
@@ -27,7 +27,7 @@ public sealed class HistoryEntry : Observable
     public string Value { get; set; } = "";
     public UndoKind Undo { get; set; } = UndoKind.None;
 
-    /// <summary>Dados próprios de cada tipo de desfazer (caminho do lote, chave do registro, etc.).</summary>
+    /// <summary>Dados próprios de cada tipo de desfazer (caminho do lote, chave do registo, etc.).</summary>
     public Dictionary<string, string> Data { get; set; } = new();
 
     private bool _undone;
@@ -145,7 +145,7 @@ public static class History
         }
     }
 
-    /// <summary>Reescreve o arquivo inteiro — usado depois de marcar uma entrada como desfeita.</summary>
+    /// <summary>Reescreve o ficheiro inteiro — usado depois de marcar uma entrada como desfeita.</summary>
     public static void Persist()
     {
         try

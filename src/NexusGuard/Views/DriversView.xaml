@@ -140,7 +140,7 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Gerenciador de Dispositivos" Style="{StaticResource Btn.Ghost}"
+                        <Button Content="Gestor de Dispositivos" Style="{StaticResource Btn.Ghost}"
                                 Padding="10,5" FontSize="12" Click="OnOpenDeviceManager" />
                         <Button Content="Windows Update" Style="{StaticResource Btn.Ghost}" Margin="8,0,0,0"
                                 Padding="10,5" FontSize="12" Click="OnOpenWindowsUpdate" />

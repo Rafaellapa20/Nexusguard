@@ -80,7 +80,7 @@ public sealed class Cmd : ICommand
         }
         catch (OperationCanceledException)
         {
-            Logger.Warn("Comando", "Operação cancelada pelo usuário.");
+            Logger.Warn("Comando", "Operação cancelada pelo utilizador.");
         }
         catch (Exception ex)
         {

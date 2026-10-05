@@ -168,7 +168,7 @@ public partial class UninstallView : UserControl
             {
                 _cts.Token.ThrowIfCancellationRequested();
 
-                StatusLine.Text = $"desinstalando {app.Name}…";
+                StatusLine.Text = $"a desinstalar {app.Name}…";
 
                 if (!await Uninstaller.UninstallAsync(app, line => _sink?.Write(line), _cts.Token)) continue;
 
@@ -180,7 +180,7 @@ public partial class UninstallView : UserControl
                 {
                     _sink?.Write($"{app.Name}: {residues.Count} pasta(s) de resíduos → quarentena");
                     var result = Uninstaller.QuarantineResidues(app, residues, _cts.Token);
-                    _sink?.Write($"  {result.Moved} arquivos ({Fmt.Bytes(result.Bytes)})");
+                    _sink?.Write($"  {result.Moved} ficheiros ({Fmt.Bytes(result.Bytes)})");
                 }
 
                 app.Selected = false;

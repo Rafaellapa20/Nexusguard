@@ -87,7 +87,7 @@ public partial class SettingsView : UserControl
         catch (Exception ex)
         {
             OptStartup.IsChecked = !enable;
-            Ui.Warn(this, "Configurações", $"Não foi possível alterar o arranque automático: {ex.Message}");
+            Ui.Warn(this, "Definições", $"Não foi possível alterar o arranque automático: {ex.Message}");
         }
     }
 
@@ -128,7 +128,7 @@ public partial class SettingsView : UserControl
         var enable = OptQuarantine.IsChecked == true;
 
         if (!enable && !Ui.Confirm(this, "Desligar a quarentena",
-                "Sem quarentena, a limpeza apaga os arquivos de forma definitiva e deixa de haver «Desfazer».\n\n" +
+                "Sem quarentena, a limpeza apaga os ficheiros de forma definitiva e deixa de haver «Desfazer».\n\n" +
                 "Tem certeza?"))
         {
             OptQuarantine.IsChecked = true;
@@ -237,7 +237,7 @@ public partial class SettingsView : UserControl
         CheckUpdateButton.IsEnabled = false;
         InstallUpdateButton.Visibility = Visibility.Collapsed;
         NotesBox.Visibility = Visibility.Collapsed;
-        UpdateStatus.Text = "Procurando…";
+        UpdateStatus.Text = "A procurar…";
 
         _updateCts = new CancellationTokenSource();
 
@@ -250,7 +250,7 @@ public partial class SettingsView : UserControl
 
             if (check.State != NexusGuard.Modules.UpdateState.Available || check.Update is null) return;
 
-            InstallUpdateButton.Content = $"Baixar e instalar {check.Update.Version}";
+            InstallUpdateButton.Content = $"Transferir e instalar {check.Update.Version}";
             InstallUpdateButton.Visibility = Visibility.Visible;
 
             if (!string.IsNullOrWhiteSpace(check.Update.Notes))
@@ -277,7 +277,7 @@ public partial class SettingsView : UserControl
 
         if (!Ui.Confirm(this, "Atualizar o NexusGuard",
                 $"Versão {update.Version} · {update.SizeText}\n\n" +
-                "O arquivo é baixado do GitHub, conferido contra o hash publicado e instalado por cima " +
+                "O ficheiro é transferido do GitHub, conferido contra o hash publicado e instalado por cima " +
                 "desta versão.\n\n" +
                 "O NexusGuard fecha-se para o instalador poder substituir o executável. Continuar?"))
             return;
@@ -299,7 +299,7 @@ public partial class SettingsView : UserControl
             if (setup is null)
             {
                 Ui.Warn(this, "Atualização",
-                    "O download falhou ou o arquivo não corresponde ao hash publicado. Nada foi instalado.");
+                    "O download falhou ou o ficheiro não corresponde ao hash publicado. Nada foi instalado.");
                 return;
             }
 

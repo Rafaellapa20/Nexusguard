@@ -6,7 +6,7 @@ namespace NexusGuard.Core;
 
 /// <summary>
 /// Escritor de PDF mínimo, só com o que o relatório precisa: texto nas fontes base (sem incorporar
-/// arquivos), retângulos e linhas. Evita trazer uma biblioteca de PDF para o aplicativo.
+/// ficheiros), retângulos e linhas. Evita trazer uma biblioteca de PDF para o programa.
 /// </summary>
 public sealed class PdfDocument
 {

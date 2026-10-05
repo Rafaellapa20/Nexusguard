@@ -82,7 +82,7 @@
     <Geometry x:Key="I.Memory">M7.5 7.5h9v9h-9z M4 10h3.5 M4 14h3.5 M16.5 10H20 M16.5 14H20 M10 4v3.5 M14 4v3.5 M10 16.5V20 M14 16.5V20</Geometry>
     <Geometry x:Key="I.Performance">M3 13h3.4l2.6-7.5 3.4 13 2.4-5.5H21</Geometry>
     <Geometry x:Key="I.Shield">M12 3.2l7.6 2.7v5.6c0 4.8-3.3 7.7-7.6 8.7-4.3-1-7.6-3.9-7.6-8.7V5.9z M8.9 11.9l2.1 2.1 4.1-4.1</Geometry>
-    <!-- Quatro caixas: um lote de aplicativos, por oposicao a seta de transferencia do I.Apps. -->
+    <!-- Quatro caixas: um lote de programas, por oposicao a seta de transferencia do I.Apps. -->
     <Geometry x:Key="I.Grid">M4.2 4.2h6.1v6.1H4.2z M13.7 4.2h6.1v6.1h-6.1z M4.2 13.7h6.1v6.1H4.2z M13.7 13.7h6.1v6.1h-6.1z</Geometry>
     <Geometry x:Key="I.Apps">M12 3.5v11 M8.1 10.9 12 14.8l3.9-3.9 M4.5 19.5h15</Geometry>
     <Geometry x:Key="I.Driver">M9.2 3.2v5.4 M14.8 3.2v5.4 M6.6 8.6h10.8v3.1a5.4 5.4 0 0 1-10.8 0z M12 17.1v3.7</Geometry>

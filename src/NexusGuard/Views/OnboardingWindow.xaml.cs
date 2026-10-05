@@ -8,14 +8,14 @@ namespace NexusGuard.Views;
 
 /// <summary>
 /// Configuração de primeira execução: boas-vindas, o que a app faz e nunca faz, proteções e
-/// telemetria. Nada é alterado no PC até o usuário confirmar.
+/// telemetria. Nada é alterado no PC até o utilizador confirmar.
 /// </summary>
 public partial class OnboardingWindow : Window
 {
     private static readonly string[] Does =
     {
-        "Cria ponto de restauração antes de alterar",
-        "Move arquivos para quarentena (7 dias)",
+        "Cria ponto de restauro antes de alterar",
+        "Move ficheiros para quarentena (7 dias)",
         "Instala só drivers assinados pela Microsoft",
         "Mostra pré-visualização antes de apagar",
         "Registra tudo com opção de desfazer"
@@ -23,7 +23,7 @@ public partial class OnboardingWindow : Window
 
     private static readonly string[] Never =
     {
-        "Apaga documentos, fotos ou senhas",
+        "Apaga documentos, fotos ou palavras-passe",
         "Envia dados pessoais para a internet",
         "Instala programas extras ou barras",
         "Altera o sistema sem a sua confirmação",
@@ -32,7 +32,7 @@ public partial class OnboardingWindow : Window
 
     private int _step = 1;
 
-    /// <summary>True quando o usuário pediu para analisar o PC no fim.</summary>
+    /// <summary>True quando o utilizador pediu para analisar o PC no fim.</summary>
     public bool StartScan { get; private set; }
 
     public OnboardingWindow()

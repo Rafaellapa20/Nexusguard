@@ -71,7 +71,7 @@ public partial class SecurityView : UserControl
     private async Task ReloadStatusAsync()
     {
         ReloadStatusButton.IsEnabled = false;
-        ShieldTitle.Text = "Verificando…";
+        ShieldTitle.Text = "A verificar…";
         ShieldSubtitle.Text = "";
 
         try
@@ -129,7 +129,7 @@ public partial class SecurityView : UserControl
                 });
                 _states.Add(new StateRow
                 {
-                    Title = "Configurações de vírus",
+                    Title = "Definições de vírus",
                     Detail = $"{status.SignatureText} ({status.SignatureAgeText})",
                     Good = status.AntivirusSignatureAge <= 7
                 });
@@ -166,7 +166,7 @@ public partial class SecurityView : UserControl
         catch (Exception ex)
         {
             Logger.Error("Segurança", "Falha ao ler o estado de segurança", ex);
-            Paint(false, "Erro na verificação", "Consulte o registro para o detalhe.");
+            Paint(false, "Erro na verificação", "Consulte o registo para o detalhe.");
         }
         finally
         {
@@ -206,7 +206,7 @@ public partial class SecurityView : UserControl
         }
         catch (OperationCanceledException)
         {
-            _sink?.Write("=== Operação interrompida pelo usuário ===");
+            _sink?.Write("=== Operação interrompida pelo utilizador ===");
             SetBusy(false, "Operação interrompida.");
         }
         catch (Exception ex)
@@ -224,7 +224,7 @@ public partial class SecurityView : UserControl
     }
 
     private async void OnUpdateSignatures(object sender, RoutedEventArgs e) =>
-        await RunAsync("Atualizando definições de vírus",
+        await RunAsync("A atualizar definições de vírus",
             (log, ct) => SecurityManager.UpdateSignaturesAsync(log, ct));
 
     private async void OnQuickScan(object sender, RoutedEventArgs e) =>
@@ -237,7 +237,7 @@ public partial class SecurityView : UserControl
     private async void OnFullScan(object sender, RoutedEventArgs e)
     {
         if (!Ui.Confirm(this, "Análise completa",
-                "A análise completa percorre todos os arquivos do computador.\n\n" +
+                "A análise completa percorre todos os ficheiros do computador.\n\n" +
                 "Pode demorar mais de uma hora e torna o PC mais lento durante esse tempo. Começar?"))
             return;
 
@@ -280,7 +280,7 @@ public partial class SecurityView : UserControl
                 "Pede ao Microsoft Defender para remover tudo o que tem detectado.\n\nContinuar?"))
             return;
 
-        await RunAsync("Removendo ameaças",
+        await RunAsync("A remover ameaças",
             (log, ct) => SecurityManager.RemoveThreatsAsync(log, ct));
     }
 
@@ -293,7 +293,7 @@ public partial class SecurityView : UserControl
             return;
         }
 
-        if (!Ui.Confirm(this, "Verificar arquivos do sistema",
+        if (!Ui.Confirm(this, "Verificar ficheiros do sistema",
                 "O sfc /scannow pode demorar 10 a 20 minutos. Continuar?"))
             return;
 
@@ -310,7 +310,7 @@ public partial class SecurityView : UserControl
         }
 
         if (!Ui.Confirm(this, "Reparar imagem do Windows",
-                "O DISM vai transferir arquivos do Windows Update para reparar o sistema.\n\n" +
+                "O DISM vai transferir ficheiros do Windows Update para reparar o sistema.\n\n" +
                 "Pode demorar bastante e precisa de conexão com a internet. Continuar?"))
             return;
 
@@ -323,7 +323,7 @@ public partial class SecurityView : UserControl
     private void OnStop(object sender, RoutedEventArgs e)
     {
         _cts?.Cancel();
-        OpStatus.Text = "interrompendo…";
+        OpStatus.Text = "a interromper…";
     }
 
     private void OnClearConsole(object sender, RoutedEventArgs e) => _sink?.Clear();

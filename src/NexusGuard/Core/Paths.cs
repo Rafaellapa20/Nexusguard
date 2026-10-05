@@ -4,7 +4,7 @@ namespace NexusGuard.Core;
 
 /// <summary>
 /// Pastas de dados do NexusGuard. Os dados partilhados ficam em ProgramData; se essa pasta não
-/// for gravável (política de grupo, disco protegido), tudo cai para LocalAppData do usuário.
+/// for gravável (política de grupo, disco protegido), tudo cai para LocalAppData do utilizador.
 /// </summary>
 public static class Paths
 {
@@ -15,7 +15,7 @@ public static class Paths
     /// <summary>C:\ProgramData\NexusGuard (ou equivalente local se não houver acesso).</summary>
     public static string SharedRoot => SharedRootLazy.Value;
 
-    /// <summary>%LocalAppData%\NexusGuard — configuração por usuário.</summary>
+    /// <summary>%LocalAppData%\NexusGuard — configuração por utilizador.</summary>
     public static string UserRoot { get; } = Ensure(Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppName));
 
@@ -63,7 +63,7 @@ public static class Paths
         return path;
     }
 
-    /// <summary>Transforma "C:\Users\x\f.tmp" em "C\Users\x\f.tmp", para salvar sob a quarentena.</summary>
+    /// <summary>Transforma "C:\Users\x\f.tmp" em "C\Users\x\f.tmp", para guardar sob a quarentena.</summary>
     public static string ToRelativeStorePath(string fullPath)
     {
         var root = Path.GetPathRoot(fullPath) ?? string.Empty;

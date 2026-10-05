@@ -45,8 +45,8 @@ public static class Cli
     public static string Describe(JobKind job) => job switch
     {
         JobKind.Scan => "Análise completa do PC",
-        JobKind.Clean => "Limpeza de arquivos temporários",
-        JobKind.UpdateApps => "Atualização de aplicativos",
+        JobKind.Clean => "Limpeza de ficheiros temporários",
+        JobKind.UpdateApps => "Atualização de programas",
         JobKind.Backup => "Backup incremental",
         JobKind.CheckDrivers => "Verificação de drivers",
         JobKind.QuickScan => "Verificação de segurança",
@@ -63,7 +63,7 @@ public static class Cli
           --tray            arranca minimizado na bandeja do sistema
           --scan            análise completa, sem alterar nada
           --clean           limpeza das categorias seguras
-          --update-apps     atualiza os aplicativos via winget
+          --update-apps     atualiza os programas via winget
           --backup          backup incremental para o destino guardado
           --check-drivers   procura drivers pendentes no Windows Update
           --quick-scan      análise rápida do Microsoft Defender

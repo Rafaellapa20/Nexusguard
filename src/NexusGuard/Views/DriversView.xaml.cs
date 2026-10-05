@@ -141,7 +141,7 @@ public partial class DriversView : UserControl
             else
             {
                 var drivers = _tab == Tab.Drivers;
-                StatusLine.Text = drivers ? "procurando drivers…" : "procurando atualizações do Windows…";
+                StatusLine.Text = drivers ? "a procurar drivers…" : "a procurar atualizações do Windows…";
                 _sink?.Write(StatusLine.Text);
 
                 var (items, error) = await UpdateAgent.SearchAsync(drivers, _cts.Token);
@@ -207,7 +207,7 @@ public partial class DriversView : UserControl
         var label = drivers ? "driver(s)" : "atualização(ões) do Windows";
 
         if (!Ui.Confirm(this, "Instalar",
-                $"Vão ser baixados e instalados {chosen.Count} {label}:\n\n" +
+                $"Vão ser transferidos e instalados {chosen.Count} {label}:\n\n" +
                 string.Join("\n", chosen.Take(8).Select(u => $"• {u.Title}")) +
                 (chosen.Count > 8 ? $"\n… e mais {chosen.Count - 8}." : "") +
                 "\n\nGuarde o seu trabalho — pode ser necessário reiniciar. Continuar?"))
@@ -216,9 +216,9 @@ public partial class DriversView : UserControl
         SetBusy(true);
         ShowConsole(true);
         _cts = new CancellationTokenSource();
-        StatusLine.Text = "instalando…";
+        StatusLine.Text = "a instalar…";
 
-        foreach (var u in chosen) u.Status = "instalando…";
+        foreach (var u in chosen) u.Status = "a instalar…";
 
         try
         {
@@ -256,7 +256,7 @@ public partial class DriversView : UserControl
     private void OnCancel(object sender, RoutedEventArgs e)
     {
         _cts?.Cancel();
-        StatusLine.Text = "interrompendo…";
+        StatusLine.Text = "a interromper…";
     }
 
     private void OnOpenDeviceManager(object sender, RoutedEventArgs e) => UpdateAgent.OpenDeviceManager();

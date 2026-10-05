@@ -22,7 +22,7 @@
                         <RadioButton x:Name="TabHistory" Style="{StaticResource Segment}" Content="Ações"
                                      IsChecked="True" Checked="OnTabChanged" />
                         <RadioButton x:Name="TabLog" Style="{StaticResource Segment}" Margin="6,0,0,0"
-                                     Content="Registro técnico" Checked="OnTabChanged" />
+                                     Content="Registo técnico" Checked="OnTabChanged" />
                     </StackPanel>
                 </StackPanel>
 
@@ -120,7 +120,7 @@
                 </Grid>
             </Border>
 
-            <!-- ============ Registro técnico ============ -->
+            <!-- ============ Registo técnico ============ -->
             <Border x:Name="LogPanel" Style="{StaticResource Card}" Visibility="Collapsed">
                 <Grid>
                     <Grid.RowDefinitions>

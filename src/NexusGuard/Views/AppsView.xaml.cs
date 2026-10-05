@@ -30,7 +30,7 @@ public partial class AppsView : UserControl
             {
                 WingetWarning.Visibility = Visibility.Visible;
                 CountText.Text = "—";
-                SubText.Text = "Instale o «Programa de Instalação de Aplicativos» para ativar esta secção.";
+                SubText.Text = "Instale o «Programa de Instalação de Aplicações» para ativar esta secção.";
                 ScanButton.IsEnabled = false;
                 UpdateButton.IsEnabled = false;
                 return;
@@ -70,8 +70,8 @@ public partial class AppsView : UserControl
 
             CountText.Text = list.Count.ToString(Fmt.Pt);
             SubText.Text = list.Count == 0
-                ? "Todas as aplicativos conhecidas pelo winget estão atualizadas."
-                : $"{list.Count} aplicativo(ões) com versão mais recente disponível.";
+                ? "Todos os programas conhecidos pelo winget estão atualizados."
+                : $"{list.Count} programa(ões) com versão mais recente disponível.";
 
             EmptyText.Visibility = list.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             EmptyText.Text = "Nada para atualizar — está tudo em dia.";
@@ -83,7 +83,7 @@ public partial class AppsView : UserControl
         }
         catch (Exception ex)
         {
-            Logger.Error("Aplicativos", "Falha ao procurar atualizações", ex);
+            Logger.Error("Programas", "Falha ao procurar atualizações", ex);
             StatusLine.Text = "a procura falhou";
         }
         finally
@@ -102,12 +102,12 @@ public partial class AppsView : UserControl
 
         if (chosen.Count == 0)
         {
-            Ui.Inform(this, "Atualizar aplicativos", "Selecione pelo menos um aplicativo.");
+            Ui.Inform(this, "Atualizar programas", "Selecione pelo menos um programa.");
             return;
         }
 
-        if (!Ui.Confirm(this, "Atualizar aplicativos",
-                $"Serão atualizadas {chosen.Count} aplicativo(ões):\n\n" +
+        if (!Ui.Confirm(this, "Atualizar programas",
+                $"Serão atualizadas {chosen.Count} programa(ões):\n\n" +
                 string.Join("\n", chosen.Take(10).Select(a => $"• {a.Name}")) +
                 (chosen.Count > 10 ? $"\n… e mais {chosen.Count - 10}." : "") +
                 "\n\nFeche-os antes de continuar, para evitar instalações falhadas. Continuar?"))
@@ -129,7 +129,7 @@ public partial class AppsView : UserControl
         SetBusy(true);
         ShowConsole(true);
         _cts = new CancellationTokenSource();
-        StatusLine.Text = "atualizando…";
+        StatusLine.Text = "a atualizar…";
 
         try
         {
@@ -139,7 +139,7 @@ public partial class AppsView : UserControl
 
             Ui.Inform(this, "Atualizações concluídas",
                 ok == apps.Count
-                    ? $"{ok} aplicativo(ões) atualizadas com sucesso."
+                    ? $"{ok} programa(ões) atualizadas com sucesso."
                     : $"{ok} de {apps.Count} atualizadas. Veja a saída do winget para as que falharam.");
 
             await ScanAsync();
@@ -150,7 +150,7 @@ public partial class AppsView : UserControl
         }
         catch (Exception ex)
         {
-            Logger.Error("Aplicativos", "Falha ao atualizar", ex);
+            Logger.Error("Programas", "Falha ao atualizar", ex);
             StatusLine.Text = "a atualização falhou";
         }
         finally
@@ -164,7 +164,7 @@ public partial class AppsView : UserControl
     private void OnCancel(object sender, RoutedEventArgs e)
     {
         _cts?.Cancel();
-        StatusLine.Text = "interrompendo…";
+        StatusLine.Text = "a interromper…";
     }
 
     private void OnInstallWinget(object sender, RoutedEventArgs e) => AppUpdater.OpenWingetInstall();

@@ -26,7 +26,7 @@
                     <TextBlock x:Name="CountText" Text="—" Style="{StaticResource T.Metric}" Margin="0,6,0,0" />
                     <TextBlock x:Name="SubText" Style="{StaticResource T.Muted}" Margin="0,4,0,0"
                                TextWrapping="Wrap"
-                               Text="Procura atualizações através do winget, o gerenciador de pacotes da Microsoft." />
+                               Text="Procura atualizações através do winget, o gestor de pacotes da Microsoft." />
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
@@ -56,7 +56,7 @@
                     <TextBlock Text="O winget não está instalado" FontWeight="SemiBold" FontSize="13"
                                Foreground="{StaticResource B.Warn}" />
                     <TextBlock Style="{StaticResource T.Muted}" Margin="0,4,0,0" TextWrapping="Wrap"
-                               Text="Sem o «Programa de Instalação de Aplicativos» da Microsoft Store não é possível atualizar aplicativos por aqui." />
+                               Text="Sem o «Programa de Instalação de Aplicações» da Microsoft Store não é possível atualizar programas por aqui." />
                 </StackPanel>
                 <Button Grid.Column="2" Content="Instalar da Store" Style="{StaticResource Btn.Secondary}"
                         VerticalAlignment="Center" Click="OnInstallWinget" />

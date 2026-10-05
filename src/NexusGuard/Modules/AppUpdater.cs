@@ -32,7 +32,7 @@ public sealed class AppUpgrade : Observable
 }
 
 /// <summary>
-/// Atualização de aplicativos via winget. A tabela do winget é localizada, por isso cada linha e lida
+/// Atualização de programas via winget. A tabela do winget é localizada, por isso cada linha e lida
 /// da direita para a esquerda: só o nome pode conter espaços.
 /// </summary>
 public static class AppUpdater
@@ -60,11 +60,11 @@ public static class AppUpdater
         var exe = WingetPath;
         if (exe is null)
         {
-            Logger.Warn("Aplicativos", "O winget (Programa de Instalação de Aplicativos) não esta instalado.");
+            Logger.Warn("Programas", "O winget (Programa de Instalação de Aplicações) não esta instalado.");
             return new List<AppUpgrade>();
         }
 
-        Logger.Info("Aplicativos", "Procurando atualizações de aplicativos...");
+        Logger.Info("Programas", "A procurar atualizações de programas...");
 
         var r = await Shell.RunAsync(exe,
             "upgrade --include-unknown --accept-source-agreements --disable-interactivity",
@@ -77,9 +77,9 @@ public static class AppUpdater
 
         await AddOtherManagersAsync(list, onLine, ct).ConfigureAwait(false);
 
-        Logger.Ok("Aplicativos", list.Count == 0
-            ? "Todas as aplicativos estão atualizadas."
-            : $"{list.Count} aplicativos com atualização disponível.");
+        Logger.Ok("Programas", list.Count == 0
+            ? "Todos os programas estão atualizados."
+            : $"{list.Count} programas com atualização disponível.");
 
         return list;
     }
@@ -106,7 +106,7 @@ public static class AppUpdater
 
             if (listing.Failed)
             {
-                Logger.Warn("Aplicativos", $"{manager.Name}: {listing.Problem}");
+                Logger.Warn("Programas", $"{manager.Name}: {listing.Problem}");
                 onLine?.Invoke($"{manager.Name}: {listing.Problem} As atualizações dele não entram nesta lista.");
                 continue;
             }
@@ -188,7 +188,7 @@ public static class AppUpdater
     private static bool LooksLikeVersion(string token) =>
         token.Length > 0 && (char.IsDigit(token[0]) || char.IsLetter(token[0]));
 
-    /// <summary>Linhas que são apenas barras de progresso não interessam ao registro.</summary>
+    /// <summary>Linhas que são apenas barras de progresso não interessam ao registo.</summary>
     private static bool IsNoise(string line)
     {
         if (string.IsNullOrWhiteSpace(line)) return true;
@@ -208,7 +208,7 @@ public static class AppUpdater
         var exe = WingetPath;
         if (exe is null) return false;
 
-        app.Status = "Atualizando...";
+        app.Status = "A atualizar...";
         onLine?.Invoke($"=== {app.Name} ({app.CurrentVersion} → {app.AvailableVersion}) ===");
 
         var selector = app.IdIsReliable
@@ -229,12 +229,12 @@ public static class AppUpdater
             app.Status = "Atualizada";
             app.Done = true;
             app.Selected = false;
-            Logger.Ok("Aplicativos", $"{app.Name} atualizada para {app.AvailableVersion}.");
+            Logger.Ok("Programas", $"{app.Name} atualizada para {app.AvailableVersion}.");
             return true;
         }
 
         app.Status = $"Falhou (código {r.ExitCode})";
-        Logger.Warn("Aplicativos", $"{app.Name}: winget devolveu {r.ExitCode}.");
+        Logger.Warn("Programas", $"{app.Name}: winget devolveu {r.ExitCode}.");
         onLine?.Invoke($"{app.Name}: winget devolveu o código {r.ExitCode}.");
         return false;
     }
@@ -254,7 +254,7 @@ public static class AppUpdater
             return false;
         }
 
-        app.Status = "Atualizando...";
+        app.Status = "A atualizar...";
         onLine?.Invoke($"=== {app.Name} ({app.CurrentVersion} → {app.AvailableVersion}) via {manager.Name} ===");
 
         var ok = await PackageManagers.UpgradeAsync(manager, app.Id, onLine, ct).ConfigureAwait(false);
@@ -284,7 +284,7 @@ public static class AppUpdater
             if (await UpgradeAsync(app, onLine, ct).ConfigureAwait(false)) ok++;
         }
 
-        onLine?.Invoke($"=== Concluído: {ok} aplicativos atualizadas ===");
+        onLine?.Invoke($"=== Concluído: {ok} programas atualizadas ===");
         return ok;
     }
 

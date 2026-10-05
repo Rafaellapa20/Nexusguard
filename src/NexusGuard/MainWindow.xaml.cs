@@ -35,7 +35,7 @@ public partial class MainWindow : Window
         }),
         new("Atualizar", new[]
         {
-            new NavEntry("apps", "Aplicativos", "I.Apps", () => new AppsView()),
+            new NavEntry("apps", "Programas", "I.Apps", () => new AppsView()),
             new NavEntry("install", "Instalar em lote", "I.Grid", () => new InstallView()),
             new NavEntry("drivers", "Drivers", "I.Driver", () => new DriversView()),
             new NavEntry("uninstall", "Desinstalar", "I.Trash", () => new UninstallView())
@@ -43,7 +43,7 @@ public partial class MainWindow : Window
         new("Limpar e otimizar", new[]
         {
             new NavEntry("cleanup", "Limpeza", "I.Clean", () => new CleanupView()),
-            new NavEntry("registry", "Registro", "I.Log", () => new RegistryView()),
+            new NavEntry("registry", "Registo", "I.Log", () => new RegistryView()),
             new NavEntry("performance", "Performance", "I.Performance", () => new PerformanceView()),
             new NavEntry("startup", "Inicialização", "I.Play", () => new StartupView())
         }),
@@ -58,7 +58,7 @@ public partial class MainWindow : Window
         {
             new NavEntry("schedule", "Agendamento", "I.Refresh", () => new ScheduleView()),
             new NavEntry("history", "Histórico", "I.Restore", () => new HistoryView()),
-            new NavEntry("settings", "Configurações", "I.Folder", () => new SettingsView())
+            new NavEntry("settings", "Definições", "I.Folder", () => new SettingsView())
         })
     };
 
@@ -118,7 +118,7 @@ public partial class MainWindow : Window
     /// <summary>
     /// Consulta ao arrancar. Havendo versao nova, mostra-a numa janela por cima da aplicacao, que
     /// e o que quem abre o programa ve; arrancado para a bandeja, avisa pelo balao. Em qualquer dos
-    /// casos marca Configuracoes. Nada e baixado nem instalado sem o utilizador pedir.
+    /// casos marca Configuracoes. Nada e transferido nem instalado sem o utilizador pedir.
     /// </summary>
     private async Task CheckForUpdatesQuietlyAsync()
     {
@@ -367,7 +367,7 @@ public partial class MainWindow : Window
         {
             MessageBox.Show(this,
                 "Não foi possível reiniciar com privilégios de administrador. " +
-                "Feche o aplicativo e abra-a com o botão direito → «Executar como administrador».",
+                "Feche o programa e abra-a com o botão direito → «Executar como administrador».",
                 "NexusGuard", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }

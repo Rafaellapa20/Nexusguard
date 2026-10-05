@@ -11,9 +11,9 @@ A única dependência externa é a **LibreHardwareMonitorLib** (MPL-2.0), para o
 hardware: o WMI não publica temperaturas, e o campo de memória de vídeo dele é de 32 bits, o que o
 faz mentir em qualquer placa com mais de 4 GB. Usada sem alterações, como a licença exige para
 viver numa aplicação fechada. Avisos de licença em [TERCEIROS.md](TERCEIROS.md), também legíveis
-dentro da aplicação em Configurações.
+dentro da aplicação em Definições.
 
-Interface em **português do Brasil**. Público: técnicos de assistência e usuários avançados,
+Interface em **português de Portugal**. Público: técnicos de assistência e utilizadores avançados,
 em uso local num único PC.
 
 ---
@@ -24,8 +24,8 @@ A aplicação foi construída à volta de quatro regras, visíveis na primeira e
 
 | Faz | Nunca faz |
 |---|---|
-| Cria ponto de restauração antes de alterar | Apaga documentos, fotos ou senhas |
-| Move arquivos para quarentena (7 dias) | Envia dados pessoais para a internet |
+| Cria ponto de restauração antes de alterar | Apaga documentos, fotos ou palavras-passe |
+| Move ficheiros para quarentena (7 dias) | Envia dados pessoais para a internet |
 | Instala só drivers assinados pela Microsoft | Instala programas extras ou barras |
 | Mostra pré-visualização antes de apagar | Altera o sistema sem confirmação |
 | Registra tudo com opção de desfazer | Roda como administrador sem necessidade |
@@ -38,20 +38,20 @@ A elevação é pedida **por ação** (UAC on-demand), não no arranque.
 
 ### Início
 **Visão geral** — análise completa em ~40 s com barra de progresso e passo textual. Seis cartões
-clicáveis (aplicativos desatualizados, drivers pendentes, espaço recuperável, registro, ameaças,
+clicáveis (programas desatualizados, drivers pendentes, espaço recuperável, registo, ameaças,
 inicialização) com ponto de severidade, recursos em tempo real e as cinco últimas ações.
 Botão **Corrigir tudo com 1 clique**.
 
 ### Atualizar
-- **Aplicativos** — winget, Scoop e Chocolatey na mesma lista, com leitura de tabela independente
+- **Programas** — winget, Scoop e Chocolatey na mesma lista, com leitura de tabela independente
   do idioma do sistema. Cada atualização volta pelo gestor de onde veio. Gestores instalados são
   detectados, nunca instalados. Uma listagem que falha é dita, nunca contada como «nada a fazer».
-- **Instalar em lote** — catálogo de 20 aplicativos em quatro grupos e três conjuntos prontos (PC
+- **Instalar em lote** — catálogo de 20 programas em quatro grupos e três conjuntos prontos (PC
   básico, Escritório, Desenvolvedor), para um PC recém-formatado. Instala em sequência com uma
   repetição por falha, mostra o estado de cada um e exporta perfis para repetir noutra máquina.
 - **Drivers** — agente do Windows Update (serviço Microsoft Update), atualizações do Windows e
   dispositivos com problemas.
-- **Desinstalar** — programas do registro, classificados como *Bloatware*, *Inseguro*,
+- **Desinstalar** — programas do registo, classificados como *Bloatware*, *Inseguro*,
   *Redundante* ou *Em uso*; desinstalação silenciosa e varredura de resíduos para a quarentena.
 
 ### Limpar e otimizar
@@ -60,11 +60,11 @@ Botão **Corrigir tudo com 1 clique**.
   não aparecem. **Pré-visualização obrigatória** antes
   de remover, com filtros por categoria e aviso do que foi protegido; painel de **quarentena** ao
   lado, com restaurar/apagar por lote.
-- **Registro** — extensões órfãs, App Paths inválidos, desinstaladores inexistentes, SharedDLLs
+- **Registo** — extensões órfãs, App Paths inválidos, desinstaladores inexistentes, SharedDLLs
   ausentes, itens Run quebrados e históricos MRU. Exporta sempre um `.reg` antes de corrigir.
 - **Performance** — três modos (Equilibrado / Trabalho / Jogos), métricas de CPU e memória,
   liberação de memória, processos mais pesados e seis ajustes de sistema com ganho estimado.
-- **Inicialização** — mesma chave `StartupApproved` do Gerenciador de Tarefas; sempre reversível.
+- **Inicialização** — mesma chave `StartupApproved` do Gestor de Tarefas; sempre reversível.
 
 ### Proteger
 - **Hardware** — sensores reais através da LibreHardwareMonitor: temperatura e ponto quente da
@@ -82,8 +82,8 @@ Botão **Corrigir tudo com 1 clique**.
 - **Agendamento** — seis tarefas no Agendador de Tarefas do Windows, que correm **sem interface**
   (ver «Linha de comandos» abaixo), registam no histórico e notificam pelo ícone da bandeja.
 - **Histórico** — tudo o que foi alterado, com **Desfazer** por ação e exportação de
-  **relatório PDF**; segundo separador com o registro técnico.
-- **Configurações** — geral, segurança (retenção, quarentena) e avançado, incluindo **modo simular**
+  **relatório PDF**; segundo separador com o registo técnico.
+- **Definições** — geral, segurança (retenção, quarentena) e avançado, incluindo **modo simular**
   (dry-run), que calcula e regista tudo sem alterar nada.
 
 ---
@@ -99,7 +99,7 @@ código 0 (sucesso) ou 1 (falha) — que é o que o Agendador de Tarefas regista
 | `--tray` | arranca minimizado na bandeja |
 | `--scan` | análise completa, sem alterar nada |
 | `--clean` | limpeza das categorias seguras |
-| `--update-apps` | atualiza os aplicativos via winget |
+| `--update-apps` | atualiza os programas via winget |
 | `--backup` | backup incremental para o destino guardado |
 | `--check-drivers` | procura drivers pendentes no Windows Update |
 | `--quick-scan` | atualiza as definições e corre a análise rápida do Defender |
@@ -117,22 +117,22 @@ o ícone vem do próprio executável. Clique esquerdo abre a janela, clique dire
 apenas a esconde — a aplicação continua disponível para as tarefas agendadas.
 
 **Notificações** — são os balões do próprio ícone, que no Windows 10/11 aparecem como toast. Há um
-botão «Testar notificação» em Configurações para confirmar que funcionam nesta máquina.
+botão «Testar notificação» em Definições para confirmar que funcionam nesta máquina.
 
 ---
 
 ## Quarentena
 
-Em vez de apagar, a limpeza move os arquivos para
+Em vez de apagar, a limpeza move os ficheiros para
 `C:\ProgramData\NexusGuard\Quarantine\<aaaaMMdd-HHmm>\`, preservando o caminho de origem num
-`manifest.json`. Restaurar devolve cada arquivo ao lugar original. A purga automática acontece aos
+`manifest.json`. Restaurar devolve cada ficheiro ao lugar original. A purga automática acontece aos
 7 dias (configurável, 1–90).
 
 Uma **lista branca** garante que documentos, imagens, vídeos, música, área de trabalho, downloads,
 OneDrive, `AppData\Roaming`, pastas de sistema e perfis de navegador nunca são tocados — as caches
 dentro desses perfis continuam a poder ser limpas.
 
-Arquivos bloqueados por outro programa são agendados para remoção no próximo arranque
+Ficheiros bloqueados por outro programa são agendados para remoção no próximo arranque
 (`MoveFileEx` com `MOVEFILE_DELAY_UNTIL_REBOOT`).
 
 ---
@@ -145,8 +145,8 @@ o necessário para reverter:
 
 | Tipo | Como reverte |
 |---|---|
-| Lote de quarentena | repõe os arquivos nos caminhos originais |
-| Correção do registro | importa o `.reg` exportado antes |
+| Lote de quarentena | repõe os ficheiros nos caminhos originais |
+| Correção do registo | importa o `.reg` exportado antes |
 | Chave de privacidade | repõe o valor anterior |
 | Item de inicialização | repõe o estado anterior |
 
@@ -182,18 +182,18 @@ elevação.
 
 O instalador:
 
-- assistente em português do Brasil e inglês;
+- assistente em português de Portugal e inglês;
 - instala em `C:\Program Files\NexusGuard\`;
 - cria `C:\ProgramData\NexusGuard\{Logs,Quarantine,Reports,RegistryBackups}` com permissão de
-  escrita para os usuários;
+  escrita para os utilizadores;
 - atalhos no Menu Iniciar e, opcionalmente, na área de trabalho;
-- entrada em «Aplicativos instalados» com ícone, editor e versão;
+- entrada em «Programas instalados» com ícone, editor e versão;
 - desinstalador que pergunta se mantém a quarentena e os relatórios;
 - **sem** ofertas de terceiros.
 
-O arranque automático fica a cargo da própria aplicação (Configurações → «Iniciar com o
+O arranque automático fica a cargo da própria aplicação (Definições → «Iniciar com o
 Windows»), que escreve em `HKCU` na conta certa. O instalador corre elevado, por isso criar esse
-atalho a partir dele colocá-lo-ia no perfil do administrador e não no do usuário.
+atalho a partir dele colocá-lo-ia no perfil do administrador e não no do utilizador.
 
 ---
 
@@ -211,12 +211,12 @@ src/NexusGuard/
 installer/    NexusGuard.iss (Inno Setup) e LICENSE.txt
 ```
 
-O `Assets/app.ico` é gerado a partir dos PNG em `Assets/brand/`; substituir esses arquivos muda a
+O `Assets/app.ico` é gerado a partir dos PNG em `Assets/brand/`; substituir esses ficheiros muda a
 identidade visual.
 
 ### Pontuação de saúde
 
-`100 − apps×2 − drivers×4 − GB_recuperáveis/2,5 − inicialização×2 − ameaças×6 − registro/80`,
+`100 − apps×2 − drivers×4 − GB_recuperáveis/2,5 − inicialização×2 − ameaças×6 − registo/80`,
 limitada a [0, 100]. Aparece no rodapé da barra lateral, com a barra colorida por faixa
 (≥80 verde, ≥60 âmbar, abaixo vermelho).
 
@@ -232,7 +232,7 @@ recomendações e rodapé com o identificador do ponto de restauração. Fica em
 ## O que precisa de administrador
 
 Limpeza das pastas do Windows, lista de espera da memória, itens de inicialização de todos os
-usuários, correções do registro em HKLM, `sfc`, `DISM`, remoção de ameaças, instalação de drivers
+utilizadores, correções do registo em HKLM, `sfc`, `DISM`, remoção de ameaças, instalação de drivers
 e atualizações do Windows, tarefas agendadas, serviços, pontos de restauração e imagem do sistema.
 
 A app pede elevação só quando é preciso, e indica-o em cada local com um cartão de estado próprio.
@@ -245,7 +245,7 @@ As versões são publicadas nas **Releases do GitHub**. Criar uma etiqueta `v1.2
 workflow que compila a aplicação e o instalador, calcula o `SHA256SUMS.txt` e publica tudo no
 release — a versão vem da etiqueta e entra no executável, no instalador e no nome do ficheiro.
 
-Na aplicação, **Configurações → Atualizações** procura versões novas (no arranque e a pedido),
+Na aplicação, **Definições → Atualizações** procura versões novas (no arranque e a pedido),
 mostra as notas do release, descarrega o instalador, confere o SHA-256 publicado e instala.
 
 O passo a passo completo — criar o repositório, apontar o `Updater` para ele e publicar — está em
@@ -260,7 +260,7 @@ O passo a passo completo — criar o repositório, apontar o `Updater` para ele 
 
 - **Assinatura de código:** o executável e o instalador não estão assinados. Sem um certificado EV
   (que tem de ser adquirido a uma autoridade certificadora), o SmartScreen avisa os primeiros
-  usuários. É o passo que falta para a distribuição pública.
+  utilizadores. É o passo que falta para a distribuição pública.
 - **Temperatura do processador:** vem de um driver de kernel (`WinRing0`) que o Windows bloqueia
   quando a Integridade de Memória está ligada, que é o normal no Windows 11. O campo aparece como
   indisponível com a razão escrita, em vez de um zero que parece avaria. **A aplicação nunca pede
@@ -278,7 +278,7 @@ O passo a passo completo — criar o repositório, apontar o `Updater` para ele 
 ## Avisos
 
 - O modo **espelho** do backup apaga, no destino, tudo o que já não exista na origem.
-- Com a quarentena **desligada**, arquivos presos por outro programa são removidos definitivamente
+- Com a quarentena **desligada**, ficheiros presos por outro programa são removidos definitivamente
   no arranque seguinte. Com ela ligada nada é agendado: ficam onde estão.
 - A quarentena vive no disco do sistema. Limpar grandes volumes de **outro** disco é copiar para
   esse, por isso a limpeza recusa-se a avançar se não houver espaço, em vez de o encher.

@@ -38,7 +38,7 @@ public sealed class CatalogApp : Observable
 
     public string StateText => State switch
     {
-        InstallState.Running => "instalando",
+        InstallState.Running => "a instalar",
         InstallState.Done => "instalada",
         InstallState.AlreadyThere => "já estava",
         InstallState.Failed => "falhou",
@@ -53,13 +53,13 @@ public sealed record BatchResult(int Installed, int AlreadyThere, int Failed)
 
     public string Summary => Failed == 0
         ? AlreadyThere == 0
-            ? $"{Installed} aplicativos instalados."
+            ? $"{Installed} programas instalados."
             : $"{Installed} instalados, {AlreadyThere} já estavam presentes."
         : $"{Installed} instalados, {Failed} falharam.";
 }
 
 /// <summary>
-/// Catálogo para instalar aplicativos em lote, pensado para um PC recém-formatado.
+/// Catálogo para instalar programas em lote, pensado para um PC recém-formatado.
 ///
 /// Todos os identificadores foram confirmados um a um contra o repositório do winget. Um catálogo
 /// com ids errados é uma funcionalidade que parece pronta e só falha na mão de quem a usa, por isso
@@ -151,7 +151,7 @@ public static class Catalog
             ct.ThrowIfCancellationRequested();
 
             app.State = InstallState.Running;
-            app.Status = "instalando…";
+            app.Status = "a instalar…";
             onLine?.Invoke($"=== {app.Name} ({app.Id}) ===");
 
             var outcome = await InstallOneAsync(exe, app, onLine, ct).ConfigureAwait(false);
@@ -170,7 +170,7 @@ public static class Catalog
                 case InstallState.Done:
                     installed++;
                     app.Status = "instalada";
-                    Logger.Ok("Aplicativos", $"{app.Name} instalado.");
+                    Logger.Ok("Programas", $"{app.Name} instalado.");
                     break;
 
                 case InstallState.AlreadyThere:
@@ -181,7 +181,7 @@ public static class Catalog
                 default:
                     failed++;
                     app.Status = "falhou";
-                    Logger.Warn("Aplicativos", $"{app.Name} não foi instalado.");
+                    Logger.Warn("Programas", $"{app.Name} não foi instalado.");
                     break;
             }
 
@@ -241,7 +241,7 @@ public static class Catalog
         }
         catch (JsonException ex)
         {
-            Logger.Warn("Aplicativos", $"perfil ilegível — {ex.Message}");
+            Logger.Warn("Programas", $"perfil ilegível — {ex.Message}");
             return Array.Empty<string>();
         }
     }

@@ -64,8 +64,8 @@ public static class Tweaks
         new Tweak
         {
             Key = "background",
-            Name = "Limitar aplicativos em segundo plano",
-            Description = "Impede que aplicativos da Store corram sem estarem abertos.",
+            Name = "Limitar programas em segundo plano",
+            Description = "Impede que programas da Store corram sem estarem abertos.",
             Gain = "menos CPU em repouso"
         },
         new Tweak

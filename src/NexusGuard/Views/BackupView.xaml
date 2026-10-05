@@ -119,7 +119,7 @@
                                      ToolTip="Cópia só o que mudou e nunca apaga nada no destino." />
                         <RadioButton x:Name="ModeMirror" Style="{StaticResource Segment}" Margin="6,0,0,0"
                                      Content="Espelho"
-                                     ToolTip="O destino fica igual à origem — arquivos apagados aqui desaparecem lá." />
+                                     ToolTip="O destino fica igual à origem — ficheiros apagados aqui desaparecem lá." />
                         <RadioButton x:Name="ModeSnapshot" Style="{StaticResource Segment}" Margin="6,0,0,0"
                                      Content="Instantâneo"
                                      ToolTip="Cópia completa numa pasta com a data, mantendo as anteriores." />
@@ -130,7 +130,7 @@
                                Text="Incremental: copia só o que mudou desde a última vez e nunca apaga nada no destino." />
 
                     <Grid Margin="0,14,0,0">
-                        <TextBlock Text="Ignorar arquivos só na nuvem (OneDrive)" Style="{StaticResource T.Dim}"
+                        <TextBlock Text="Ignorar ficheiros só na nuvem (OneDrive)" Style="{StaticResource T.Dim}"
                                    VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,54,0"
                                    ToolTip="Evita que o OneDrive descarregue tudo o que está apenas online." />
                         <CheckBox x:Name="SkipCloud" Style="{StaticResource Switch}" IsChecked="True"

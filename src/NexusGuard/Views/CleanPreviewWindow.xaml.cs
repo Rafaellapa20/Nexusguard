@@ -8,7 +8,7 @@ using NexusGuard.Modules;
 
 namespace NexusGuard.Views;
 
-/// <summary>Uma linha da pré-visualização: um arquivo que será movido para quarentena.</summary>
+/// <summary>Uma linha da pré-visualização: um ficheiro que será movido para quarentena.</summary>
 public sealed class PreviewFile : Observable
 {
     public required string Path { get; init; }
@@ -23,7 +23,7 @@ public sealed class PreviewFile : Observable
 }
 
 /// <summary>
-/// Mostra exactamente o que vai ser removido antes de mexer em alguma coisa. Os arquivos
+/// Mostra exactamente o que vai ser removido antes de mexer em alguma coisa. Os ficheiros
 /// protegidos (documentos, perfis de navegador) já vêm filtrados e são explicados no aviso.
 /// </summary>
 public partial class CleanPreviewWindow : Window
@@ -32,7 +32,7 @@ public partial class CleanPreviewWindow : Window
     private readonly ObservableCollection<PreviewFile> _shown = new();
     private string _filter = "Todos";
 
-    /// <summary>Caminhos que o usuário manteve selecionados.</summary>
+    /// <summary>Caminhos que o utilizador manteve selecionados.</summary>
     public List<string> Accepted { get; private set; } = new();
 
     public bool CreateRestorePoint => MakeRestorePoint.IsChecked == true;
@@ -68,8 +68,8 @@ public partial class CleanPreviewWindow : Window
         QuarantinePill.Text = Settings.Current.UseQuarantine ? $"Quarentena {days} dias" : "Remoção definitiva";
 
         FooterNote.Text = Settings.Current.UseQuarantine
-            ? $"Os arquivos ficam recuperáveis em Quarentena durante {days} dias."
-            : "A quarentena está desligada nas configurações — os arquivos serão apagados.";
+            ? $"Os ficheiros ficam recuperáveis em Quarentena durante {days} dias."
+            : "A quarentena está desligada nas definições — os ficheiros serão apagados.";
 
         if (protectedCount > 0)
         {
@@ -83,7 +83,7 @@ public partial class CleanPreviewWindow : Window
         MakeRestorePoint.IsEnabled = Fmt.IsAdmin;
 
         if (!Fmt.IsAdmin)
-            MakeRestorePoint.Content = "Criar ponto de restauração antes (requer administrador)";
+            MakeRestorePoint.Content = "Criar ponto de restauro antes (requer administrador)";
 
         MouseLeftButtonDown += (_, e) => { if (e.ButtonState == MouseButtonState.Pressed) DragMove(); };
         UpdateTotals();
@@ -128,12 +128,12 @@ public partial class CleanPreviewWindow : Window
             ? _all
             : _all.Where(f => f.Category == _filter).ToList();
 
-        // A lista pode ter dezenas de milhares de arquivos; mostrar os maiores chega para decidir.
+        // A lista pode ter dezenas de milhares de ficheiros; mostrar os maiores chega para decidir.
         foreach (var file in items.Take(400)) _shown.Add(file);
 
         SelectionText.Text = items.Count > _shown.Count
-            ? $"a mostrar os {_shown.Count} maiores de {Fmt.Count(items.Count)} arquivos"
-            : $"{Fmt.Count(items.Count)} arquivos";
+            ? $"a mostrar os {_shown.Count} maiores de {Fmt.Count(items.Count)} ficheiros"
+            : $"{Fmt.Count(items.Count)} ficheiros";
 
         UpdateTotals();
     }
@@ -143,7 +143,7 @@ public partial class CleanPreviewWindow : Window
         var selected = _all.Where(f => f.Selected).ToList();
         var bytes = selected.Sum(f => f.Size);
 
-        SubtitleText.Text = $"{Fmt.Count(selected.Count)} arquivos · {Fmt.Bytes(bytes)} · " +
+        SubtitleText.Text = $"{Fmt.Count(selected.Count)} ficheiros · {Fmt.Bytes(bytes)} · " +
                             (Settings.Current.UseQuarantine
                                 ? "nada é apagado de forma permanente"
                                 : "remoção definitiva");

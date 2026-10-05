@@ -49,7 +49,7 @@ public static class Scheduler
         new ScheduledJob
         {
             Key = "AtualizarApps",
-            Name = "Atualizar aplicativos",
+            Name = "Atualizar programas",
             Scope = "winget",
             WhenText = "Terças e sextas às 03:30",
             ScheduleArgs = "/SC WEEKLY /D TUE,FRI /ST 03:30",
@@ -58,7 +58,7 @@ public static class Scheduler
         new ScheduledJob
         {
             Key = "Limpeza",
-            Name = "Limpeza de arquivos temporários",
+            Name = "Limpeza de ficheiros temporários",
             Scope = "Categorias seguras",
             WhenText = "Domingos às 04:00",
             ScheduleArgs = "/SC WEEKLY /D SUN /ST 04:00",

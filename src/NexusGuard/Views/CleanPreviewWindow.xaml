@@ -102,7 +102,7 @@
 
             <!-- ============ Ponto de restauração ============ -->
             <CheckBox x:Name="MakeRestorePoint" Grid.Row="4" Style="{StaticResource Chk}" Margin="2,16,0,0"
-                      Content="Criar ponto de restauração antes" IsChecked="True" />
+                      Content="Criar ponto de restauro antes" IsChecked="True" />
 
             <!-- ============ Rodapé ============ -->
             <Grid Grid.Row="5" Margin="0,18,0,0">

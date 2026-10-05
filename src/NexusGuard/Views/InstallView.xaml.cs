@@ -114,8 +114,8 @@ public partial class InstallView : UserControl
         CountText.Text = picked.Count switch
         {
             0 => "Nenhum selecionado",
-            1 => "1 aplicativo selecionado",
-            _ => $"{picked.Count} aplicativos selecionados"
+            1 => "1 programa selecionado",
+            _ => $"{picked.Count} programas selecionados"
         };
 
         QueueCount.Text = picked.Count == 0 ? "vazia" : $"{picked.Count} na fila";
@@ -123,8 +123,8 @@ public partial class InstallView : UserControl
         InstallButton.Content = picked.Count switch
         {
             0 => "Instalar",
-            1 => "Instalar 1 aplicativo",
-            _ => $"Instalar {picked.Count} aplicativos"
+            1 => "Instalar 1 programa",
+            _ => $"Instalar {picked.Count} programas"
         };
 
         InstallButton.IsEnabled = !_busy && picked.Count > 0 && AppUpdater.IsAvailable;
@@ -157,7 +157,7 @@ public partial class InstallView : UserControl
         var apps = _queue.ToList();
         var shutdown = ShutdownWhenDone.IsChecked == true;
 
-        var message = $"Instalar {apps.Count} aplicativos, um a um, sem mais perguntas?"
+        var message = $"Instalar {apps.Count} programas, um a um, sem mais perguntas?"
                     + (shutdown ? "\n\nO PC desliga-se no fim." : "");
 
         if (!Ui.Confirm(this, "Instalar em lote", message)) return;
@@ -193,11 +193,11 @@ public partial class InstallView : UserControl
         catch (OperationCanceledException)
         {
             QueueCount.Text = "parada";
-            _sink?.Write("=== Parada a pedido. O aplicativo em curso termina sozinho. ===");
+            _sink?.Write("=== Parada a pedido. O programa em curso termina sozinho. ===");
         }
         catch (Exception ex)
         {
-            Logger.Error("Aplicativos", "a instalação em lote falhou", ex);
+            Logger.Error("Programas", "a instalação em lote falhou", ex);
             Ui.Warn(this, "Instalação em lote", "A instalação falhou. Veja os detalhes.");
         }
         finally
@@ -213,7 +213,7 @@ public partial class InstallView : UserControl
 
     /// <summary>
     /// Desliga com um minuto de atraso em vez de imediatamente, para haver como desistir. O comando
-    /// para abortar fica escrito no registro, que é onde quem está a ver vai procurar.
+    /// para abortar fica escrito no registo, que é onde quem está a ver vai procurar.
     /// </summary>
     private async Task ShutdownAsync()
     {
@@ -242,11 +242,11 @@ public partial class InstallView : UserControl
         {
             Catalog.SaveProfile(dialog.FileName, picked);
             Ui.Inform(this, "Perfil guardado",
-                $"{picked.Count} aplicativos guardados. Leve o ficheiro para outro PC e carregue-o lá.");
+                $"{picked.Count} programas guardados. Leve o ficheiro para outro PC e carregue-o lá.");
         }
         catch (Exception ex)
         {
-            Logger.Error("Aplicativos", "não foi possível guardar o perfil", ex);
+            Logger.Error("Programas", "não foi possível guardar o perfil", ex);
             Ui.Warn(this, "Perfil", "Não foi possível guardar o perfil nesse local.");
         }
     }
@@ -272,14 +272,14 @@ public partial class InstallView : UserControl
         }
         catch (IOException ex)
         {
-            Logger.Error("Aplicativos", "não foi possível ler o perfil", ex);
+            Logger.Error("Programas", "não foi possível ler o perfil", ex);
             Ui.Warn(this, "Perfil", "Não foi possível ler esse ficheiro.");
             return;
         }
 
         if (ids.Length == 0)
         {
-            Ui.Warn(this, "Perfil", "O ficheiro não tem nenhum aplicativo reconhecível.");
+            Ui.Warn(this, "Perfil", "O ficheiro não tem nenhum programa reconhecível.");
             return;
         }
 
@@ -298,7 +298,7 @@ public partial class InstallView : UserControl
         if (missing > 0)
         {
             Ui.Warn(this, "Perfil",
-                $"{missing} dos aplicativos do perfil não estão neste catálogo e ficaram de fora.");
+                $"{missing} dos programas do perfil não estão neste catálogo e ficaram de fora.");
         }
     }
 }

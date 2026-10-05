@@ -68,7 +68,7 @@ public partial class RegistryView : UserControl
 
         SetBusy(true);
         _cts = new CancellationTokenSource();
-        StatusLine.Text = "analisando o registro…";
+        StatusLine.Text = "a analisar o registo…";
 
         try
         {
@@ -81,7 +81,7 @@ public partial class RegistryView : UserControl
             var needAdmin = RegistryCleaner.CountNeedingAdmin(_categories);
 
             if (!Fmt.IsAdmin && needAdmin > 0)
-                State.Show("Registro", "Parte destas entradas precisa de administrador",
+                State.Show("Registo", "Parte destas entradas precisa de administrador",
                     $"{Fmt.Count(needAdmin)} das entradas encontradas estão em HKLM ou HKCR. Sem elevação o " +
                     "Windows recusa alterá-las, e a correção só trata as restantes.",
                     StateSeverity.Info, "Continuar como administrador", "Agora não");
@@ -94,7 +94,7 @@ public partial class RegistryView : UserControl
         }
         catch (Exception ex)
         {
-            Logger.Error("Registro", "Falha na análise", ex);
+            Logger.Error("Registo", "Falha na análise", ex);
             StatusLine.Text = "a análise falhou";
         }
         finally
@@ -114,7 +114,7 @@ public partial class RegistryView : UserControl
 
         if (total == 0)
         {
-            Ui.Inform(this, "Registro", "Não há entradas inválidas selecionadas.");
+            Ui.Inform(this, "Registo", "Não há entradas inválidas selecionadas.");
             return;
         }
 
@@ -125,17 +125,17 @@ public partial class RegistryView : UserControl
               "recusadas pelo Windows sem privilégios de administrador."
             : "";
 
-        if (!Ui.Confirm(this, "Corrigir registro",
+        if (!Ui.Confirm(this, "Corrigir registo",
                 $"Serão removidas {Fmt.Count(total)} entradas inválidas em {chosen.Count} categoria(s)." +
                 warning +
-                "\n\nAntes de remover, é exportado um arquivo .reg — pode reverter tudo pelo Histórico." +
+                "\n\nAntes de remover, é exportado um ficheiro .reg — pode reverter tudo pelo Histórico." +
                 "\n\nContinuar?"))
             return;
 
         SetBusy(true);
         ShowConsole(true);
         _cts = new CancellationTokenSource();
-        StatusLine.Text = "corrigindo…";
+        StatusLine.Text = "a corrigir…";
 
         try
         {
@@ -153,12 +153,12 @@ public partial class RegistryView : UserControl
                 ShowConsole(true);
 
                 if (!Fmt.IsAdmin)
-                    State.Show("Registro", "Entradas do sistema recusadas",
+                    State.Show("Registo", "Entradas do sistema recusadas",
                         $"{Fmt.Count(result.Failed)} entradas vivem em HKLM ou HKCR e o Windows não deixa " +
                         "alterá-las sem elevação. Reinicie como administrador para tratar dessas.",
                         StateSeverity.Warning, "Continuar como administrador", "Agora não");
                 else
-                    State.Show("Registro", "Algumas entradas não foram removidas",
+                    State.Show("Registo", "Algumas entradas não foram removidas",
                         $"{Fmt.Count(result.Failed)} entradas resistiram à remoção, por estarem em uso ou " +
                         "protegidas. O detalhe está na saída abaixo.",
                         StateSeverity.Warning);
@@ -171,7 +171,7 @@ public partial class RegistryView : UserControl
             if (result.Vanished > 0) detail.AppendLine($"Já não existiam: {Fmt.Count(result.Vanished)}");
             if (result.BackupFile is not null) detail.Append($"\nCópia de segurança: {result.BackupFile}");
 
-            Ui.Inform(this, result.AnythingDone ? "Registro corrigido" : "Nada foi alterado",
+            Ui.Inform(this, result.AnythingDone ? "Registo corrigido" : "Nada foi alterado",
                 detail.ToString());
         }
         catch (OperationCanceledException)
@@ -180,7 +180,7 @@ public partial class RegistryView : UserControl
         }
         catch (Exception ex)
         {
-            Logger.Error("Registro", "Falha ao corrigir", ex);
+            Logger.Error("Registo", "Falha ao corrigir", ex);
             StatusLine.Text = "a correção falhou";
         }
         finally

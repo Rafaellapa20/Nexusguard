@@ -67,7 +67,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Border x:Name="DotApps" Width="7" Height="7" CornerRadius="4"
                                     Background="{StaticResource B.TextMuted}" VerticalAlignment="Center" />
-                            <TextBlock Text="APLICATIVOS" Style="{StaticResource T.Label}" Margin="8,0,0,0" />
+                            <TextBlock Text="PROGRAMAS" Style="{StaticResource T.Label}" Margin="8,0,0,0" />
                         </StackPanel>
                         <TextBlock x:Name="StatApps" Text="—" Style="{StaticResource T.Metric}" FontSize="26"
                                    Margin="0,10,0,0" />
@@ -106,7 +106,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Border x:Name="DotRegistry" Width="7" Height="7" CornerRadius="4"
                                     Background="{StaticResource B.TextMuted}" VerticalAlignment="Center" />
-                            <TextBlock Text="REGISTRO" Style="{StaticResource T.Label}" Margin="8,0,0,0" />
+                            <TextBlock Text="REGISTO" Style="{StaticResource T.Label}" Margin="8,0,0,0" />
                         </StackPanel>
                         <TextBlock x:Name="StatRegistry" Text="—" Style="{StaticResource T.Metric}" FontSize="26"
                                    Margin="0,10,0,0" />

@@ -23,18 +23,18 @@ public sealed class StartupItem : Observable
 
     public string LocationText => Location switch
     {
-        StartupLocation.CurrentUserRegistry => "Registro (usuário)",
-        StartupLocation.MachineRegistry => "Registro (sistema)",
-        StartupLocation.MachineRegistry32 => "Registro (sistema, 32 bits)",
-        StartupLocation.UserFolder => "Pasta Iniciar (usuário)",
+        StartupLocation.CurrentUserRegistry => "Registo (utilizador)",
+        StartupLocation.MachineRegistry => "Registo (sistema)",
+        StartupLocation.MachineRegistry32 => "Registo (sistema, 32 bits)",
+        StartupLocation.UserFolder => "Pasta Iniciar (utilizador)",
         _ => "Pasta Iniciar (todos)"
     };
 
-    public string ScopeText => NeedsAdmin ? "Todos os usuários" : "Apenas este usuário";
+    public string ScopeText => NeedsAdmin ? "Todos os utilizadores" : "Apenas este utilizador";
 }
 
 /// <summary>
-/// Le e alterna os programas de arranque, usando a mesma chave StartupApproved que o Gerenciador de Tarefas —
+/// Le e alterna os programas de arranque, usando a mesma chave StartupApproved que o Gestor de Tarefas —
 /// desativar é sempre reversível.
 /// </summary>
 public static class StartupManager
@@ -118,7 +118,7 @@ public static class StartupManager
         }
     }
 
-    /// <summary>Sem registro em StartupApproved o item está ativo; o bit 0 do primeiro byte marca "desativado".</summary>
+    /// <summary>Sem registo em StartupApproved o item está ativo; o bit 0 do primeiro byte marca "desativado".</summary>
     private static bool IsApproved(RegistryKey? approved, string valueName)
     {
         if (approved?.GetValue(valueName) is not byte[] data || data.Length == 0) return true;
@@ -129,7 +129,7 @@ public static class StartupManager
     {
         if (item.NeedsAdmin && !Fmt.IsAdmin)
         {
-            message = $"'{item.Name}' pertence a todos os usuários — reinicie como administrador para o alterar.";
+            message = $"'{item.Name}' pertence a todos os utilizadores — reinicie como administrador para o alterar.";
             return false;
         }
 

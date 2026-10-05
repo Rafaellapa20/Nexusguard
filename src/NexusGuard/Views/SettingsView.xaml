@@ -9,7 +9,7 @@
 
             <Border Style="{StaticResource Card}" Background="{StaticResource B.HeroGrad}">
                 <StackPanel>
-                    <TextBlock Text="Configurações" Style="{StaticResource T.H1}" />
+                    <TextBlock Text="Definições" Style="{StaticResource T.H1}" />
                     <TextBlock Style="{StaticResource T.Muted}" Margin="0,8,0,0" TextWrapping="Wrap"
                                Text="As preferências ficam em %LocalAppData%\NexusGuard\settings.json e aplicam-se de imediato." />
                 </StackPanel>
@@ -33,7 +33,7 @@
                     <Grid Margin="0,16,0,0">
                         <StackPanel Margin="0,0,60,0">
                             <TextBlock Text="Manter na bandeja ao fechar" FontWeight="SemiBold" FontSize="13" />
-                            <TextBlock Text="Fechar a janela deixa o aplicativo em execução em segundo plano."
+                            <TextBlock Text="Fechar a janela deixa o programa em execução em segundo plano."
                                        Style="{StaticResource T.Muted}" Margin="0,3,0,0" />
                         </StackPanel>
                         <CheckBox x:Name="OptTray" Style="{StaticResource Switch}" HorizontalAlignment="Right"
@@ -64,7 +64,7 @@
                         <StackPanel Margin="0,0,60,0">
                             <TextBlock Text="Ponto de restauração antes de alterações" FontWeight="SemiBold"
                                        FontSize="13" />
-                            <TextBlock Text="Criado antes de limpezas e correções do registro."
+                            <TextBlock Text="Criado antes de limpezas e correções do registo."
                                        Style="{StaticResource T.Muted}" Margin="0,3,0,0" />
                         </StackPanel>
                         <CheckBox x:Name="OptRestore" Style="{StaticResource Switch}" HorizontalAlignment="Right"
@@ -74,7 +74,7 @@
                     <Grid Margin="0,16,0,0">
                         <StackPanel Margin="0,0,60,0">
                             <TextBlock Text="Quarentena em vez de apagar" FontWeight="SemiBold" FontSize="13" />
-                            <TextBlock Text="Desligar isto faz a limpeza apagar os arquivos de forma definitiva."
+                            <TextBlock Text="Desligar isto faz a limpeza apagar os ficheiros de forma definitiva."
                                        Style="{StaticResource T.Muted}" Margin="0,3,0,0" TextWrapping="Wrap" />
                         </StackPanel>
                         <CheckBox x:Name="OptQuarantine" Style="{StaticResource Switch}" HorizontalAlignment="Right"
@@ -139,7 +139,7 @@
                     <Grid Margin="0,16,0,0">
                         <StackPanel Margin="0,0,60,0">
                             <TextBlock Text="Procurar ao iniciar" FontWeight="SemiBold" FontSize="13" />
-                            <TextBlock Text="Consulta as versões publicadas no GitHub. Nada é instalado sem você confirmar."
+                            <TextBlock Text="Consulta as versões publicadas no GitHub. Nada é instalado sem a sua confirmação."
                                        Style="{StaticResource T.Muted}" Margin="0,3,0,0" TextWrapping="Wrap" />
                         </StackPanel>
                         <CheckBox x:Name="OptCheckUpdates" Style="{StaticResource Switch}"
@@ -149,7 +149,7 @@
                     <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                         <Button x:Name="CheckUpdateButton" Content="Procurar agora"
                                 Style="{StaticResource Btn.Secondary}" Click="OnCheckUpdates" />
-                        <Button x:Name="InstallUpdateButton" Content="Baixar e instalar"
+                        <Button x:Name="InstallUpdateButton" Content="Transferir e instalar"
                                 Style="{StaticResource Btn.Primary}" Margin="8,0,0,0"
                                 Click="OnInstallUpdate" Visibility="Collapsed" />
                         <Button x:Name="ReleasesButton" Content="Ver no GitHub" Style="{StaticResource Btn.Ghost}"
@@ -172,7 +172,7 @@
                     </Border>
 
                     <TextBlock Style="{StaticResource T.Muted}" Margin="2,12,0,0" TextWrapping="Wrap"
-                               Text="O instalador baixado é conferido contra o SHA-256 publicado no release. Isso detecta um download corrompido, mas não substitui a assinatura de código: quem controlar o repositório controla também o hash." />
+                               Text="O instalador transferido é conferido contra o SHA-256 publicado no release. Isso detecta um download corrompido, mas não substitui a assinatura de código: quem controlar o repositório controla também o hash." />
                 </StackPanel>
             </Border>
 
@@ -204,7 +204,7 @@
                     <Grid Margin="0,16,0,0">
                         <StackPanel Margin="0,0,60,0">
                             <TextBlock Text="Enviar estatísticas anônimas" FontWeight="SemiBold" FontSize="13" />
-                            <TextBlock Text="Versão, módulos usados e falhas. Nunca nomes, arquivos ou endereço IP."
+                            <TextBlock Text="Versão, módulos usados e falhas. Nunca nomes, ficheiros ou endereço IP."
                                        Style="{StaticResource T.Muted}" Margin="0,3,0,0" TextWrapping="Wrap" />
                         </StackPanel>
                         <CheckBox x:Name="OptTelemetry" Style="{StaticResource Switch}" HorizontalAlignment="Right"
@@ -216,7 +216,7 @@
                     <WrapPanel>
                         <Button Content="Abrir pasta de dados" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,8"
                                 Click="OnOpenData" />
-                        <Button Content="Abrir pasta de registros" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,8"
+                        <Button Content="Abrir pasta de registos" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,8"
                                 Click="OnOpenLogs" />
                         <Button Content="Revisar configuração inicial" Style="{StaticResource Btn.Secondary}"
                                 Margin="0,0,8,8" Click="OnRerunOnboarding" />

@@ -136,7 +136,7 @@ public static class UpdateAgent
     public static async Task<(List<WindowsUpdateItem> items, string? error)> SearchAsync(bool drivers, CancellationToken ct = default)
     {
         var label = drivers ? "drivers" : "atualizações do Windows";
-        Logger.Info("Atualizações", $"Procurando {label} no Windows Update (pode levar um minuto)...");
+        Logger.Info("Atualizações", $"A procurar {label} no Windows Update (pode levar um minuto)...");
 
         var payload = await Shell.PowerShellJsonAsync<SearchPayload>(SearchScript(drivers), ct).ConfigureAwait(false);
 
@@ -218,7 +218,7 @@ public static class UpdateAgent
         sb.AppendLine("  }");
         sb.AppendLine("  if ($toInstall.Count -eq 0) { $err = 'As atualizações selecionadas já não estão disponíveis.' }");
         sb.AppendLine("  else {");
-        sb.AppendLine("    Write-Output \"Baixando $($toInstall.Count) atualização(oes)...\"");
+        sb.AppendLine("    Write-Output \"A transferir $($toInstall.Count) atualização(oes)...\"");
         sb.AppendLine("    $downloader = $session.CreateUpdateDownloader()");
         sb.AppendLine("    $downloader.Updates = $toInstall");
         sb.AppendLine("    $null = $downloader.Download()");
@@ -226,7 +226,7 @@ public static class UpdateAgent
         sb.AppendLine("    foreach ($u in $toInstall) { if ($u.IsDownloaded) { $null = $ready.Add($u) } }");
         sb.AppendLine("    if ($ready.Count -eq 0) { $err = 'Nenhuma atualização ficou baixada.' }");
         sb.AppendLine("    else {");
-        sb.AppendLine("      Write-Output \"Instalando $($ready.Count) atualização(oes)...\"");
+        sb.AppendLine("      Write-Output \"A instalar $($ready.Count) atualização(oes)...\"");
         sb.AppendLine("      $installer = $session.CreateUpdateInstaller()");
         sb.AppendLine("      $installer.Updates = $ready");
         sb.AppendLine("      $r = $installer.Install()");
@@ -243,7 +243,7 @@ public static class UpdateAgent
 
         var res = await Shell.PowerShellAsync(sb.ToString(), line =>
         {
-            // O JSON final não deve aparecer no registro visivel.
+            // O JSON final não deve aparecer no registo visivel.
             if (!line.TrimStart().StartsWith('{')) onLine?.Invoke(line);
         }, ct).ConfigureAwait(false);
 
@@ -312,7 +312,7 @@ public static class UpdateAgent
         return list;
     }
 
-    /// <summary>Abre a pagina do Windows Update nas Configurações.</summary>
+    /// <summary>Abre a pagina do Windows Update nas Definições.</summary>
     public static void OpenWindowsUpdate() => Shell.OpenExternal("ms-settings:windowsupdate");
 
     public static void OpenDeviceManager() => Shell.OpenExternal("devmgmt.msc");

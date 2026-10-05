@@ -164,7 +164,7 @@ public sealed class PercentToWidth : IValueConverter
     public object ConvertBack(object? value, Type t, object? p, CultureInfo c) => Binding.DoNothing;
 }
 
-/// <summary>Nível de registro → cor do rótulo.</summary>
+/// <summary>Nível de registo → cor do rótulo.</summary>
 public sealed class LogLevelToBrush : IValueConverter
 {
     public object Convert(object? value, Type t, object? p, CultureInfo c)

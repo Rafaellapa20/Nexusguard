@@ -130,7 +130,7 @@ public static class Shell
         }
     }
 
-    /// <summary>Escreve o script num arquivo temporario e corre-o (evita problemas de escape na linha de comandos).</summary>
+    /// <summary>Escreve o script num ficheiro temporario e corre-o (evita problemas de escape na linha de comandos).</summary>
     public static async Task<ProcResult> PowerShellAsync(string script, Action<string>? onLine = null,
         CancellationToken ct = default)
     {
@@ -199,7 +199,7 @@ public static class Shell
         return s.Substring(start, end - start + 1);
     }
 
-    /// <summary>Abre um caminho, URL ou painel do Windows com o aplicativo associada.</summary>
+    /// <summary>Abre um caminho, URL ou painel do Windows com o programa associada.</summary>
     public static void OpenExternal(string target)
     {
         try

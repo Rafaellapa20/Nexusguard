@@ -43,9 +43,9 @@ public partial class PerformanceView : UserControl
         ModeHint.Text = Mode switch
         {
             PerformanceMode.Gaming =>
-                "Jogos: alto desempenho, sem transparências e com os aplicativos em segundo plano travados.",
+                "Jogos: alto desempenho, sem transparências e com os programas em segundo plano travados.",
             PerformanceMode.Work =>
-                "Trabalho: alto desempenho e aplicativos em segundo plano limitados, mantendo os efeitos visuais.",
+                "Trabalho: alto desempenho e programas em segundo plano limitados, mantendo os efeitos visuais.",
             _ => "Equilibrado: o Windows decide tudo sozinho. É o estado de fábrica."
         };
     }
@@ -203,7 +203,7 @@ public partial class PerformanceView : UserControl
         var name = item?.Name ?? $"PID {pid}";
 
         if (!Ui.Confirm(this, "Terminar processo",
-                $"Terminar «{name}» (PID {pid})?\n\nTrabalho não salvo nesse aplicativo será perdido."))
+                $"Terminar «{name}» (PID {pid})?\n\nTrabalho não guardado nesse programa será perdido."))
             return;
 
         if (MemoryOptimizer.KillProcess(pid, out var message)) await RefreshProcessesAsync();

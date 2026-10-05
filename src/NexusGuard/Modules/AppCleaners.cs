@@ -57,7 +57,7 @@ public static class AppCleaners
         }
 
         if (targets.Count > 0)
-            Logger.Info("Limpeza", $"{targets.Count} aplicativos com cache própria encontrados.");
+            Logger.Info("Limpeza", $"{targets.Count} programas com cache própria encontrados.");
 
         return targets;
     }

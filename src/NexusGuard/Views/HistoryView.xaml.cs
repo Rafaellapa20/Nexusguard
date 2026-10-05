@@ -78,7 +78,7 @@ public partial class HistoryView : UserControl
         }
         else
         {
-            Ui.Warn(this, "Desfazer", "Não foi possível reverter esta ação. Consulte o registro técnico.");
+            Ui.Warn(this, "Desfazer", "Não foi possível reverter esta ação. Consulte o registo técnico.");
         }
     }
 
@@ -139,12 +139,12 @@ public partial class HistoryView : UserControl
 
             if (file is null)
             {
-                Ui.Warn(this, "Relatório", "Não foi possível gerar o relatório. Consulte o registro técnico.");
+                Ui.Warn(this, "Relatório", "Não foi possível gerar o relatório. Consulte o registo técnico.");
                 return;
             }
 
             if (Ui.Confirm(this, "Relatório criado",
-                    $"O relatório foi salvo em:\n{file}\n\nAbrir agora?"))
+                    $"O relatório foi guardado em:\n{file}\n\nAbrir agora?"))
                 Shell.OpenExternal(file);
         }
         finally

@@ -40,7 +40,7 @@ public sealed record BackupEntry(string Name, string Mode, DateTime When, long B
 {
     public string WhenText => When.ToString("dd/MM/yyyy HH:mm", Fmt.Pt);
     public string SizeText => Fmt.Bytes(Bytes);
-    public string Display => $"{WhenText} · {Mode} · {Fmt.Count(Files)} arquivos · {SizeText}";
+    public string Display => $"{WhenText} · {Mode} · {Fmt.Count(Files)} ficheiros · {SizeText}";
 }
 
 public sealed record BackupResult(bool Success, long Bytes, int Files, int Failures, string Message, string Destination);
@@ -68,7 +68,7 @@ public static class BackupManager
             ("Música", Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), true),
             ("Downloads", Path.Combine(profile, "Downloads"), false),
             ("Favoritos", Environment.GetFolderPath(Environment.SpecialFolder.Favorites), true),
-            ("Dados de aplicativos (Roaming)", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), false)
+            ("Dados de programas (Roaming)", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), false)
         };
 
         var list = new List<BackupSource>();
@@ -260,7 +260,7 @@ public static class BackupManager
                 {
                     files++;
                     bytes += parsed.bytes;
-                    if (files % 25 == 0) progress?.Report($"{source.Name}: {Fmt.Count(files)} arquivos ({Fmt.Bytes(bytes)})");
+                    if (files % 25 == 0) progress?.Report($"{source.Name}: {Fmt.Count(files)} ficheiros ({Fmt.Bytes(bytes)})");
                 }
 
                 if (!string.IsNullOrWhiteSpace(line)) onLine?.Invoke(line.TrimEnd());
@@ -276,7 +276,7 @@ public static class BackupManager
             }
             else
             {
-                source.Status = files > 0 ? $"{Fmt.Count(files)} arquivos · {Fmt.Bytes(bytes)}" : "Sem alteracoes";
+                source.Status = files > 0 ? $"{Fmt.Count(files)} ficheiros · {Fmt.Bytes(bytes)}" : "Sem alteracoes";
                 totalFiles += files;
                 totalBytes += bytes;
             }
@@ -286,8 +286,8 @@ public static class BackupManager
 
         var ok = failures == 0;
         var message = ok
-            ? $"Cópia concluída: {Fmt.Count(totalFiles)} arquivos · {Fmt.Bytes(totalBytes)} em {root}"
-            : $"Cópia concluída com {failures} pasta(s) com erros. Consulte o registro.";
+            ? $"Cópia concluída: {Fmt.Count(totalFiles)} ficheiros · {Fmt.Bytes(totalBytes)} em {root}"
+            : $"Cópia concluída com {failures} pasta(s) com erros. Consulte o registo.";
 
         if (ok) Logger.Ok("Backup", message);
         else Logger.Warn("Backup", message);
@@ -310,18 +310,18 @@ public static class BackupManager
         });
 
         sb.Append("/COPY:DAT /DCOPY:DAT ");   // dados, atributos e datas
-        sb.Append("/R:1 /W:2 ");              // não insiste em arquivos bloqueados
+        sb.Append("/R:1 /W:2 ");              // não insiste em ficheiros bloqueados
         sb.Append("/MT:16 ");                 // cópia multi-thread
         sb.Append("/XJ ");                    // ignora junctions (evita ciclos)
         sb.Append("/BYTES /NP /NDL /NJH ");   // tamanhos em bytes, sem percentagens nem cabecalho
         sb.Append("/XD \"$RECYCLE.BIN\" \"System Volume Information\" ");
 
-        if (skipCloudOnly) sb.Append("/XA:O "); // ignora arquivos apenas na nuvem (OneDrive)
+        if (skipCloudOnly) sb.Append("/XA:O "); // ignora ficheiros apenas na nuvem (OneDrive)
 
         return sb.ToString().TrimEnd();
     }
 
-    /// <summary>Linhas de arquivo do robocopy tem a forma "  <tag>  <tamanho>\t<caminho>".</summary>
+    /// <summary>Linhas de ficheiro do robocopy tem a forma "  <tag>  <tamanho>\t<caminho>".</summary>
     private static (bool isFile, long bytes) ParseRobocopyLine(string line)
     {
         if (string.IsNullOrWhiteSpace(line)) return (false, 0);
@@ -444,13 +444,13 @@ public static class BackupManager
             return new BackupResult(false, 0, 0, 1, $"Destino inacessível: {ex.Message}", targetFolder);
         }
 
-        Logger.Info("Backup", $"Restaurando {backupFolder} para {targetFolder}.");
+        Logger.Info("Backup", $"A restaurar {backupFolder} para {targetFolder}.");
         onLine?.Invoke($"=== Restauro: {backupFolder}  →  {targetFolder} ===");
 
         long bytes = 0;
         var files = 0;
 
-        // /XO garante que arquivos mais recentes no destino não são substituidos pela versão da cópia.
+        // /XO garante que ficheiros mais recentes no destino não são substituidos pela versão da cópia.
         var args = $"\"{backupFolder.TrimEnd('\\')}\" \"{targetFolder.TrimEnd('\\')}\" /E /XO " +
                    "/COPY:DAT /DCOPY:DAT /R:1 /W:2 /MT:16 /XJ /BYTES /NP /NDL /NJH " +
                    "/XF \"turboclean-backup.json\"";
@@ -464,7 +464,7 @@ public static class BackupManager
 
         var ok = r.ExitCode < 8;
         var message = ok
-            ? $"Restauro concluído: {Fmt.Count(files)} arquivos · {Fmt.Bytes(bytes)}"
+            ? $"Restauro concluído: {Fmt.Count(files)} ficheiros · {Fmt.Bytes(bytes)}"
             : $"Restauro falhou (robocopy devolveu {r.ExitCode}).";
 
         if (ok) Logger.Ok("Backup", message);
@@ -484,7 +484,7 @@ public static class BackupManager
         var safe = new string(description.Where(c => char.IsLetterOrDigit(c) || c is ' ' or '-' or '_' or '.').Take(60).ToArray());
         if (string.IsNullOrWhiteSpace(safe)) safe = "NexusGuard";
 
-        onLine?.Invoke("Criando ponto de restauro do sistema...");
+        onLine?.Invoke("A criar ponto de restauro do sistema...");
 
         var sb = new StringBuilder();
         sb.AppendLine("$drive = $env:SystemDrive");
@@ -542,7 +542,7 @@ public static class BackupManager
             return (false, "O destino não pode ser o próprio disco do Windows.");
 
         onLine?.Invoke($"=== Imagem completa do sistema para {letter}: (pode levar horas) ===");
-        Logger.Info("Backup", $"Criando imagem do sistema em {letter}:.");
+        Logger.Info("Backup", $"A criar imagem do sistema em {letter}:.");
 
         var args = $"start backup -backupTarget:{letter}: -include:{systemDrive} -allCritical -vssFull -quiet";
         var r = await Shell.RunAsync(wbadmin, args, onLine, ct).ConfigureAwait(false);

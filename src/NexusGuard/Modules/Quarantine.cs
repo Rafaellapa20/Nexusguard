@@ -39,14 +39,14 @@ public sealed class QuarantineBatch : Observable
         _ => $"expira em {DaysLeft} dias"
     };
 
-    public string Summary => $"{Fmt.Count(Files)} arquivos · {SizeText}";
+    public string Summary => $"{Fmt.Count(Files)} ficheiros · {SizeText}";
 }
 
 public sealed record QuarantineResult(int Moved, int Failed, long Bytes, string? BatchId);
 
 /// <summary>
 /// Em vez de apagar, o NexusGuard move para C:\ProgramData\NexusGuard\Quarantine. Cada lote guarda
-/// um manifesto com o caminho de origem de cada arquivo, por isso restaurar é sempre possível
+/// um manifesto com o caminho de origem de cada ficheiro, por isso restaurar é sempre possível
 /// enquanto o lote não expirar.
 /// </summary>
 public static class Quarantine
@@ -84,7 +84,7 @@ public static class Quarantine
             roaming
         };
 
-        // Perfis de navegador: senhas, sessões e favoritos vivem aqui. A cache fica fora destes caminhos.
+        // Perfis de navegador: palavras-passe, sessões e favoritos vivem aqui. A cache fica fora destes caminhos.
         foreach (var browser in new[]
                  {
                      @"Microsoft\Edge\User Data\Default",
@@ -104,8 +104,8 @@ public static class Quarantine
     }
 
     /// <summary>
-    /// Arquivos sob pastas pessoais ou de perfil de navegador nunca são tocados, mesmo que uma
-    /// regra de limpeza os apanhe. Caches ficam fora da lista por não guardarem nada do usuário.
+    /// Ficheiros sob pastas pessoais ou de perfil de navegador nunca são tocados, mesmo que uma
+    /// regra de limpeza os apanhe. Caches ficam fora da lista por não guardarem nada do utilizador.
     /// </summary>
     public static bool IsProtected(string fullPath)
     {
@@ -154,8 +154,8 @@ public static class Quarantine
     }
 
     /// <summary>
-    /// Move os arquivos indicados para um lote novo. Devolve o identificador do lote, que fica
-    /// salvo no histórico para o «Desfazer».
+    /// Move os ficheiros indicados para um lote novo. Devolve o identificador do lote, que fica
+    /// guardado no histórico para o «Desfazer».
     /// </summary>
     /// <summary>Resultado da verificação de espaço, com os números para mostrar a quem pergunta.</summary>
     public sealed record SpaceCheck(bool Ok, long Needed, long Free, string Drive);
@@ -166,7 +166,7 @@ public static class Quarantine
     /// <summary>
     /// Confirma que a quarentena cabe no disco onde vive, antes de mover o que quer que seja.
     ///
-    /// A quarentena está sempre no disco do sistema. Mover um arquivo dentro do mesmo disco é só
+    /// A quarentena está sempre no disco do sistema. Mover um ficheiro dentro do mesmo disco é só
     /// mudar o nome e não gasta espaço nenhum, mas mover de outro disco é copiar — limpar 50 GB de
     /// um disco de dados encheria o disco do Windows e deixaria a máquina sem conseguir arrancar.
     /// Só conta o que vem de fora, que é o que custa espaço.
@@ -253,7 +253,7 @@ public static class Quarantine
                 bytes += size;
                 moved++;
 
-                if (moved % 200 == 0) progress?.Report($"{Fmt.Count(moved)} arquivos movidos…");
+                if (moved % 200 == 0) progress?.Report($"{Fmt.Count(moved)} ficheiros movidos…");
             }
             catch
             {
@@ -287,7 +287,7 @@ public static class Quarantine
             Logger.Error("Quarentena", $"Não foi possível gravar o manifesto de {batch.Id}", ex);
         }
 
-        Logger.Ok("Quarentena", $"{label}: {moved} arquivos ({Fmt.Bytes(bytes)}) em quarentena no lote {batch.Id}.");
+        Logger.Ok("Quarentena", $"{label}: {moved} ficheiros ({Fmt.Bytes(bytes)}) em quarentena no lote {batch.Id}.");
         return new QuarantineResult(moved, failed, bytes, batch.Id);
     }
 
@@ -329,7 +329,7 @@ public static class Quarantine
     public static QuarantineBatch? Find(string batchId) =>
         List().FirstOrDefault(b => b.Id.Equals(batchId, StringComparison.OrdinalIgnoreCase));
 
-    /// <summary>Devolve os arquivos aos caminhos originais. Não sobrepõe nada que exista agora.</summary>
+    /// <summary>Devolve os ficheiros aos caminhos originais. Não sobrepõe nada que exista agora.</summary>
     public static (int restored, int skipped) Restore(QuarantineBatch batch)
     {
         int restored = 0, skipped = 0;
@@ -358,7 +358,7 @@ public static class Quarantine
         if (restored > 0)
         {
             try { Directory.Delete(batch.Folder, recursive: true); } catch { }
-            Logger.Ok("Quarentena", $"Lote {batch.Id}: {restored} arquivos restaurados ({skipped} ignorados).");
+            Logger.Ok("Quarentena", $"Lote {batch.Id}: {restored} ficheiros restaurados ({skipped} ignorados).");
         }
         else
         {

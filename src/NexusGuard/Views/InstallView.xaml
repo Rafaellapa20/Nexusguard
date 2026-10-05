@@ -25,7 +25,7 @@
                     <TextBlock x:Name="CountText" Text="Nenhum selecionado" Style="{StaticResource T.Metric}"
                                Margin="0,6,0,0" />
                     <TextBlock Style="{StaticResource T.Muted}" Margin="0,4,0,0" TextWrapping="Wrap"
-                               Text="Para um PC recém-formatado: escolha os aplicativos e o NexusGuard instala-os em sequência, sem perguntas pelo caminho." />
+                               Text="Para um PC recém-formatado: escolha os programas e o NexusGuard instala-os em sequência, sem perguntas pelo caminho." />
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
@@ -45,7 +45,7 @@
                 <TextBlock Text="O winget não está instalado" FontWeight="SemiBold" FontSize="13"
                            Foreground="{StaticResource B.Warn}" />
                 <TextBlock Style="{StaticResource T.Muted}" Margin="0,4,0,0" TextWrapping="Wrap"
-                           Text="A instalação em lote usa o winget, o gerenciador de pacotes da Microsoft. Sem ele não há de onde instalar." />
+                           Text="A instalação em lote usa o winget, o gestor de pacotes da Microsoft. Sem ele não há de onde instalar." />
             </StackPanel>
         </Border>
 
@@ -203,7 +203,7 @@
             </Border>
         </Grid>
 
-        <!-- Registro -->
+        <!-- Registo -->
         <Expander x:Name="LogExpander" Grid.Row="3" Header="Detalhes da instalação" Margin="0,12,0,0"
                   Foreground="{StaticResource B.TextDim}" FontSize="12">
             <TextBox x:Name="LogBox" Style="{StaticResource Console}" Height="150" Margin="0,8,0,0" />

@@ -68,7 +68,7 @@
                            Visibility="Collapsed" Margin="0,0,0,8" />
 
                 <TextBlock Style="{StaticResource T.Muted}" TextWrapping="Wrap" FontSize="11"
-                           Text="O arquivo é baixado do GitHub e conferido contra o hash publicado, o que apanha um download corrompido. Não prova a autenticidade do release: só a assinatura de código o faria, e o NexusGuard ainda não está assinado." />
+                           Text="O ficheiro é transferido do GitHub e conferido contra o hash publicado, o que apanha um download corrompido. Não prova a autenticidade do release: só a assinatura de código o faria, e o NexusGuard ainda não está assinado." />
 
                 <CheckBox x:Name="SkipThis" Style="{StaticResource Chk}" Margin="0,12,0,0"
                           Content="Não avisar outra vez sobre esta versão" />
@@ -89,7 +89,7 @@
                 <Button x:Name="LaterButton" Grid.Column="2" Content="Agora não"
                         Style="{StaticResource Btn.Secondary}" Margin="0,0,8,0" Click="OnLater" />
 
-                <Button x:Name="InstallButton" Grid.Column="3" Content="Baixar e instalar"
+                <Button x:Name="InstallButton" Grid.Column="3" Content="Transferir e instalar"
                         Style="{StaticResource Btn.Primary}" Click="OnInstall" />
             </Grid>
         </Grid>

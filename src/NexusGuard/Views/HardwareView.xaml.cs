@@ -97,7 +97,7 @@ public partial class HardwareView : UserControl
         catch (Exception ex)
         {
             Logger.Error("Hardware", "Falha no teste de estresse", ex);
-            StressText.Text = "O teste falhou. Consulte o registro.";
+            StressText.Text = "O teste falhou. Consulte o registo.";
         }
         finally
         {
