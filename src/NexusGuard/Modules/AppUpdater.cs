@@ -27,6 +27,12 @@ public sealed class AppUpgrade : Observable
     private string CurrentText =>
         CurrentVersion.Equals("Unknown", StringComparison.OrdinalIgnoreCase) ? "desconhecida" : CurrentVersion;
 
+    /// <summary>
+    /// Verdadeiro quando a atualização falhou por falta de permissões. A vista usa isto para
+    /// oferecer elevação em vez de mostrar um código de erro.
+    /// </summary>
+    public bool NeedsElevation { get; set; }
+
     /// <summary>Um ID truncado pelo winget não pode ser usado para atualizar com segurança.</summary>
     public bool IdIsReliable => !Id.Contains('…') && !Id.EndsWith("...", StringComparison.Ordinal);
 }
@@ -41,6 +47,31 @@ public static class AppUpdater
 
     /// <summary>O winget escreve em UTF-8 quando a saída é redirecionada.</summary>
     private static readonly Encoding Utf8 = new UTF8Encoding(false);
+
+    /// <summary>
+    /// Traduz os códigos de saída do winget. Mostrar "-2147024891" a quem está a usar não é
+    /// informação — é um número que obriga a ir procurar à internet o que correu mal.
+    /// </summary>
+    public static string Describe(int exitCode) => exitCode switch
+    {
+        0 => "concluído",
+        1641 or 3010 => "concluído, mas pede reinício do Windows",
+
+        unchecked((int)0x80070005) => "acesso negado — é preciso administrador",
+        5 or 1260 => "acesso negado — é preciso administrador",
+
+        unchecked((int)0x8A150061) => "já estava instalado",
+        unchecked((int)0x8A15002B) => "não há atualização aplicável",
+        unchecked((int)0x80073D06) => "já existe uma versão igual ou mais recente",
+        unchecked((int)0x80070652) or 1618 => "outra instalação está a decorrer — espere que termine",
+        1602 => "cancelado",
+
+        _ => $"o winget devolveu o código {exitCode}"
+    };
+
+    /// <summary>Se este código significa que faltou elevação.</summary>
+    public static bool IsAccessDenied(int exitCode) =>
+        exitCode == unchecked((int)0x80070005) || exitCode == 5 || exitCode == 1260;
 
     public static string? WingetPath => Shell.Which("winget.exe");
 
@@ -233,9 +264,12 @@ public static class AppUpdater
             return true;
         }
 
-        app.Status = $"Falhou (código {r.ExitCode})";
-        Logger.Warn("Programas", $"{app.Name}: winget devolveu {r.ExitCode}.");
-        onLine?.Invoke($"{app.Name}: winget devolveu o código {r.ExitCode}.");
+        var razao = Describe(r.ExitCode);
+        app.NeedsElevation = IsAccessDenied(r.ExitCode);
+        app.Status = app.NeedsElevation ? "Precisa de administrador" : $"Falhou — {razao}";
+
+        Logger.Warn("Programas", $"{app.Name}: {razao} (código {r.ExitCode}).");
+        onLine?.Invoke($"{app.Name}: {razao}.");
         return false;
     }
 

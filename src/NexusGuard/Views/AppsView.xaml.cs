@@ -107,7 +107,7 @@ public partial class AppsView : UserControl
         }
 
         if (!Ui.Confirm(this, "Atualizar programas",
-                $"Serão atualizadas {chosen.Count} programa(ões):\n\n" +
+                $"Vão ser atualizados {chosen.Count} programa(s):\n\n" +
                 string.Join("\n", chosen.Take(10).Select(a => $"• {a.Name}")) +
                 (chosen.Count > 10 ? $"\n… e mais {chosen.Count - 10}." : "") +
                 "\n\nFeche-os antes de continuar, para evitar instalações falhadas. Continuar?"))
@@ -135,12 +135,35 @@ public partial class AppsView : UserControl
         {
             var ok = await AppUpdater.UpgradeManyAsync(apps, line => _sink?.Write(line), _cts.Token);
 
-            StatusLine.Text = $"{ok} de {apps.Count} atualizadas";
+            StatusLine.Text = $"{ok} de {apps.Count} atualizados";
+
+            // Falta de permissões não é um erro de atualização: é uma condição com solução, e
+            // mostrar o código do winget em vez de a oferecer deixa quem está a usar sem saída.
+            var semPermissao = apps.Where(a => a.NeedsElevation).ToList();
+
+            if (semPermissao.Count > 0 && !Fmt.IsAdmin)
+            {
+                await ScanAsync();
+
+                var nomes = string.Join(", ", semPermissao.Take(3).Select(a => a.Name))
+                          + (semPermissao.Count > 3 ? $" e mais {semPermissao.Count - 3}" : "");
+
+                if (Ui.Confirm(this, "É preciso administrador",
+                        $"O Windows recusou a instalação de {nomes} por falta de permissões.\n\n" +
+                        "Estes programas estão instalados para todo o computador, e alterá-los exige " +
+                        $"privilégios de administrador.\n\n" +
+                        "Reiniciar o NexusGuard como administrador e tentar outra vez?"))
+                {
+                    App.RestartElevated();
+                }
+
+                return;
+            }
 
             Ui.Inform(this, "Atualizações concluídas",
                 ok == apps.Count
-                    ? $"{ok} programa(ões) atualizadas com sucesso."
-                    : $"{ok} de {apps.Count} atualizadas. Veja a saída do winget para as que falharam.");
+                    ? $"{ok} programa(s) atualizado(s) com sucesso."
+                    : $"{ok} de {apps.Count} atualizados. Veja os detalhes para os que falharam.");
 
             await ScanAsync();
         }
